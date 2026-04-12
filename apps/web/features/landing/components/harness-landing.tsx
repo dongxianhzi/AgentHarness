@@ -1,514 +1,433 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { useAuthStore } from "@multica/core/auth";
 import { cn } from "@multica/ui/lib/utils";
 import {
   ArrowRight,
-  BarChart3,
-  BriefcaseBusiness,
-  Building2,
-  ChevronRight,
-  Landmark,
-  Scale,
+  Bot,
+  FileStack,
+  Globe,
+  Lock,
+  Monitor,
   ShieldCheck,
   Sparkles,
-  Waypoints,
+  Users,
   Workflow,
 } from "lucide-react";
 import { localeLabels, locales, useLocale } from "../i18n";
 import type { Locale } from "../i18n";
-import { GitHubMark, githubUrl } from "./shared";
+import {
+  ClaudeCodeLogo,
+  CodexLogo,
+  GitHubMark,
+  OpenClawLogo,
+  OpenCodeLogo,
+  githubUrl,
+} from "./shared";
 
-type LandingCopy = {
-  nav: {
-    story: string;
-    model: string;
-    governance: string;
-    readiness: string;
-    github: string;
-    login: string;
-    dashboard: string;
-  };
-  hero: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    primaryCta: string;
-    secondaryCta: string;
-    note: string;
-    scorecards: { label: string; value: string }[];
-    briefLabel: string;
-    briefTitle: string;
-    briefSummary: string;
-    briefMetrics: { label: string; value: string; tone: string }[];
-    briefRows: { initiative: string; owner: string; checkpoint: string }[];
-    advisory: string;
-  };
-  proof: {
-    title: string;
-    items: string[];
-  };
-  audiences: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    items: {
-      title: string;
-      description: string;
-      points: string[];
-    }[];
-  };
-  stack: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    rows: {
-      label: string;
-      summary: string;
-      outcome: string;
-    }[];
-  };
-  rhythm: {
-    eyebrow: string;
-    title: string;
-    steps: {
-      title: string;
-      description: string;
-    }[];
-  };
-  governance: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    checks: string[];
-    panelTitle: string;
-    panelItems: { label: string; value: string }[];
-  };
-  finalCta: {
-    title: string;
-    description: string;
-    primaryCta: string;
-    secondaryCta: string;
-  };
-  footer: {
-    tagline: string;
-    copyright: string;
-  };
+type NavCopy = {
+  features: string;
+  howItWorks: string;
+  openSource: string;
+  faq: string;
+  github: string;
+  login: string;
+  openWorkspace: string;
+  trial: string;
+  worksWith: string;
+  backToTop: string;
 };
 
-const copy: Record<Locale, LandingCopy> = {
+type HeroCopy = {
+  eyebrow: string;
+  line1: string;
+  line2: string;
+  description: string;
+  primaryCta: string;
+  secondaryCta: string;
+  imageAlt: string;
+};
+
+type FeatureCard = {
+  title: string;
+  description: string;
+};
+
+type HowStep = {
+  title: string;
+  description: string;
+};
+
+type OpenSourceItem = {
+  title: string;
+  description: string;
+};
+
+type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+type LandingContent = {
+  nav: NavCopy;
+  hero: HeroCopy;
+  featuresEyebrow: string;
+  featuresTitleTop: string;
+  featuresTitleBottom: string;
+  features: FeatureCard[];
+  howEyebrow: string;
+  howTitleTop: string;
+  howTitleBottom: string;
+  howSteps: HowStep[];
+  openSourceEyebrow: string;
+  openSourceTitle: string;
+  openSourceDescription: string;
+  openSourceCta: string;
+  openSourceItems: OpenSourceItem[];
+  faqEyebrow: string;
+  faqTitle: string;
+  faqs: FaqItem[];
+  finalTitleTop: string;
+  finalTitleBottom: string;
+  finalDescription: string;
+  finalCta: string;
+  footerCopyright: string;
+};
+
+const content: Record<Locale, LandingContent> = {
   en: {
     nav: {
-      story: "Story",
-      model: "Control Model",
-      governance: "Governance",
-      readiness: "Readiness",
+      features: "Features",
+      howItWorks: "How it works",
+      openSource: "Open Source",
+      faq: "FAQ",
       github: "GitHub",
       login: "Log in",
-      dashboard: "Open workspace",
+      openWorkspace: "Open workspace",
+      trial: "Start free trial",
+      worksWith: "Works with",
+      backToTop: "Back to top",
     },
     hero: {
-      eyebrow: "Executive operating system for AI delivery",
-      title:
-        "Harness gives human and agent work the controls of a real business process.",
+      eyebrow: "Open-source AI workforce management",
+      line1: "Your next 10 hires",
+      line2: "won't be human.",
       description:
-        "For teams that are past experimentation, Harness creates a disciplined operating layer for intake, execution routing, review, and runtime oversight. Engineering, product, and operations stay aligned around the same system of record.",
-      primaryCta: "Request access",
-      secondaryCta: "View GitHub",
-      note:
-        "Built for organizations that need visibility, escalation paths, and accountable delivery across both people and agent runtimes.",
-      scorecards: [
-        { label: "Programs under orchestration", value: "184" },
-        { label: "Agent-managed work lanes", value: "37" },
-        { label: "Reviewed before merge", value: "96%" },
-        { label: "Exec reporting lag", value: "< 5 min" },
-      ],
-      briefLabel: "Quarterly operating brief",
-      briefTitle: "A boardroom view of delivery, not a playground for prompts",
-      briefSummary:
-        "Measure throughput, inspect exceptions, and see who is accountable before work turns into production change.",
-      briefMetrics: [
-        { label: "Queues on track", value: "22", tone: "text-emerald-300" },
-        { label: "Escalations", value: "04", tone: "text-amber-200" },
-        { label: "Policy exceptions", value: "1.8%", tone: "text-sky-200" },
-      ],
-      briefRows: [
-        {
-          initiative: "Revenue workflow redesign",
-          owner: "Platform council",
-          checkpoint: "Review window open",
-        },
-        {
-          initiative: "Release readiness program",
-          owner: "Delivery operations",
-          checkpoint: "Needs escalation",
-        },
-        {
-          initiative: "Support backlog recovery",
-          owner: "Agent triage cell",
-          checkpoint: "Within SLA",
-        },
-      ],
-      advisory:
-        "Every item is linked to an owner, a policy path, and a runtime footprint.",
+        "Turn coding agents into real teammates. Assign tasks, track progress, compound skills, and manage your human + agent workforce in one place.",
+      primaryCta: "Start free trial",
+      secondaryCta: "View on GitHub",
+      imageAlt: "Harness dashboard preview",
     },
-    proof: {
-      title: "Built for the functions that must turn AI activity into governed output",
-      items: [
-        "Engineering leadership",
-        "Product operations",
-        "Platform teams",
-        "Security and compliance",
-        "Transformation offices",
-      ],
-    },
-    audiences: {
-      eyebrow: "Who It Serves",
-      title: "A commercial homepage for teams buying execution certainty, not AI novelty",
-      description:
-        "Harness is framed around operating confidence: cleaner accountability, tighter process design, and fewer hidden delivery risks as agents become part of the workforce.",
-      items: [
-        {
-          title: "Leaders",
-          description:
-            "See where work is flowing, what is blocked, and when intervention is required without opening individual prompts or sessions.",
-          points: ["Portfolio-level visibility", "Executive-ready reporting"],
-        },
-        {
-          title: "Operators",
-          description:
-            "Route work between humans and agents, keep queues healthy, and maintain a visible escalation path when execution drifts.",
-          points: ["Queue discipline", "Escalation by policy"],
-        },
-        {
-          title: "Control owners",
-          description:
-            "Apply workspace boundaries, runtime oversight, and approval rules before high-risk work crosses into production systems.",
-          points: ["Runtime guardrails", "Reviewable change trail"],
-        },
-      ],
-    },
-    stack: {
-      eyebrow: "Control Model",
-      title: "One operating stack for intake, routing, execution, and review",
-      description:
-        "Harness replaces scattered task boards, prompt threads, and invisible agent sessions with one controlled flow from business request to governed outcome.",
-      rows: [
-        {
-          label: "Request intake",
-          summary:
-            "Capture work with owner, due date, operating context, and approval expectations from the start.",
-          outcome: "Fewer ambiguous asks",
-        },
-        {
-          label: "Execution routing",
-          summary:
-            "Decide whether work moves to a teammate, a local daemon, or a managed runtime using the same queue discipline.",
-          outcome: "Clear ownership every time",
-        },
-        {
-          label: "Runtime oversight",
-          summary:
-            "Monitor health, throughput, and exception rates across local and cloud execution without switching tools.",
-          outcome: "Visible operational risk",
-        },
-        {
-          label: "Decision trail",
-          summary:
-            "Keep status changes, comments, skills, and review checkpoints attached to the same record of work.",
-          outcome: "Auditable delivery history",
-        },
-      ],
-    },
-    rhythm: {
-      eyebrow: "Operating Rhythm",
-      title: "Plan, route, supervise, improve",
-      steps: [
-        {
-          title: "Frame the request",
-          description:
-            "Start with business intent, constraints, and ownership so execution begins inside a defined operating context.",
-        },
-        {
-          title: "Route execution",
-          description:
-            "Move work to the best-fit human or agent path while preserving the same queue, SLA, and reporting model.",
-        },
-        {
-          title: "Supervise exceptions",
-          description:
-            "Catch blocked work, policy breaks, and risky changes early through explicit checkpoints and runtime signals.",
-        },
-        {
-          title: "Compound operating knowledge",
-          description:
-            "Turn what worked into reusable skills and repeatable control patterns that improve every future delivery cycle.",
-        },
-      ],
-    },
-    governance: {
-      eyebrow: "Governance",
-      title: "The control surfaces serious teams expect before they scale agent execution",
-      description:
-        "Harness gives teams bounded autonomy instead of invisible automation. The result is faster flow with clearer intervention points, cleaner review, and a stronger evidence trail.",
-      checks: [
-        "Human checkpoints for high-risk or external-facing work",
-        "Workspace-scoped execution and access boundaries",
-        "Live visibility into runtimes, queues, and exception states",
-        "Reusable skills with versioned context and operating intent",
-      ],
-      panelTitle: "Readiness snapshot",
-      panelItems: [
-        { label: "Policy coverage", value: "94%" },
-        { label: "Runtime visibility", value: "Full" },
-        { label: "Escalation design", value: "Defined" },
-        { label: "Executive reporting", value: "Live" },
-      ],
-    },
-    finalCta: {
-      title: "Move AI execution into the same management system as the rest of the business.",
-      description:
-        "Harness is for teams that need operating discipline around agent-assisted delivery: clearer ownership, stronger governance, and a better path from request to shipped outcome.",
-      primaryCta: "Open Harness",
-      secondaryCta: "Review architecture",
-    },
-    footer: {
-      tagline: "Harness is the operating layer for accountable human and agent delivery.",
-      copyright: "© {year} Harness. All rights reserved.",
-    },
+    featuresEyebrow: "Capabilities",
+    featuresTitleTop: "Everything you need to manage",
+    featuresTitleBottom: "an AI-powered workforce",
+    features: [
+      {
+        title: "Assign like a colleague",
+        description:
+          "Agents appear in the same assignee picker as humans. One click to delegate, no special workflow needed.",
+      },
+      {
+        title: "Autonomous execution",
+        description:
+          "Full task lifecycle from queue to completion. Agents report blockers proactively and stream progress in real time.",
+      },
+      {
+        title: "Reusable skills",
+        description:
+          "Package knowledge into skills any agent can execute. Deploy, test, review, all codified and shared across the team.",
+      },
+      {
+        title: "Unified runtime panel",
+        description:
+          "Local daemons and cloud runtimes in one view. Real-time monitoring of status, usage, and cost across all compute.",
+      },
+      {
+        title: "Compound growth",
+        description:
+          "Day 1: one agent deploys. Day 30: every agent deploys, writes tests, and reviews code. Capabilities grow exponentially.",
+      },
+      {
+        title: "Self-host anywhere",
+        description:
+          "Docker Compose, binary, or Kubernetes. Your data stays on your network with no vendor lock-in.",
+      },
+    ],
+    howEyebrow: "Get started",
+    howTitleTop: "Hire your first AI employee",
+    howTitleBottom: "in under an hour",
+    howSteps: [
+      {
+        title: "Sign up & create workspace",
+        description:
+          "Enter your email, verify with a code, and your workspace is created automatically with no setup wizard.",
+      },
+      {
+        title: "Install CLI & connect",
+        description:
+          "Run harness login, then harness daemon start. Auto-detects your installed coding agents.",
+      },
+      {
+        title: "Create your first agent",
+        description:
+          "Name it, write instructions, attach skills. Agents activate on assignment, comment, or mention.",
+      },
+      {
+        title: "Assign work and watch execution",
+        description:
+          "Delegate like a teammate. The task is queued, claimed, executed, and updated live with visible progress.",
+      },
+    ],
+    openSourceEyebrow: "Open Source",
+    openSourceTitle: "Open source for all.",
+    openSourceDescription:
+      "Inspect every line, self-host on your own terms, and shape the future of human + agent collaboration.",
+    openSourceCta: "Star on GitHub",
+    openSourceItems: [
+      {
+        title: "Self-host anywhere",
+        description:
+          "Docker Compose, binary, or K8s. Your data stays on your network.",
+      },
+      {
+        title: "No vendor lock-in",
+        description:
+          "Bring your own LLM provider, swap backends, and extend the API freely.",
+      },
+      {
+        title: "Transparent by default",
+        description:
+          "Every line auditable. See how agents decide and how tasks route.",
+      },
+      {
+        title: "Community-driven",
+        description:
+          "Contribute skills, integrations, and backends that benefit everyone.",
+      },
+    ],
+    faqEyebrow: "FAQ",
+    faqTitle: "Questions & answers.",
+    faqs: [
+      {
+        question: "What coding agents does Harness support?",
+        answer:
+          "Harness supports Claude Code, Codex, OpenClaw, and OpenCode out of the box, and the runtime can be extended because the platform is open source.",
+      },
+      {
+        question: "Do I need to self-host, or is there a cloud version?",
+        answer:
+          "Both. You can self-host with Docker Compose or Kubernetes, or run a hosted deployment if that better fits your team.",
+      },
+      {
+        question: "Can agents work on long-running tasks?",
+        answer:
+          "Yes. Harness manages the full task lifecycle so agents can pick up, execute, report blockers, and complete work asynchronously.",
+      },
+      {
+        question: "Is my code safe?",
+        answer:
+          "Execution happens on your own machine or infrastructure. Harness coordinates state and visibility, but your code can remain inside your environment.",
+      },
+    ],
+    finalTitleTop: "Ready to scale your team",
+    finalTitleBottom: "beyond human limits?",
+    finalDescription:
+      "Start with one agent. Scale to ten. No credit card required.",
+    finalCta: "Get started for free",
+    footerCopyright: "© {year} Harness. All rights reserved.",
   },
   zh: {
     nav: {
-      story: "叙事",
-      model: "控制模型",
-      governance: "治理",
-      readiness: "就绪度",
+      features: "Features",
+      howItWorks: "How it works",
+      openSource: "Open Source",
+      faq: "FAQ",
       github: "GitHub",
       login: "登录",
-      dashboard: "进入工作台",
+      openWorkspace: "进入工作台",
+      trial: "开始试用",
+      worksWith: "兼容",
+      backToTop: "返回顶部",
     },
     hero: {
-      eyebrow: "面向 AI 交付的经营级操作系统",
-      title: "Harness 让人和 Agent 的执行过程，拥有真正业务系统应有的控制能力。",
+      eyebrow: "开源 AI 劳动力管理平台",
+      line1: "你的下 10 位员工，",
+      line2: "可能不是人类。",
       description:
-        "当团队已经走过试验期，真正需要的不是更多 prompt，而是清晰的请求入口、执行路由、审批机制和运行治理。Harness 为工程、产品和运营提供统一的交付记录系统。",
-      primaryCta: "申请试用",
+        "把编码 Agent 变成真正的队友。分配任务、追踪进度、沉淀技能，在同一个系统里管理你的人类 + Agent 团队。",
+      primaryCta: "开始试用",
       secondaryCta: "查看 GitHub",
-      note:
-        "适合那些需要可见性、升级路径与可追责交付机制的组织，让人和 Agent 在同一个经营体系里协同工作。",
-      scorecards: [
-        { label: "纳入编排的项目", value: "184" },
-        { label: "Agent 执行泳道", value: "37" },
-        { label: "合并前已审查", value: "96%" },
-        { label: "管理报表延迟", value: "< 5 分钟" },
-      ],
-      briefLabel: "季度经营简报",
-      briefTitle: "这是交付经营视图，不是 prompt 演示台",
-      briefSummary:
-        "统一衡量吞吐、异常与责任归属，在工作进入生产变更之前就看清执行状态。",
-      briefMetrics: [
-        { label: "按计划推进队列", value: "22", tone: "text-emerald-300" },
-        { label: "升级事件", value: "04", tone: "text-amber-200" },
-        { label: "策略例外", value: "1.8%", tone: "text-sky-200" },
-      ],
-      briefRows: [
-        {
-          initiative: "收入流程重构",
-          owner: "平台治理委员会",
-          checkpoint: "评审窗口开启",
-        },
-        {
-          initiative: "版本发布准备",
-          owner: "交付运营",
-          checkpoint: "需要升级处理",
-        },
-        {
-          initiative: "客服积压恢复",
-          owner: "Agent 分诊单元",
-          checkpoint: "处于 SLA 内",
-        },
-      ],
-      advisory: "每个项目都绑定责任人、策略路径与运行时足迹。",
+      imageAlt: "Harness 控制台预览",
     },
-    proof: {
-      title: "为必须把 AI 活动转化为可治理产出的团队而设计",
-      items: ["工程管理层", "产品运营", "平台团队", "安全与合规", "变革办公室"],
-    },
-    audiences: {
-      eyebrow: "服务对象",
-      title: "这不是科技玩具首页，而是面向交付确定性的商务叙事",
-      description:
-        "Harness 把重点放在经营可信度上：更清晰的责任、更稳的流程设计，以及当 Agent 成为劳动力一部分后更少的隐性风险。",
-      items: [
-        {
-          title: "管理者",
-          description:
-            "无需打开单条 prompt 或会话，也能看清工作流向、阻塞位置以及何时需要介入。",
-          points: ["组合层视角", "可汇报的经营信息"],
-        },
-        {
-          title: "运营者",
-          description:
-            "在人工与 Agent 之间路由任务，维持队列健康，并在执行偏离时走明确的升级路径。",
-          points: ["队列纪律", "按策略升级"],
-        },
-        {
-          title: "控制负责人",
-          description:
-            "在高风险工作进入生产系统前，应用工作区边界、运行治理与审批规则。",
-          points: ["运行时护栏", "可审查的变更链路"],
-        },
-      ],
-    },
-    stack: {
-      eyebrow: "控制模型",
-      title: "用一套运行栈管理请求、路由、执行与复核",
-      description:
-        "Harness 用一条可控链路替代分散的任务板、prompt 对话和不可见的 Agent 会话，让业务请求最终落到受治理的结果上。",
-      rows: [
-        {
-          label: "请求入口",
-          summary:
-            "从一开始就定义 owner、时限、上下文和审批要求，避免需求模糊进入执行阶段。",
-          outcome: "减少含糊任务",
-        },
-        {
-          label: "执行路由",
-          summary:
-            "在统一队列纪律下，把工作交给同事、本地 daemon 或托管运行时。",
-          outcome: "责任归属清晰",
-        },
-        {
-          label: "运行治理",
-          summary:
-            "统一查看本地与云端执行的健康度、吞吐和异常，而不是在多个工具间切换。",
-          outcome: "风险可视化",
-        },
-        {
-          label: "决策轨迹",
-          summary:
-            "状态变化、评论、技能与审批节点都挂在同一条工作记录上。",
-          outcome: "交付链路可审计",
-        },
-      ],
-    },
-    rhythm: {
-      eyebrow: "运行节奏",
-      title: "规划、路由、监督、沉淀",
-      steps: [
-        {
-          title: "定义请求",
-          description:
-            "先明确业务目标、约束和责任归属，再让执行进入有边界的上下文。",
-        },
-        {
-          title: "路由执行",
-          description:
-            "在同一套队列、SLA 和汇报机制下，把工作分配给最合适的人或 Agent。",
-        },
-        {
-          title: "监督例外",
-          description:
-            "通过显式检查点和运行信号，尽早识别阻塞、策略突破口和高风险变更。",
-        },
-        {
-          title: "沉淀能力",
-          description:
-            "把成功经验转化为可复用技能和控制模式，持续提升后续交付效率。",
-        },
-      ],
-    },
-    governance: {
-      eyebrow: "治理能力",
-      title: "在大规模引入 Agent 执行之前，严肃团队真正关心的控制面",
-      description:
-        "Harness 提供的是有边界的自治，而不是不可见的自动化。团队既能加快流转，也能保留清晰的干预点、复核机制和证据链。",
-      checks: [
-        "高风险或对外工作的人类检查点",
-        "基于工作区的执行与访问边界",
-        "运行时、队列和异常状态的实时可见性",
-        "带版本上下文和经营意图的技能体系",
-      ],
-      panelTitle: "就绪度快照",
-      panelItems: [
-        { label: "策略覆盖", value: "94%" },
-        { label: "运行可见性", value: "完整" },
-        { label: "升级机制", value: "已定义" },
-        { label: "管理报表", value: "实时" },
-      ],
-    },
-    finalCta: {
-      title: "把 AI 执行纳入和其他业务流程同级的管理体系。",
-      description:
-        "Harness 面向需要 Agent 辅助交付治理能力的团队：更清晰的责任、更强的管控，以及从需求到上线更稳的路径。",
-      primaryCta: "进入 Harness",
-      secondaryCta: "查看架构",
-    },
-    footer: {
-      tagline: "Harness 是面向可追责人机协同交付的运营层。",
-      copyright: "© {year} Harness. 保留所有权利。",
-    },
+    featuresEyebrow: "能力地图",
+    featuresTitleTop: "管理 AI 劳动力，",
+    featuresTitleBottom: "你需要的一切都在这里",
+    features: [
+      {
+        title: "像同事一样分配",
+        description:
+          "Agent 和人类出现在同一个 assignee picker 里，一次点击就能委派，无需特殊流程。",
+      },
+      {
+        title: "自主执行",
+        description:
+          "从队列到完成的完整任务生命周期，Agent 会主动报告阻塞并实时同步进度。",
+      },
+      {
+        title: "可复用技能",
+        description:
+          "把知识打包成可执行技能，让任何 Agent 都能部署、测试、评审，并共享给整个团队。",
+      },
+      {
+        title: "统一运行面板",
+        description:
+          "本地 daemon 和云端 runtime 统一管理，实时查看状态、使用量与算力成本。",
+      },
+      {
+        title: "能力复利",
+        description:
+          "第 1 天只有一个 Agent 会部署，第 30 天所有 Agent 都会部署、写测试、做评审。能力会不断复利。",
+      },
+      {
+        title: "随处自托管",
+        description:
+          "支持 Docker Compose、单机二进制或 Kubernetes。数据留在你的网络里，没有供应商锁定。",
+      },
+    ],
+    howEyebrow: "快速开始",
+    howTitleTop: "在一小时内，",
+    howTitleBottom: "雇到你的第一个 AI 员工",
+    howSteps: [
+      {
+        title: "注册并创建工作区",
+        description:
+          "输入邮箱、验证码登录，系统会自动创建工作区，不需要额外的设置向导。",
+      },
+      {
+        title: "安装 CLI 并连接",
+        description:
+          "运行 harness login，再执行 harness daemon start，系统会自动识别你已安装的编码 Agent。",
+      },
+      {
+        title: "创建第一个 Agent",
+        description:
+          "给它命名、写说明、挂技能。Agent 会在被分配、被评论或被 mention 时自动激活。",
+      },
+      {
+        title: "分配任务并观察执行",
+        description:
+          "像分配给同事一样委派任务，系统会自动排队、认领、执行，并实时回传可见进度。",
+      },
+    ],
+    openSourceEyebrow: "开源",
+    openSourceTitle: "为所有人而开源。",
+    openSourceDescription:
+      "检查每一行代码，按你的方式自托管，并一起塑造人类与 Agent 协作的未来。",
+    openSourceCta: "在 GitHub Star",
+    openSourceItems: [
+      {
+        title: "随处自托管",
+        description: "Docker Compose、单机二进制或 K8s，数据留在你的网络里。",
+      },
+      {
+        title: "没有供应商锁定",
+        description: "可自带 LLM provider、替换 backend，并自由扩展 API。",
+      },
+      {
+        title: "默认透明",
+        description: "所有代码都可审计，看清 Agent 如何决策、任务如何路由。",
+      },
+      {
+        title: "社区驱动",
+        description: "贡献技能、集成与 backend，让整个生态一起受益。",
+      },
+    ],
+    faqEyebrow: "FAQ",
+    faqTitle: "常见问题。",
+    faqs: [
+      {
+        question: "Harness 支持哪些编码 Agent？",
+        answer:
+          "Harness 默认支持 Claude Code、Codex、OpenClaw 和 OpenCode，同时因为平台开源，你也可以扩展自己的 backend。",
+      },
+      {
+        question: "必须自托管吗？还是有云版本？",
+        answer:
+          "两种都可以。你可以用 Docker Compose 或 Kubernetes 自托管，也可以选择托管部署。",
+      },
+      {
+        question: "Agent 能处理长周期任务吗？",
+        answer:
+          "可以。Harness 管理完整的任务生命周期，Agent 可以异步认领、执行、汇报阻塞并完成任务。",
+      },
+      {
+        question: "我的代码安全吗？",
+        answer:
+          "执行可以发生在你自己的机器或基础设施里。Harness 负责协调状态与可见性，你的代码可以继续留在你的环境中。",
+      },
+    ],
+    finalTitleTop: "准备好把团队规模，",
+    finalTitleBottom: "扩展到超越人力上限了吗？",
+    finalDescription: "从一个 Agent 开始，扩展到十个。不需要信用卡。",
+    finalCta: "免费开始",
+    footerCopyright: "© {year} Harness. 保留所有权利。",
   },
 };
 
-const audienceIcons = [Landmark, BriefcaseBusiness, ShieldCheck] as const;
-const rhythmIcons = [Workflow, Waypoints, BarChart3, Scale] as const;
+const featureIcons = [Users, Workflow, FileStack, Monitor, Sparkles, ShieldCheck] as const;
+const openSourceIcons = [Globe, Lock, Monitor, Bot] as const;
+const runtimeLogos = [
+  { name: "Claude Code", icon: ClaudeCodeLogo },
+  { name: "Codex", icon: CodexLogo },
+  { name: "OpenClaw", icon: OpenClawLogo },
+  { name: "OpenCode", icon: OpenCodeLogo },
+] as const;
 
 export function HarnessLanding() {
   const { locale, setLocale } = useLocale();
-  const user = useAuthStore((state) => state.user);
-  const t = copy[locale];
-  const serifClass =
-    locale === "zh"
-      ? "font-[family:var(--font-serif-zh)]"
-      : "font-[family:var(--font-serif)]";
+  const user = useAuthStore((s) => s.user);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const t = content[locale];
 
   return (
-    <div className="relative min-h-full overflow-hidden bg-[#f4efe6] text-[#122033]">
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,#f4efe6_0%,#f7f2e9_42%,#f1ebdf_100%)]" />
-      <div className="absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(circle_at_15%_20%,rgba(181,145,80,0.18),transparent_28%),radial-gradient(circle_at_88%_10%,rgba(18,32,51,0.12),transparent_34%)]" />
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(rgba(18,32,51,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(18,32,51,0.045)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:linear-gradient(180deg,rgba(0,0,0,0.18),transparent_72%)]" />
+    <div id="top" className="min-h-full bg-[#f4efe6] text-[#122033]">
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,#f4efe6_0%,#f7f2e8_46%,#f3ede1_100%)]" />
 
-      <header className="sticky top-0 z-40 border-b border-[#122033]/8 bg-[#f4efe6]/88 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-[#122033]/8 bg-[#f4efe6]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1360px] items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
-            <span className="inline-flex size-10 items-center justify-center rounded-full border border-[#122033]/12 bg-white/80 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#8c6730]">
+            <span className="inline-flex size-10 items-center justify-center rounded-[14px] border border-[#122033]/12 bg-white/80 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8c6730]">
               H
             </span>
-            <div>
-              <div className="text-[0.68rem] font-medium uppercase tracking-[0.24em] text-[#8c6730]">
-                Agent Delivery OS
-              </div>
-              <div className="text-[1.02rem] font-semibold tracking-[0.08em] text-[#122033]">
-                Harness
-              </div>
-            </div>
+            <div className="text-[1.02rem] font-semibold tracking-[0.03em] text-[#122033]">Harness</div>
           </Link>
 
           <nav className="hidden items-center gap-8 lg:flex">
-            <Link href="#story" className="text-sm text-[#122033]/68 transition-colors hover:text-[#122033]">
-              {t.nav.story}
+            <Link href="#features" className="text-sm text-[#122033]/64 transition-colors hover:text-[#122033]">
+              {t.nav.features}
             </Link>
-            <Link href="#control-model" className="text-sm text-[#122033]/68 transition-colors hover:text-[#122033]">
-              {t.nav.model}
+            <Link href="#how-it-works" className="text-sm text-[#122033]/64 transition-colors hover:text-[#122033]">
+              {t.nav.howItWorks}
             </Link>
-            <Link href="#governance" className="text-sm text-[#122033]/68 transition-colors hover:text-[#122033]">
-              {t.nav.governance}
+            <Link href="#open-source" className="text-sm text-[#122033]/64 transition-colors hover:text-[#122033]">
+              {t.nav.openSource}
             </Link>
-            <Link href="#readiness" className="text-sm text-[#122033]/68 transition-colors hover:text-[#122033]">
-              {t.nav.readiness}
+            <Link href="#faq" className="text-sm text-[#122033]/64 transition-colors hover:text-[#122033]">
+              {t.nav.faq}
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden items-center overflow-hidden rounded-full border border-[#122033]/10 bg-white/72 p-1 sm:flex">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="hidden items-center overflow-hidden rounded-[16px] border border-[#122033]/10 bg-white/72 p-1 sm:flex">
               {locales.map((item) => (
                 <button
                   key={item}
                   onClick={() => setLocale(item)}
                   className={cn(
-                    "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                    "rounded-[12px] px-3 py-1.5 text-xs font-medium transition-colors",
                     item === locale
                       ? "bg-[#122033] text-white"
                       : "text-[#122033]/56 hover:text-[#122033]",
@@ -519,192 +438,145 @@ export function HarnessLanding() {
               ))}
             </div>
             <Link
-              href={githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="hidden items-center gap-2 rounded-full border border-[#122033]/10 bg-white/72 px-4 py-2 text-sm font-medium text-[#122033] transition-colors hover:bg-white md:inline-flex"
+              href={user ? "/issues" : "/login"}
+              className="inline-flex items-center justify-center rounded-[16px] border border-transparent px-4 py-2 text-sm font-medium text-[#122033]/72 transition-colors hover:text-[#122033]"
             >
-              <GitHubMark className="size-4" />
-              {t.nav.github}
+              {user ? t.nav.openWorkspace : t.nav.login}
             </Link>
             <Link
               href={user ? "/issues" : "/login"}
-              className="inline-flex items-center gap-2 rounded-full bg-[#122033] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1a2c46]"
+              className="inline-flex items-center justify-center rounded-[16px] bg-[#122033] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1a2c46]"
             >
-              {user ? t.nav.dashboard : t.nav.login}
-              <ChevronRight className="size-4" />
+              {user ? t.nav.openWorkspace : t.nav.trial}
             </Link>
           </div>
         </div>
       </header>
 
       <main>
-        <section className="mx-auto max-w-[1360px] px-4 pb-8 pt-10 sm:px-6 lg:px-8 lg:pb-12 lg:pt-16">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,0.95fr)] lg:items-start">
-            <div className="max-w-[780px]">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#8c6730]/15 bg-white/72 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8c6730]">
-                <Sparkles className="size-3.5" />
+        <section className="relative overflow-hidden border-b border-[#122033]/8 bg-[#f4efe6]">
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(18,32,51,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(18,32,51,0.04)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.08))]" />
+          <div className="mx-auto max-w-[1360px] px-4 pb-20 pt-20 sm:px-6 lg:px-8 lg:pb-24 lg:pt-24">
+            <div className="mx-auto max-w-[980px] text-center">
+              <div className="inline-flex items-center gap-2 rounded-[999px] border border-[#122033]/10 bg-white/80 px-4 py-2 text-[12px] font-medium text-[#122033]/64">
+                <span className="inline-flex size-2 rounded-full bg-[#8c6730]" />
                 {t.hero.eyebrow}
               </div>
-              <h1 className={cn("mt-6 max-w-[12ch] text-[clamp(3.4rem,7vw,7rem)] leading-[0.92] tracking-[-0.06em] text-[#122033]", serifClass)}>
-                {t.hero.title}
+
+              <h1 className="mt-8 text-[clamp(3rem,7vw,6.6rem)] font-medium leading-[0.94] tracking-[-0.065em] text-[#122033]">
+                {t.hero.line1}
+                <br />
+                <span className="text-[#8c6730]">{t.hero.line2}</span>
               </h1>
-              <p className="mt-6 max-w-[63ch] text-[1.05rem] leading-8 text-[#122033]/72 sm:text-[1.12rem]">
+
+              <p className="mx-auto mt-7 max-w-[820px] text-[1.02rem] leading-8 text-[#122033]/62 sm:text-[1.12rem]">
                 {t.hero.description}
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
                 <Link
                   href={user ? "/issues" : "/login"}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#8c6730] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#775726]"
+                  className="inline-flex items-center justify-center gap-2 rounded-[16px] bg-[#122033] px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#1a2c46]"
                 >
-                  {user ? t.finalCta.primaryCta : t.hero.primaryCta}
+                  {user ? t.nav.openWorkspace : t.hero.primaryCta}
                   <ArrowRight className="size-4" />
                 </Link>
                 <Link
                   href={githubUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[#122033]/12 bg-white/76 px-6 py-3 text-sm font-semibold text-[#122033] transition-colors hover:bg-white"
+                  className="inline-flex items-center justify-center gap-2 rounded-[16px] border border-[#122033]/10 bg-white/76 px-7 py-3.5 text-sm font-semibold text-[#122033] transition-colors hover:bg-white"
                 >
                   <GitHubMark className="size-4" />
                   {t.hero.secondaryCta}
                 </Link>
               </div>
 
-              <p className="mt-5 max-w-[58ch] text-sm leading-7 text-[#122033]/56">
-                {t.hero.note}
-              </p>
-            </div>
-
-            <div className="relative overflow-hidden rounded-[30px] border border-[#122033]/10 bg-[#0f1a2c] p-6 text-white shadow-[0_50px_120px_-70px_rgba(7,12,20,0.78)] sm:p-8">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
-                    {t.hero.briefLabel}
-                  </div>
-                  <h2 className={cn("mt-3 max-w-[16ch] text-[2rem] leading-tight tracking-[-0.04em] text-white", serifClass)}>
-                    {t.hero.briefTitle}
-                  </h2>
+              <div className="mt-16">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#122033]/38">
+                  {t.nav.worksWith}
                 </div>
-                <div className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-white/68">
-                  Q2
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-8">
+                  {runtimeLogos.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div key={item.name} className="flex items-center gap-2.5 text-[#122033]/54">
+                        <Icon className="size-5" />
+                        <span className="text-sm font-medium">{item.name}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              <p className="mt-5 max-w-[44ch] text-sm leading-7 text-white/64 sm:text-[0.96rem]">
-                {t.hero.briefSummary}
-              </p>
-
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {t.hero.briefMetrics.map((item) => (
-                  <div key={item.label} className="rounded-[22px] border border-white/8 bg-white/6 p-4">
-                    <div className="text-[11px] uppercase tracking-[0.16em] text-white/44">
-                      {item.label}
-                    </div>
-                    <div className={cn("mt-2 text-2xl font-semibold tracking-[-0.04em]", item.tone)}>
-                      {item.value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 overflow-hidden rounded-[24px] border border-white/8 bg-[#111e31]">
-                <div className="grid grid-cols-[1.35fr_1fr_0.95fr] border-b border-white/8 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/42">
-                  <span>Initiative</span>
-                  <span>Owner</span>
-                  <span>Checkpoint</span>
-                </div>
-                {t.hero.briefRows.map((row, index) => (
-                  <div
-                    key={row.initiative}
-                    className={cn(
-                      "grid grid-cols-[1.35fr_1fr_0.95fr] items-center px-5 py-4 text-sm",
-                      index < t.hero.briefRows.length - 1 && "border-b border-white/6",
-                    )}
-                  >
-                    <span className="font-medium text-white">{row.initiative}</span>
-                    <span className="text-white/62">{row.owner}</span>
-                    <span className="text-white/78">{row.checkpoint}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 rounded-[20px] border border-white/8 bg-white/6 px-4 py-3 text-sm text-white/68">
-                {t.hero.advisory}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {t.hero.scorecards.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-[24px] border border-[#122033]/10 bg-white/78 px-5 py-5 shadow-[0_24px_90px_-65px_rgba(18,32,51,0.58)]"
-              >
-                <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#122033]/44">
-                  {item.label}
-                </div>
-                <div className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[#122033]">
-                  {item.value}
+              <div className="mt-6 flex justify-center sm:hidden">
+                <div className="inline-flex items-center overflow-hidden rounded-[14px] border border-[#122033]/10 bg-white/76 p-1">
+                  {locales.map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => setLocale(item)}
+                      className={cn(
+                        "rounded-[10px] px-3 py-1.5 text-xs font-medium transition-colors",
+                        item === locale
+                          ? "bg-[#122033] text-white"
+                          : "text-[#122033]/56 hover:text-[#122033]",
+                      )}
+                    >
+                      {localeLabels[item]}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
 
-        <section id="story" className="border-y border-[#122033]/8 bg-white/58">
-          <div className="mx-auto flex max-w-[1360px] flex-col gap-4 px-4 py-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8c6730]">
-              {t.proof.title}
-            </p>
-            <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm font-medium text-[#122033]/58">
-              {t.proof.items.map((item) => (
-                <span key={item}>{item}</span>
-              ))}
+              <div className="mt-14 overflow-hidden rounded-[26px] border border-[#122033]/10 bg-white/68 p-3 shadow-[0_32px_140px_-80px_rgba(18,32,51,0.45)] sm:p-4">
+                <div className="overflow-hidden rounded-[22px] border border-[#122033]/8 bg-[#e8e1d6]">
+                  <Image
+                    src="/images/landing-hero.png"
+                    alt={t.hero.imageAlt}
+                    width={3532}
+                    height={2382}
+                    className="block h-auto w-full"
+                    sizes="(max-width: 1280px) 100vw, 1200px"
+                    quality={85}
+                    priority
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-[1360px] px-4 py-18 sm:px-6 lg:px-8 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-start">
-            <div className="max-w-[35rem]">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8c6730]">
-                {t.audiences.eyebrow}
-              </div>
-              <h2 className={cn("mt-4 text-[clamp(2.5rem,4.4vw,4.2rem)] leading-[1.02] tracking-[-0.05em] text-[#122033]", serifClass)}>
-                {t.audiences.title}
+        <section id="features" className="bg-[#f7f3eb] py-20 sm:py-24">
+          <div className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-[860px] text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c6730]">
+                {t.featuresEyebrow}
+              </p>
+              <h2 className="mt-4 text-[clamp(2.3rem,5vw,4.5rem)] font-medium leading-[1.02] tracking-[-0.055em] text-[#122033]">
+                {t.featuresTitleTop}
+                <br />
+                <span className="text-[#122033]/46">{t.featuresTitleBottom}</span>
               </h2>
-              <p className="mt-5 text-[1rem] leading-8 text-[#122033]/64">
-                {t.audiences.description}
-              </p>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-3">
-              {t.audiences.items.map((item, index) => {
-                const Icon = audienceIcons[index] ?? ShieldCheck;
+            <div className="mt-14 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {t.features.map((feature, index) => {
+                const Icon = featureIcons[index] ?? Sparkles;
 
                 return (
                   <article
-                    key={item.title}
-                    className="flex h-full flex-col rounded-[28px] border border-[#122033]/10 bg-white/82 p-6 shadow-[0_26px_90px_-68px_rgba(18,32,51,0.6)]"
+                    key={feature.title}
+                    className="rounded-[22px] border border-[#122033]/10 bg-white/82 p-7 shadow-[0_26px_90px_-72px_rgba(18,32,51,0.45)]"
                   >
-                    <div className="inline-flex size-11 items-center justify-center rounded-2xl bg-[#122033] text-white">
+                    <div className="inline-flex size-12 items-center justify-center rounded-[16px] bg-[#122033]/6 text-[#8c6730]">
                       <Icon className="size-5" />
                     </div>
-                    <h3 className="mt-5 text-xl font-semibold tracking-[-0.03em] text-[#122033]">
-                      {item.title}
+                    <h3 className="mt-6 text-[1.6rem] font-medium leading-tight tracking-[-0.04em] text-[#122033]">
+                      {feature.title}
                     </h3>
-                    <p className="mt-3 flex-1 text-sm leading-7 text-[#122033]/62">
-                      {item.description}
+                    <p className="mt-4 text-[0.98rem] leading-8 text-[#122033]/60">
+                      {feature.description}
                     </p>
-                    <div className="mt-5 space-y-2 border-t border-[#122033]/8 pt-5">
-                      {item.points.map((point) => (
-                        <div key={point} className="text-sm font-medium text-[#122033]/72">
-                          {point}
-                        </div>
-                      ))}
-                    </div>
                   </article>
                 );
               })}
@@ -712,29 +584,45 @@ export function HarnessLanding() {
           </div>
         </section>
 
-        <section id="control-model" className="mx-auto max-w-[1360px] px-4 pb-18 sm:px-6 lg:px-8 lg:pb-24">
-          <div className="overflow-hidden rounded-[34px] border border-[#122033]/10 bg-[#fcfaf6] shadow-[0_40px_120px_-84px_rgba(18,32,51,0.55)]">
-            <div className="grid gap-0 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-              <div className="border-b border-[#122033]/8 p-8 sm:p-10 lg:border-b-0 lg:border-r lg:p-12">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8c6730]">
-                  {t.stack.eyebrow}
-                </div>
-                <h2 className={cn("mt-4 max-w-[14ch] text-[clamp(2.4rem,4.3vw,4rem)] leading-[1.02] tracking-[-0.05em] text-[#122033]", serifClass)}>
-                  {t.stack.title}
-                </h2>
-                <p className="mt-5 max-w-[52ch] text-[1rem] leading-8 text-[#122033]/64">
-                  {t.stack.description}
-                </p>
-              </div>
+        <section id="how-it-works" className="bg-[#f4efe6] py-22 sm:py-28">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c6730]">
+                {t.howEyebrow}
+              </p>
+              <h2 className="mt-4 text-[clamp(2.4rem,5vw,4.8rem)] font-medium leading-[1.02] tracking-[-0.055em] text-[#122033]">
+                {t.howTitleTop}
+                <br />
+                <span className="text-[#122033]/46">{t.howTitleBottom}</span>
+              </h2>
+            </div>
 
-              <div className="divide-y divide-[#122033]/8">
-                {t.stack.rows.map((row) => (
-                  <div key={row.label} className="grid gap-5 px-8 py-7 sm:grid-cols-[180px_minmax(0,1fr)_160px] sm:px-10 lg:px-12">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c6730]">
-                      {row.label}
+            <div className="relative mx-auto mt-18 max-w-[900px]">
+              <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-[#122033]/10 md:block" />
+              <div className="space-y-16 md:space-y-0">
+                {t.howSteps.map((step, index) => (
+                  <div
+                    key={step.title}
+                    className={cn(
+                      "relative md:grid md:grid-cols-[1fr_80px_1fr] md:items-start",
+                      index > 0 && "mt-16 md:mt-0",
+                    )}
+                  >
+                    <div className={cn("md:px-8", index % 2 === 1 && "md:col-start-3")}>
+                      <div className={cn("text-[12px] font-semibold uppercase tracking-[0.16em] text-[#8c6730]", index % 2 === 1 ? "md:text-left" : "md:text-right")}>
+                        {String(index + 1).padStart(2, "0")}
+                      </div>
+                      <h3 className={cn("mt-3 text-[2rem] font-medium leading-tight tracking-[-0.045em] text-[#122033]", index % 2 === 1 ? "md:text-left" : "md:text-right")}>
+                        {step.title}
+                      </h3>
+                      <p className={cn("mt-4 text-[1rem] leading-8 text-[#122033]/58", index % 2 === 1 ? "md:text-left" : "md:text-right")}>
+                        {step.description}
+                      </p>
                     </div>
-                    <div className="text-sm leading-7 text-[#122033]/68">{row.summary}</div>
-                    <div className="text-sm font-medium text-[#122033]">{row.outcome}</div>
+
+                    <div className="relative hidden h-20 items-start justify-center md:flex">
+                      <span className="mt-2 inline-flex size-4 rounded-full border-2 border-[#8c6730] bg-[#f4efe6]" />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -742,31 +630,45 @@ export function HarnessLanding() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-[1360px] px-4 pb-18 sm:px-6 lg:px-8 lg:pb-24">
-          <div className="rounded-[34px] border border-[#122033]/10 bg-[#122033] p-8 text-white sm:p-10 lg:p-12">
-            <div className="max-w-[44rem]">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d5b27a]">
-                {t.rhythm.eyebrow}
-              </div>
-              <h2 className={cn("mt-4 text-[clamp(2.4rem,4.2vw,4rem)] leading-[1.02] tracking-[-0.05em] text-white", serifClass)}>
-                {t.rhythm.title}
+        <section id="open-source" className="bg-[#0f1a2c] py-22 text-white sm:py-28">
+          <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-[760px] text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#d5b27a]">
+                {t.openSourceEyebrow}
+              </p>
+              <h2 className="mt-4 text-[clamp(2.3rem,5vw,4.2rem)] font-medium leading-[1.04] tracking-[-0.055em] text-white">
+                {t.openSourceTitle}
               </h2>
+              <p className="mx-auto mt-6 max-w-[720px] text-[1.02rem] leading-8 text-white/62">
+                {t.openSourceDescription}
+              </p>
+              <div className="mt-8">
+                <Link
+                  href={githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-[16px] border border-white/14 bg-white/6 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                >
+                  <GitHubMark className="size-4" />
+                  {t.openSourceCta}
+                </Link>
+              </div>
             </div>
 
-            <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {t.rhythm.steps.map((step, index) => {
-                const Icon = rhythmIcons[index] ?? Workflow;
+            <div className="mt-14 grid gap-5 md:grid-cols-2">
+              {t.openSourceItems.map((item, index) => {
+                const Icon = openSourceIcons[index] ?? Globe;
 
                 return (
-                  <article key={step.title} className="rounded-[24px] border border-white/10 bg-white/6 p-6">
-                    <div className="inline-flex size-11 items-center justify-center rounded-full border border-white/12 bg-white/8 text-[#d5b27a]">
+                  <article key={item.title} className="rounded-[22px] border border-white/10 bg-white/8 p-7">
+                    <div className="inline-flex size-11 items-center justify-center rounded-[16px] bg-white/8 text-[#d5b27a]">
                       <Icon className="size-5" />
                     </div>
-                    <h3 className="mt-5 text-xl font-semibold tracking-[-0.03em] text-white">
-                      {step.title}
+                    <h3 className="mt-6 text-[1.6rem] font-medium leading-tight tracking-[-0.04em] text-white">
+                      {item.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-7 text-white/66">
-                      {step.description}
+                    <p className="mt-4 text-[0.98rem] leading-8 text-white/56">
+                      {item.description}
                     </p>
                   </article>
                 );
@@ -775,123 +677,113 @@ export function HarnessLanding() {
           </div>
         </section>
 
-        <section id="governance" className="mx-auto grid max-w-[1360px] gap-8 px-4 pb-18 sm:px-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:px-8 lg:pb-24">
-          <div className="rounded-[34px] border border-[#122033]/10 bg-white/82 p-8 shadow-[0_34px_110px_-80px_rgba(18,32,51,0.56)] sm:p-10 lg:p-12">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8c6730]">
-              {t.governance.eyebrow}
-            </div>
-            <h2 className={cn("mt-4 max-w-[18ch] text-[clamp(2.4rem,4vw,3.8rem)] leading-[1.02] tracking-[-0.05em] text-[#122033]", serifClass)}>
-              {t.governance.title}
-            </h2>
-            <p className="mt-5 max-w-[60ch] text-[1rem] leading-8 text-[#122033]/66">
-              {t.governance.description}
-            </p>
-
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
-              {t.governance.checks.map((item) => (
-                <div key={item} className="flex gap-3 rounded-[22px] border border-[#122033]/8 bg-[#fcfaf6] px-4 py-4">
-                  <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#8c6730]" />
-                  <span className="text-sm leading-7 text-[#122033]/78">{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <aside id="readiness" className="rounded-[34px] border border-[#122033]/10 bg-[#0f1a2c] p-8 text-white shadow-[0_40px_120px_-80px_rgba(8,12,20,0.7)] sm:p-10">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#d5b27a]">
-              {t.governance.panelTitle}
-            </div>
-            <div className="mt-6 space-y-4">
-              {t.governance.panelItems.map((item) => (
-                <div key={item.label} className="flex items-center justify-between rounded-[20px] border border-white/8 bg-white/6 px-4 py-4">
-                  <span className="text-sm text-white/58">{item.label}</span>
-                  <span className="text-lg font-semibold tracking-[-0.03em] text-white">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </aside>
-        </section>
-
-        <section className="mx-auto max-w-[1360px] px-4 pb-12 sm:px-6 lg:px-8 lg:pb-16">
-          <div className="rounded-[34px] border border-[#8c6730]/14 bg-[linear-gradient(135deg,#eadcc0_0%,#f6f0e5_52%,#fcfaf6_100%)] p-8 sm:p-10 lg:flex lg:items-end lg:justify-between lg:p-12">
-            <div className="max-w-[54rem]">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8c6730]">
-                Harness
-              </div>
-              <h2 className={cn("mt-4 text-[clamp(2.3rem,4vw,3.9rem)] leading-[1.02] tracking-[-0.05em] text-[#122033]", serifClass)}>
-                {t.finalCta.title}
-              </h2>
-              <p className="mt-5 text-[1rem] leading-8 text-[#122033]/66">
-                {t.finalCta.description}
+        <section id="faq" className="bg-[#f7f3eb] py-20 sm:py-24">
+          <div className="mx-auto max-w-[980px] px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c6730]">
+                {t.faqEyebrow}
               </p>
+              <h2 className="mt-4 text-[clamp(2.2rem,4.8vw,4.2rem)] font-medium leading-[1.03] tracking-[-0.05em] text-[#122033]">
+                {t.faqTitle}
+              </h2>
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row lg:mt-0">
-              <Link
-                href={user ? "/issues" : "/login"}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#122033] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1a2c46]"
-              >
-                {user ? t.nav.dashboard : t.finalCta.primaryCta}
-                <ArrowRight className="size-4" />
-              </Link>
-              <Link
-                href={githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-[#122033]/12 bg-white/74 px-6 py-3 text-sm font-semibold text-[#122033] transition-colors hover:bg-white"
-              >
-                {t.finalCta.secondaryCta}
-              </Link>
+            <div className="mt-14 space-y-4">
+              {t.faqs.map((faq, index) => (
+                <div key={faq.question} className="overflow-hidden rounded-[18px] border border-[#122033]/10 bg-white/76">
+                  <button
+                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                  >
+                    <span className="text-base font-medium leading-7 text-[#122033]">
+                      {faq.question}
+                    </span>
+                    <span className={cn("text-[#122033]/48 transition-transform", openFaq === index && "rotate-45")}>
+                      <PlusIcon />
+                    </span>
+                  </button>
+                  <div
+                    className={cn(
+                      "grid transition-[grid-template-rows] duration-200 ease-out",
+                      openFaq === index ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                    )}
+                  >
+                    <div className="overflow-hidden">
+                      <p className="px-5 pb-5 text-[0.96rem] leading-8 text-[#122033]/58">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-20 border-t border-[#122033]/8 pt-20 text-center">
+              <h2 className="text-[clamp(2.4rem,5vw,4.8rem)] font-medium leading-[1.02] tracking-[-0.055em] text-[#122033]">
+                {t.finalTitleTop}
+                <br />
+                <span className="text-[#8c6730]">{t.finalTitleBottom}</span>
+              </h2>
+              <p className="mx-auto mt-6 max-w-[620px] text-[1rem] leading-8 text-[#122033]/56">
+                {t.finalDescription}
+              </p>
+              <div className="mt-8">
+                <Link
+                  href={user ? "/issues" : "/login"}
+                  className="inline-flex items-center justify-center gap-2 rounded-[16px] bg-[#122033] px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-[#1a2c46]"
+                >
+                  {user ? t.nav.openWorkspace : t.finalCta}
+                  <ArrowRight className="size-4" />
+                </Link>
+              </div>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-[#122033]/8 bg-white/62">
-        <div className="mx-auto flex max-w-[1360px] flex-col gap-6 px-4 py-8 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <div>
-            <div className="text-[1.05rem] font-semibold tracking-[0.08em] text-[#122033]">
-              Harness
-            </div>
-            <p className="mt-2 text-sm leading-7 text-[#122033]/58">
-              {t.footer.tagline}
-            </p>
+      <footer className="border-t border-[#122033]/8 bg-[#f4efe6]">
+        <div className="mx-auto flex max-w-[1360px] flex-col gap-5 px-4 py-8 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+          <div className="flex items-center gap-3 text-[#122033]">
+            <span className="inline-flex size-9 items-center justify-center rounded-[12px] border border-[#122033]/12 bg-white/80 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#8c6730]">
+              H
+            </span>
+            <span className="text-[1rem] font-semibold tracking-[0.03em]">Harness</span>
           </div>
-
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-            <div className="flex items-center gap-2 rounded-full border border-[#122033]/10 bg-[#fcfaf6] p-1 sm:hidden">
-              {locales.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setLocale(item)}
-                  className={cn(
-                    "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                    item === locale
-                      ? "bg-[#122033] text-white"
-                      : "text-[#122033]/56 hover:text-[#122033]",
-                  )}
-                >
-                  {localeLabels[item]}
-                </button>
-              ))}
-            </div>
-            <Link
-              href={githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-medium text-[#122033] transition-colors hover:text-[#8c6730]"
-            >
-              <GitHubMark className="size-4" />
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-[#122033]/56">
+            <Link href={githubUrl} target="_blank" rel="noreferrer" className="transition-colors hover:text-[#122033]">
               {t.nav.github}
             </Link>
-            <p className="text-sm text-[#122033]/45">
-              {t.footer.copyright.replace("{year}", String(new Date().getFullYear()))}
-            </p>
+            <Link href="#features" className="transition-colors hover:text-[#122033]">
+              {t.nav.features}
+            </Link>
+            <Link href="#how-it-works" className="transition-colors hover:text-[#122033]">
+              {t.nav.howItWorks}
+            </Link>
+            <Link href="#top" className="transition-colors hover:text-[#122033]">
+              {t.nav.backToTop}
+            </Link>
           </div>
+          <p className="text-sm text-[#122033]/42">
+            {t.footerCopyright.replace("{year}", String(new Date().getFullYear()))}
+          </p>
         </div>
       </footer>
     </div>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    >
+      <path d="M8 3v10M3 8h10" />
+    </svg>
   );
 }

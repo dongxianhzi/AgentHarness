@@ -1,19 +1,10 @@
 import type { Metadata } from "next";
 import { ChangelogPageClient } from "@/features/landing/components/changelog-page-client";
+import { buildLandingMetadata } from "../metadata";
 
-export const metadata: Metadata = {
-  title: "Changelog",
-  description:
-    "See what's new in Harness — latest features, improvements, and fixes.",
-  openGraph: {
-    title: "Changelog | Harness",
-    description: "Latest updates and releases from Harness.",
-    url: "/changelog",
-  },
-  alternates: {
-    canonical: "/changelog",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return buildLandingMetadata("changelog");
+}
 
 export default function ChangelogPage() {
   return <ChangelogPageClient />;

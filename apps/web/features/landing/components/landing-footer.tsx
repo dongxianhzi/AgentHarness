@@ -10,61 +10,66 @@ export function LandingFooter() {
   const { t, locale, setLocale } = useLocale();
   const user = useAuthStore((s) => s.user);
   const groups = Object.values(t.footer.groups);
+  const brandLabel = locale === "zh" ? "Agent 交付系统" : "Agent Delivery OS";
 
   return (
-    <footer className="bg-[#0a0d12] text-white">
-      <div className="mx-auto max-w-[1320px] px-4 sm:px-6 lg:px-8">
-        {/* Top: CTA + link columns */}
-        <div className="flex flex-col gap-12 border-b border-white/10 py-16 sm:py-20 lg:flex-row lg:gap-20">
-          {/* Left — newsletter / CTA */}
-          <div className="lg:w-[340px] lg:shrink-0">
+    <footer className="border-t border-[#122033]/8 bg-white/62 text-[#122033]">
+      <div className="mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-10 py-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:py-14">
+          <div>
             <Link href="/" className="flex items-center gap-3">
-              <span className="inline-flex size-8 items-center justify-center rounded-full border border-white/14 bg-white/8 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+              <span className="inline-flex size-10 items-center justify-center rounded-[14px] border border-[#122033]/12 bg-white/80 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8c6730]">
                 H
               </span>
-              <span className="text-[18px] font-semibold tracking-[0.08em]">
-                Harness
-              </span>
+              <div>
+                <div className="text-[0.68rem] font-medium uppercase tracking-[0.22em] text-[#8c6730]">
+                  {brandLabel}
+                </div>
+                <div className="text-[1rem] font-semibold tracking-[0.08em] text-[#122033]">
+                  Harness
+                </div>
+              </div>
             </Link>
-            <p className="mt-4 max-w-[300px] text-[14px] leading-[1.7] text-white/50 sm:text-[15px]">
+
+            <p className="mt-4 max-w-[34rem] text-sm leading-7 text-[#122033]/56">
               {t.footer.tagline}
             </p>
-            <div className="mt-4 flex items-center gap-3">
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
-                href={twitterUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="text-white/40 transition-colors hover:text-white"
+                href={user ? "/issues" : "/login"}
+                className="inline-flex items-center justify-center rounded-[16px] bg-[#122033] px-5 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-[#1a2c46]"
               >
-                <XMark className="size-4" />
+                {user ? t.header.dashboard : t.footer.cta}
               </Link>
               <Link
                 href={githubUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-white/40 transition-colors hover:text-white"
+                className="inline-flex items-center gap-2 rounded-[16px] border border-[#122033]/10 bg-white/74 px-4 py-2.5 text-[13px] font-medium text-[#122033] transition-colors hover:bg-white"
               >
                 <GitHubMark className="size-4" />
+                GitHub
               </Link>
-            </div>
-            <div className="mt-6">
               <Link
-                href={user ? "/issues" : "/login"}
-                className="inline-flex items-center justify-center rounded-[11px] bg-white px-5 py-2.5 text-[13px] font-semibold text-[#0a0d12] transition-colors hover:bg-white/88"
+                href={twitterUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-[16px] border border-[#122033]/10 bg-white/74 px-4 py-2.5 text-[13px] font-medium text-[#122033] transition-colors hover:bg-white"
               >
-                {user ? t.header.dashboard : t.footer.cta}
+                <XMark className="size-4" />
+                X
               </Link>
             </div>
           </div>
 
-          {/* Right — link columns */}
-          <div className="grid flex-1 grid-cols-2 gap-8 sm:grid-cols-4">
+          <div className="grid gap-8 sm:grid-cols-3">
             {groups.map((group) => (
               <div key={group.label}>
-                <h4 className="text-[12px] font-semibold uppercase tracking-[0.1em] text-white/40">
+                <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8c6730]">
                   {group.label}
                 </h4>
-                <ul className="mt-4 flex flex-col gap-2.5">
+                <ul className="mt-4 space-y-2.5">
                   {group.links.map((link) => (
                     <li key={link.label}>
                       <Link
@@ -72,7 +77,7 @@ export function LandingFooter() {
                         {...(link.href.startsWith("http")
                           ? { target: "_blank", rel: "noreferrer" }
                           : {})}
-                        className="text-[14px] text-white/50 transition-colors hover:text-white"
+                        className="text-sm text-[#122033]/56 transition-colors hover:text-[#122033]"
                       >
                         {link.label}
                       </Link>
@@ -84,42 +89,28 @@ export function LandingFooter() {
           </div>
         </div>
 
-        {/* Bottom: copyright + language switcher */}
-        <div className="flex items-center justify-between py-6">
-          <p className="text-[13px] text-white/36">
+        <div className="flex flex-col gap-4 border-t border-[#122033]/8 py-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[13px] text-[#122033]/40">
             {t.footer.copyright.replace(
               "{year}",
               String(new Date().getFullYear()),
             )}
           </p>
-          <div className="flex items-center">
-            {locales.map((l, i) => (
+          <div className="flex items-center gap-2 rounded-[16px] border border-[#122033]/10 bg-[#fcfaf6] p-1">
+            {locales.map((l) => (
               <button
                 key={l}
                 onClick={() => setLocale(l)}
                 className={cn(
-                  "px-1.5 py-1 text-[12px] font-medium transition-colors",
+                  "rounded-[12px] px-3 py-1.5 text-xs font-medium transition-colors",
                   l === locale
-                    ? "text-white/70"
-                    : "text-white/30 hover:text-white/50",
-                  i > 0 && "border-l border-white/16",
+                    ? "bg-[#122033] text-white"
+                    : "text-[#122033]/56 hover:text-[#122033]",
                 )}
               >
                 {localeLabels[l]}
               </button>
             ))}
-          </div>
-        </div>
-
-        {/* Giant logo */}
-        <div className="relative overflow-hidden pb-4">
-          <div className="flex items-end gap-6 sm:gap-8">
-            <span className="inline-flex size-[clamp(4rem,12vw,10rem)] shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-[clamp(2rem,6vw,4rem)] font-semibold uppercase tracking-[0.16em] text-white">
-              H
-            </span>
-            <span className="font-[family-name:var(--font-serif)] text-[clamp(6rem,22vw,16rem)] font-normal leading-[0.82] tracking-[-0.04em] text-white lowercase">
-              harness
-            </span>
           </div>
         </div>
       </div>

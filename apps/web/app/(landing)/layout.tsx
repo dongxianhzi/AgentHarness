@@ -1,7 +1,6 @@
-import { cookies, headers } from "next/headers";
 import { Instrument_Serif, Noto_Serif_SC } from "next/font/google";
 import { LocaleProvider } from "@/features/landing/i18n";
-import type { Locale } from "@/features/landing/i18n";
+import { buildLandingJsonLd, getLandingLocale } from "./metadata";
 
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
@@ -15,51 +14,13 @@ const notoSerifSC = Noto_Serif_SC({
   variable: "--font-serif-zh",
 });
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      name: "Harness",
-      url: "https://www.multica.ai",
-      sameAs: ["https://github.com/multica-ai/multica"],
-    },
-    {
-      "@type": "SoftwareApplication",
-      name: "Harness",
-      applicationCategory: "ProjectManagement",
-      operatingSystem: "Web",
-      description:
-        "Business-grade operating system for planning work, routing execution, and governing delivery across human teams and AI agents.",
-      offers: {
-        "@type": "Offer",
-        price: "0",
-        priceCurrency: "USD",
-      },
-    },
-  ],
-};
-
-async function getInitialLocale(): Promise<Locale> {
-  // 1. User's explicit preference (cookie set when they switch language)
-  const cookieStore = await cookies();
-  const stored = cookieStore.get("multica-locale")?.value;
-  if (stored === "en" || stored === "zh") return stored;
-
-  // 2. Detect from Accept-Language header
-  const headersList = await headers();
-  const acceptLang = headersList.get("accept-language") ?? "";
-  if (acceptLang.includes("zh")) return "zh";
-
-  return "en";
-}
-
 export default async function LandingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const initialLocale = await getInitialLocale();
+  const initialLocale = await getLandingLocale();
+  const jsonLd = buildLandingJsonLd(initialLocale);
 
   return (
     <>
