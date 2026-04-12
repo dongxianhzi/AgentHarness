@@ -1,0 +1,60 @@
+name: Deploy Tencent
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-tencent
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH access
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' '${{ secrets.TENCENT_PEM_KEY }}' > ~/.ssh/tencent.pem
+          chmod 600 ~/.ssh/tencent.pem
+          ssh-keyscan -H 101.43.60.21 >> ~/.ssh/known_hosts
+
+      - name: Prepare remote directory
+        run: |
+          ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 '
+            set -eu
+            sudo mkdir -p /opt/agentharness
+            sudo chown -R ubuntu:ubuntu /opt/agentharness
+            if ! command -v rsync >/dev/null 2>&1; then
+              sudo apt-get update
+              sudo apt-get install -y rsync
+            fi
+          '
+
+      - name: Sync application files
+        run: |
+          rsync -az --delete \
+            --filter='protect .env.production' \
+            --filter='protect .env.production.local' \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.next' \
+            --exclude='coverage' \
+            --exclude='dist' \
+            --exclude='out' \
+            --exclude='server/bin' \
+            -e 'ssh -i ~/.ssh/tencent.pem' \
+            ./ ubuntu@101.43.60.21:/opt/agentharness/
+
+      - name: Deploy containers
+        run: |
+          ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 "cd /opt/agentharness && APP_PORT=9997 APP_VERSION=0.1.90 GIT_COMMIT=${GITHUB_SHA} bash scripts/deploy_remote.sh"
