@@ -137,6 +137,8 @@ kill_listener() {
 
 build_release() {
   log "Installing dependencies"
+  ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
   pnpm install --frozen-lockfile
 
   log "Building web app"
