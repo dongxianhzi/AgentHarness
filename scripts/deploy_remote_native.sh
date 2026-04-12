@@ -16,6 +16,92 @@ log() {
   printf '[deploy-native] %s\n' "$*"
 }
 
+collect_matching_pids() {
+  local pattern=$1
+  pgrep -f "$pattern" 2>/dev/null || true
+}
+
+kill_pids() {
+  local label=$1
+  shift
+  local pids=("$@")
+
+  if [ ${#pids[@]} -eq 0 ]; then
+    return
+  fi
+
+  log "Stopping ${label}: ${pids[*]}"
+  sudo kill -9 "${pids[@]}" 2>/dev/null || true
+}
+
+wait_for_port_to_clear() {
+  local port=$1
+  local attempt
+
+  for attempt in $(seq 1 20); do
+    if ! sudo lsof -tiTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+  done
+
+  log "Port $port is still occupied after stop attempt"
+  sudo lsof -iTCP:"$port" -sTCP:LISTEN || true
+  return 1
+}
+
+kill_frontend_processes() {
+  local frontend_dir="$APP_DIR/apps/web"
+  local pid
+  local collected=()
+
+  while IFS= read -r pid; do
+    [ -n "$pid" ] && collected+=("$pid")
+  done < <(sudo lsof -tiTCP:"$APP_PORT" -sTCP:LISTEN 2>/dev/null || true)
+
+  while IFS= read -r pid; do
+    [ -n "$pid" ] && collected+=("$pid")
+  done < <(collect_matching_pids "pnpm exec next start -p $APP_PORT -H 127.0.0.1")
+
+  while IFS= read -r pid; do
+    [ -n "$pid" ] || continue
+    local cwd
+    cwd=$(readlink -f "/proc/$pid/cwd" 2>/dev/null || true)
+    case "$cwd" in
+      "$frontend_dir"|"$frontend_dir (deleted)")
+        collected+=("$pid")
+        ;;
+    esac
+  done < <(collect_matching_pids "next-server")
+
+  if [ ${#collected[@]} -eq 0 ]; then
+    return
+  fi
+
+  mapfile -t collected < <(printf '%s\n' "${collected[@]}" | awk 'NF { print }' | sort -u)
+  kill_pids "frontend process(es)" "${collected[@]}"
+  wait_for_port_to_clear "$APP_PORT"
+}
+
+ensure_pid_running() {
+  local label=$1
+  local pid_file=$2
+  local pid
+
+  if [ ! -f "$pid_file" ]; then
+    log "$label pid file is missing: $pid_file"
+    return 1
+  fi
+
+  pid=$(cat "$pid_file")
+  if [ -z "$pid" ] || ! kill -0 "$pid" 2>/dev/null; then
+    log "$label process is not running (pid: ${pid:-missing})"
+    return 1
+  fi
+
+  return 0
+}
+
 set_or_append() {
   local key=$1
   local value=$2
@@ -128,11 +214,13 @@ stop_docker_stack() {
 kill_listener() {
   local port=$1
   local pids
-  pids=$(sudo lsof -ti tcp:"$port" || true)
+  pids=$(sudo lsof -tiTCP:"$port" -sTCP:LISTEN || true)
   if [ -n "$pids" ]; then
     log "Stopping existing listener(s) on 127.0.0.1:$port: $pids"
     sudo kill -9 $pids || true
   fi
+
+  wait_for_port_to_clear "$port"
 }
 
 build_release() {
@@ -201,6 +289,16 @@ healthcheck() {
   local attempt
 
   for attempt in $(seq 1 60); do
+    if ! ensure_pid_running "Backend" "$RUN_DIR/backend.pid"; then
+      tail -n 50 "$LOG_DIR/backend.log" || true
+      return 1
+    fi
+
+    if ! ensure_pid_running "Frontend" "$RUN_DIR/frontend.pid"; then
+      tail -n 50 "$LOG_DIR/frontend.log" || true
+      return 1
+    fi
+
     if curl --silent --fail "$backend_url" >/dev/null && curl --silent --fail "$frontend_url" >/dev/null; then
       log "Frontend is reachable at $frontend_url"
       log "Backend healthcheck passed at $backend_url"
@@ -221,6 +319,7 @@ main() {
   ensure_runtime_tools
   ensure_env_file
   stop_docker_stack
+  kill_frontend_processes
   kill_listener "$BACKEND_PORT"
   kill_listener "$APP_PORT"
   build_release
