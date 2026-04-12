@@ -20,6 +20,16 @@ let initialized = false;
 let authStore: ReturnType<typeof createAuthStore>;
 let workspaceStore: ReturnType<typeof createWorkspaceStore>;
 let chatStore: ReturnType<typeof createChatStore>;
+
+function resolveDefaultWsUrl() {
+  if (typeof window === "undefined") {
+    return "ws://localhost:8080/ws";
+  }
+
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${protocol}//${window.location.host}/ws`;
+}
+
 function initCore(
   apiBaseUrl: string,
   storage: StorageAdapter,
@@ -58,11 +68,13 @@ function initCore(
 export function CoreProvider({
   children,
   apiBaseUrl = "",
-  wsUrl = "ws://localhost:8080/ws",
+  wsUrl,
   storage = defaultStorage,
   onLogin,
   onLogout,
 }: CoreProviderProps) {
+  const effectiveWsUrl = wsUrl ?? resolveDefaultWsUrl();
+
   // Initialize singletons on first render only. Dependencies are read-once:
   // apiBaseUrl, storage, and callbacks are set at app boot and never change at runtime.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -72,7 +84,7 @@ export function CoreProvider({
     <QueryProvider>
       <AuthInitializer onLogin={onLogin} onLogout={onLogout} storage={storage}>
         <WSProvider
-          wsUrl={wsUrl}
+          wsUrl={effectiveWsUrl}
           authStore={authStore}
           workspaceStore={workspaceStore}
           storage={storage}

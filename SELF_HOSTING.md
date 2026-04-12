@@ -176,6 +176,28 @@ cd apps/web
 REMOTE_API_URL=http://localhost:8080 pnpm start
 ```
 
+### Cloudflare Tunnel to 127.0.0.1:9997
+
+If Cloudflare Tunnel forwards traffic directly to `127.0.0.1:9997`, you only need to expose the Next.js frontend on that loopback address. Keep the backend on `127.0.0.1:8080` and let Next.js proxy `/api`, `/auth`, and `/ws` to it.
+
+```bash
+# Backend stays private on localhost
+DATABASE_URL="your-database-url" \
+PORT=8080 \
+FRONTEND_ORIGIN=http://127.0.0.1:9997 \
+MULTICA_APP_URL=http://127.0.0.1:9997 \
+CORS_ALLOWED_ORIGINS=http://127.0.0.1:9997 \
+JWT_SECRET="your-secret" \
+./server/bin/server
+
+# Frontend is the only process exposed through the tunnel
+cd apps/web
+REMOTE_API_URL=http://127.0.0.1:8080 \
+pnpm exec next start -p 9997 -H 127.0.0.1
+```
+
+With this setup, browser HTTP traffic goes to `127.0.0.1:9997`, and the app will use the current page origin for WebSocket connections automatically.
+
 ## Reverse Proxy
 
 In production, put a reverse proxy in front of both the backend and frontend to handle TLS and routing.
