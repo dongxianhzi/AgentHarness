@@ -87,7 +87,7 @@ const metadataCopy: Record<Locale, Record<LandingPageKey, MetadataCopy>> = {
 
 export async function getLandingLocale(): Promise<Locale> {
   const cookieStore = await cookies();
-  const stored = cookieStore.get("multica-locale")?.value;
+  const stored = cookieStore.get("harness-locale")?.value;
   if (stored === "en" || stored === "zh") {
     return stored;
   }
@@ -133,8 +133,8 @@ export function buildLandingJsonLd(locale: Locale) {
       {
         "@type": "Organization",
         name: "Harness",
-        url: "https://www.multica.ai",
-        sameAs: ["https://github.com/multica-ai/multica"],
+        url: "https://openagent.run",
+        sameAs: ["https://github.com/EeroEternal/AgentHarness"],
       },
       {
         "@type": "SoftwareApplication",

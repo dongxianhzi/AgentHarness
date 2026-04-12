@@ -1,14 +1,18 @@
 "use client";
 
 import { DashboardLayout } from "@multica/views/layout";
-import { MulticaIcon } from "@multica/ui/components/common/multica-icon";
 import { SearchCommand, SearchTrigger } from "@multica/views/search";
 import { ChatFab, ChatWindow } from "@multica/views/chat";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <DashboardLayout
-      loadingIndicator={<MulticaIcon className="size-6" />}
+      loadingIndicator={
+        <div
+          aria-hidden="true"
+          className="size-6 animate-spin rounded-full border-2 border-primary/25 border-t-primary"
+        />
+      }
       searchSlot={<SearchTrigger />}
       extra={<><SearchCommand /><ChatWindow /><ChatFab /></>}
     >

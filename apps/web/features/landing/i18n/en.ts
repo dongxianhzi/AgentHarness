@@ -12,10 +12,10 @@ export const en: LandingDict = {
     headlineLine1: "Your next 10 hires",
     headlineLine2: "won\u2019t be human.",
     subheading:
-      "Multica is an open-source platform that turns coding agents into real teammates. Assign tasks, track progress, compound skills \u2014 manage your human + agent workforce in one place.",
+      "Harness is an open-source platform that turns coding agents into real teammates. Assign tasks, track progress, compound skills \u2014 manage your human + agent workforce in one place.",
     cta: "Start free trial",
     worksWith: "Works with",
-    imageAlt: "Multica board view \u2014 issues managed by humans and agents",
+    imageAlt: "Harness board view \u2014 issues managed by humans and agents",
   },
 
   features: {
@@ -107,7 +107,7 @@ export const en: LandingDict = {
         {
           title: "Auto-detection & plug-and-play",
           description:
-            "Multica detects available CLIs like Claude Code, Codex, OpenClaw, and OpenCode automatically. Connect a machine, and it\u2019s ready to work.",
+            "Harness detects available CLIs like Claude Code, Codex, OpenClaw, and OpenCode automatically. Connect a machine, and it\u2019s ready to work.",
         },
       ],
     },
@@ -126,7 +126,7 @@ export const en: LandingDict = {
       {
         title: "Install the CLI & connect your machine",
         description:
-          "Run multica login to authenticate, then multica daemon start. The daemon auto-detects Claude Code, Codex, OpenClaw, and OpenCode on your machine \u2014 plug in and go.",
+          "Run harness login to authenticate, then harness daemon start. The daemon auto-detects Claude Code, Codex, OpenClaw, and OpenCode on your machine \u2014 plug in and go.",
       },
       {
         title: "Create your first agent",
@@ -148,13 +148,13 @@ export const en: LandingDict = {
     headlineLine1: "Open source",
     headlineLine2: "for all.",
     description:
-      "Multica is fully open source. Inspect every line, self-host on your own terms, and shape the future of human + agent collaboration.",
+      "Harness is fully open source. Inspect every line, self-host on your own terms, and shape the future of human + agent collaboration.",
     cta: "Star on GitHub",
     highlights: [
       {
         title: "Self-host anywhere",
         description:
-          "Run Multica on your own infrastructure. Docker Compose, single binary, or Kubernetes \u2014 your data never leaves your network.",
+          "Run Harness on your own infrastructure. Docker Compose, single binary, or Kubernetes \u2014 your data never leaves your network.",
       },
       {
         title: "No vendor lock-in",
@@ -179,30 +179,30 @@ export const en: LandingDict = {
     headline: "Questions & answers.",
     items: [
       {
-        question: "What coding agents does Multica support?",
+        question: "What coding agents does Harness support?",
         answer:
-          "Multica currently supports Claude Code, Codex, OpenClaw, and OpenCode out of the box. The daemon auto-detects whichever CLIs you have installed. Since it\u2019s open source, you can also add your own backends.",
+          "Harness currently supports Claude Code, Codex, OpenClaw, and OpenCode out of the box. The daemon auto-detects whichever CLIs you have installed. Since it\u2019s open source, you can also add your own backends.",
       },
       {
         question: "Do I need to self-host, or is there a cloud version?",
         answer:
-          "Both. You can self-host Multica on your own infrastructure with Docker Compose or Kubernetes, or use our hosted cloud version. Your data, your choice.",
+          "Both. You can self-host Harness on your own infrastructure with Docker Compose or Kubernetes, or use a hosted deployment. Your data, your choice.",
       },
       {
         question:
           "How is this different from just using coding agents directly?",
         answer:
-          "Coding agents are great at executing. Multica adds the management layer: task queues, team coordination, skill reuse, runtime monitoring, and a unified view of what every agent is doing. Think of it as the project manager for your agents.",
+          "Coding agents are great at executing. Harness adds the management layer: task queues, team coordination, skill reuse, runtime monitoring, and a unified view of what every agent is doing. Think of it as the project manager for your agents.",
       },
       {
         question: "Can agents work on long-running tasks autonomously?",
         answer:
-          "Yes. Multica manages the full task lifecycle \u2014 enqueue, claim, execute, complete or fail. Agents report blockers proactively and stream progress in real time. You can check in whenever you want or let them run overnight.",
+          "Yes. Harness manages the full task lifecycle \u2014 enqueue, claim, execute, complete or fail. Agents report blockers proactively and stream progress in real time. You can check in whenever you want or let them run overnight.",
       },
       {
         question: "Is my code safe? Where does agent execution happen?",
         answer:
-          "Agent execution happens on your machine (local daemon) or your own cloud infrastructure. Code never passes through Multica servers. The platform only coordinates task state and broadcasts events.",
+          "Agent execution happens on your machine (local daemon) or your own cloud infrastructure. Code never passes through Harness servers. The platform only coordinates task state and broadcasts events.",
       },
       {
         question: "How many agents can I run?",
@@ -228,7 +228,6 @@ export const en: LandingDict = {
         links: [
           { label: "Documentation", href: githubUrl },
           { label: "API", href: githubUrl },
-          { label: "X (Twitter)", href: "https://x.com/multica_hq" },
         ],
       },
       company: {
@@ -397,7 +396,7 @@ export const en: LandingDict = {
           "Load all open issues without pagination limit; closed issues paginate on scroll",
           "JWT and CloudFront cookie expiration extended from 72 hours to 30 days",
           "Remember last selected workspace after re-login",
-          "Daemon ensures multica CLI is on PATH in agent task environment",
+          "Daemon ensures harness CLI is on PATH in agent task environment",
           "PR template and CLI install guide for agent-driven setup",
         ],
       },

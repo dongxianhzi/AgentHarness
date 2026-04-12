@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { cn } from "@multica/ui/lib/utils";
 import { useAuthStore } from "@multica/core/auth";
-import { XMark, GitHubMark, githubUrl, twitterUrl } from "./shared";
+import { GitHubMark, githubUrl } from "./shared";
 import { useLocale, locales, localeLabels } from "../i18n";
 
 export function LandingFooter() {
@@ -50,15 +50,6 @@ export function LandingFooter() {
               >
                 <GitHubMark className="size-4" />
                 GitHub
-              </Link>
-              <Link
-                href={twitterUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-[16px] border border-[#122033]/10 bg-white/74 px-4 py-2.5 text-[13px] font-medium text-[#122033] transition-colors hover:bg-white"
-              >
-                <XMark className="size-4" />
-                X
               </Link>
             </div>
           </div>

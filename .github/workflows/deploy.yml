@@ -51,6 +51,73 @@ jobs:
             rm -f /tmp/agentharness-release.tar.gz
           "
 
+      - name: Sync runtime secrets
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+
+          lines = []
+          for key in ("RESEND_API_KEY", "RESEND_FROM_EMAIL"):
+              value = os.environ.get(key, "")
+              if value:
+                  lines.append(f"{key}={value}")
+
+          Path("/tmp/agentharness-runtime.env").write_text(
+              "\n".join(lines) + ("\n" if lines else "")
+          )
+          PY
+
+          scp -i ~/.ssh/tencent.pem /tmp/agentharness-runtime.env ubuntu@101.43.60.21:/tmp/agentharness-runtime.env
+          ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 '
+            set -eu
+            APP_DIR=/opt/agentharness
+            RELEASE_DIR=/tmp/agentharness-release
+            ENV_FILE="$APP_DIR/.env.production"
+
+            if [ ! -f "$ENV_FILE" ]; then
+              if [ -f "$RELEASE_DIR/.env.production.example" ]; then
+                cp "$RELEASE_DIR/.env.production.example" "$ENV_FILE"
+              else
+                : > "$ENV_FILE"
+              fi
+            fi
+
+            python3 - "$ENV_FILE" /tmp/agentharness-runtime.env <<"PY"
+from pathlib import Path
+import sys
+
+env_path = Path(sys.argv[1])
+updates_path = Path(sys.argv[2])
+
+env_lines = env_path.read_text().splitlines() if env_path.exists() else []
+updates = {}
+
+if updates_path.exists():
+    for line in updates_path.read_text().splitlines():
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if value:
+            updates[key] = value
+
+for key, value in updates.items():
+    for index, line in enumerate(env_lines):
+        if line.startswith(f"{key}="):
+            env_lines[index] = f"{key}={value}"
+            break
+    else:
+        env_lines.append(f"{key}={value}")
+
+env_path.write_text("\n".join(env_lines) + ("\n" if env_lines else ""))
+PY
+
+            rm -f /tmp/agentharness-runtime.env
+          '
+
       - name: Deploy native services
         run: |
-          ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 "RELEASE_DIR=/tmp/agentharness-release APP_DIR=/opt/agentharness APP_PORT=9997 BACKEND_PORT=8080 APP_VERSION=0.2.0 GIT_COMMIT=${GITHUB_SHA} bash /tmp/agentharness-release/scripts/deploy_remote_native.sh"
+          ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 "RELEASE_DIR=/tmp/agentharness-release APP_DIR=/opt/agentharness APP_PORT=9997 BACKEND_PORT=8080 APP_VERSION=0.2.1 GIT_COMMIT=${GITHUB_SHA} bash /tmp/agentharness-release/scripts/deploy_remote_native.sh"

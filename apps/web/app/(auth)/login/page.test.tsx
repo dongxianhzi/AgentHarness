@@ -68,7 +68,7 @@ describe("LoginPage", () => {
   it("renders login form with email input and continue button", () => {
     render(<LoginPage />);
 
-    expect(screen.getByText("Sign in to Multica")).toBeInTheDocument();
+    expect(screen.getByText("Sign in to Harness")).toBeInTheDocument();
     expect(screen.getByText("Enter your email to get a login code")).toBeInTheDocument();
     expect(screen.getByLabelText("Email")).toBeInTheDocument();
     expect(
@@ -89,11 +89,11 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
+    await user.type(screen.getByLabelText("Email"), "test@openagent.run");
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() => {
-      expect(mockSendCode).toHaveBeenCalledWith("test@multica.ai");
+      expect(mockSendCode).toHaveBeenCalledWith("test@openagent.run");
     });
   });
 
@@ -102,7 +102,7 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
+    await user.type(screen.getByLabelText("Email"), "test@openagent.run");
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() => {
@@ -115,7 +115,7 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
+    await user.type(screen.getByLabelText("Email"), "test@openagent.run");
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() => {
@@ -128,7 +128,7 @@ describe("LoginPage", () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    await user.type(screen.getByLabelText("Email"), "test@multica.ai");
+    await user.type(screen.getByLabelText("Email"), "test@openagent.run");
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() => {

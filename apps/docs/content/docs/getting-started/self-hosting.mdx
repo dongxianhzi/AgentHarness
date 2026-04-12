@@ -78,6 +78,8 @@ Multica uses email-based magic link authentication via [Resend](https://resend.c
 | `RESEND_API_KEY` | Your Resend API key |
 | `RESEND_FROM_EMAIL` | Sender email address (default: `noreply@multica.ai`) |
 
+If you deploy with the repository GitHub Actions workflow in `.github/workflows/deploy.yml`, set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` as repository secrets. The workflow syncs them into the remote `.env.production` during deployment.
+
 ### Google OAuth (Optional)
 
 | Variable | Description |
