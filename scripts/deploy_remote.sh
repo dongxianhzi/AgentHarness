@@ -9,6 +9,7 @@ COMPOSE_FILE=${COMPOSE_FILE:-docker-compose.deploy.yml}
 APP_PORT=${APP_PORT:-9997}
 APP_VERSION=${APP_VERSION:-0.1.90}
 GIT_COMMIT=${GIT_COMMIT:-unknown}
+DOCKER_REGISTRY_MIRROR=${DOCKER_REGISTRY_MIRROR:-https://mirror.ccs.tencentyun.com}
 
 log() {
   printf '[deploy] %s\n' "$*"
@@ -67,6 +68,9 @@ PY
 }
 
 ensure_docker() {
+  export DEBIAN_FRONTEND=noninteractive
+  export NEEDRESTART_MODE=a
+
   if command -v docker >/dev/null 2>&1; then
     if docker info >/dev/null 2>&1; then
       if docker compose version >/dev/null 2>&1 || command -v docker-compose >/dev/null 2>&1; then
@@ -91,6 +95,31 @@ ensure_docker() {
   fi
   sudo systemctl enable --now docker || true
   sudo usermod -aG docker "$USER" || true
+}
+
+configure_docker_daemon() {
+  log "Configuring Docker registry mirror ${DOCKER_REGISTRY_MIRROR}"
+  sudo mkdir -p /etc/docker
+  sudo python3 - "$DOCKER_REGISTRY_MIRROR" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+mirror = sys.argv[1]
+path = Path('/etc/docker/daemon.json')
+data = {}
+if path.exists():
+    try:
+        data = json.loads(path.read_text() or '{}')
+    except json.JSONDecodeError:
+        data = {}
+mirrors = data.get('registry-mirrors', [])
+if mirror not in mirrors:
+    mirrors.insert(0, mirror)
+data['registry-mirrors'] = mirrors
+path.write_text(json.dumps(data, indent=2) + '\n')
+PY
+  sudo systemctl restart docker || true
 }
 
 ensure_runtime_tools() {
@@ -184,6 +213,7 @@ main() {
   promote_release_dir
   cd "$APP_DIR"
   ensure_docker
+  configure_docker_daemon
   ensure_runtime_tools
   ensure_env_file
   deploy_stack
