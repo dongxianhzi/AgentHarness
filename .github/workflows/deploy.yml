@@ -72,7 +72,7 @@ jobs:
           PY
 
           scp -i ~/.ssh/tencent.pem /tmp/agentharness-runtime.env ubuntu@101.43.60.21:/tmp/agentharness-runtime.env
-          ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 '
+          ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 'bash -s' <<'REMOTE'
             set -eu
             APP_DIR=/opt/agentharness
             RELEASE_DIR=/tmp/agentharness-release
@@ -86,36 +86,37 @@ jobs:
               fi
             fi
 
-            while IFS= read -r line; do
-              [ -n "$line" ] || continue
-              case "$line" in
-                \#*) continue ;;
-              esac
+            python3 - "$ENV_FILE" /tmp/agentharness-runtime.env <<'PY'
+from pathlib import Path
+import sys
 
-              key=${line%%=*}
-              value=${line#*=}
-              [ -n "$value" ] || continue
+env_path = Path(sys.argv[1])
+updates_path = Path(sys.argv[2])
 
-              tmp_file=$(mktemp)
-              awk -v key="$key" -v value="$value" '
-                BEGIN { found = 0 }
-                index($0, key "=") == 1 {
-                  print key "=" value
-                  found = 1
-                  next
-                }
-                { print }
-                END {
-                  if (!found) {
-                    print key "=" value
-                  }
-                }
-              ' "$ENV_FILE" > "$tmp_file"
-              mv "$tmp_file" "$ENV_FILE"
-            done < /tmp/agentharness-runtime.env
+env_lines = env_path.read_text().splitlines() if env_path.exists() else []
+updates = {}
+
+if updates_path.exists():
+    for line in updates_path.read_text().splitlines():
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        if value:
+            updates[key] = value
+
+for key, value in updates.items():
+    for index, line in enumerate(env_lines):
+        if line.startswith(f"{key}="):
+            env_lines[index] = f"{key}={value}"
+            break
+    else:
+        env_lines.append(f"{key}={value}")
+
+env_path.write_text("\n".join(env_lines) + ("\n" if env_lines else ""))
+PY
 
             rm -f /tmp/agentharness-runtime.env
-          '
+REMOTE
 
       - name: Deploy native services
         run: |
