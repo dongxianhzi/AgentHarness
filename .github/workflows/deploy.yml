@@ -35,18 +35,20 @@ jobs:
             sudo mkdir -p /opt/agentharness
             sudo chown -R ubuntu:ubuntu /opt/agentharness
             rm -rf /tmp/agentharness-release
+            rm -f /tmp/agentharness-release.tar.gz
             mkdir -p /tmp
           '
 
-      - name: Checkout release on server
+      - name: Upload release bundle
         run: |
+          git archive --format=tar.gz --output=/tmp/agentharness-release.tar.gz ${GITHUB_SHA}
+          scp -i ~/.ssh/tencent.pem /tmp/agentharness-release.tar.gz ubuntu@101.43.60.21:/tmp/agentharness-release.tar.gz
           ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 "
             set -eu
             rm -rf /tmp/agentharness-release
-            git clone --depth 1 https://github.com/${GITHUB_REPOSITORY}.git /tmp/agentharness-release
-            cd /tmp/agentharness-release
-            git fetch --depth 1 origin ${GITHUB_SHA}
-            git checkout --force ${GITHUB_SHA}
+            mkdir -p /tmp/agentharness-release
+            tar -xzf /tmp/agentharness-release.tar.gz -C /tmp/agentharness-release
+            rm -f /tmp/agentharness-release.tar.gz
           "
 
       - name: Deploy native services
