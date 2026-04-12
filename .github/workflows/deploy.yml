@@ -86,37 +86,10 @@ jobs:
               fi
             fi
 
-            python3 - "$ENV_FILE" /tmp/agentharness-runtime.env <<'PY'
-from pathlib import Path
-import sys
-
-env_path = Path(sys.argv[1])
-updates_path = Path(sys.argv[2])
-
-env_lines = env_path.read_text().splitlines() if env_path.exists() else []
-updates = {}
-
-if updates_path.exists():
-    for line in updates_path.read_text().splitlines():
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        if value:
-            updates[key] = value
-
-for key, value in updates.items():
-    for index, line in enumerate(env_lines):
-        if line.startswith(f"{key}="):
-            env_lines[index] = f"{key}={value}"
-            break
-    else:
-        env_lines.append(f"{key}={value}")
-
-env_path.write_text("\n".join(env_lines) + ("\n" if env_lines else ""))
-PY
+            python3 "$RELEASE_DIR/scripts/merge_runtime_env.py" "$ENV_FILE" /tmp/agentharness-runtime.env
 
             rm -f /tmp/agentharness-runtime.env
-REMOTE
+            REMOTE
 
       - name: Deploy native services
         run: |
