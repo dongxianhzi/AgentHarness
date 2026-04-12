@@ -40,15 +40,7 @@ jobs:
 
       - name: Sync application files
         run: |
-          tar \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            --exclude='.next' \
-            --exclude='coverage' \
-            --exclude='dist' \
-            --exclude='out' \
-            --exclude='server/bin' \
-            -czf - . | ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 'tar -xzf - -C /tmp/agentharness-release'
+          git archive --format=tar.gz HEAD | ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 'tar -xzf - -C /tmp/agentharness-release'
 
       - name: Deploy native services
         run: |
