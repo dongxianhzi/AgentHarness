@@ -22,6 +22,26 @@ docker_cmd() {
   fi
 }
 
+compose_cmd() {
+  if docker info >/dev/null 2>&1; then
+    if docker compose version >/dev/null 2>&1; then
+      docker compose "$@"
+      return
+    fi
+  else
+    if sudo docker compose version >/dev/null 2>&1; then
+      sudo docker compose "$@"
+      return
+    fi
+  fi
+
+  if command -v docker-compose >/dev/null 2>&1; then
+    docker-compose "$@"
+  else
+    sudo docker-compose "$@"
+  fi
+}
+
 set_or_append() {
   local key=$1
   local value=$2
@@ -47,23 +67,41 @@ PY
 }
 
 ensure_docker() {
-  if command -v docker >/dev/null 2>&1 && docker_cmd compose version >/dev/null 2>&1; then
-    return
+  if command -v docker >/dev/null 2>&1; then
+    if docker info >/dev/null 2>&1; then
+      if docker compose version >/dev/null 2>&1 || command -v docker-compose >/dev/null 2>&1; then
+        return
+      fi
+    elif sudo docker info >/dev/null 2>&1; then
+      if sudo docker compose version >/dev/null 2>&1 || command -v docker-compose >/dev/null 2>&1 || sudo docker-compose version >/dev/null 2>&1; then
+        return
+      fi
+    fi
   fi
 
-  log "Installing Docker and Compose plugin"
+  log "Installing Docker from Ubuntu apt repositories"
   sudo apt-get update
-  sudo apt-get install -y ca-certificates curl gnupg
-  sudo install -m 0755 -d /etc/apt/keyrings
-  if [ ! -f /etc/apt/keyrings/docker.asc ]; then
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/keyrings/docker.asc >/dev/null
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
+  if sudo apt-get install -y docker.io docker-compose-v2; then
+    :
+  elif sudo apt-get install -y docker.io docker-compose-plugin; then
+    :
+  else
+    sudo apt-get install -y docker.io docker-compose
   fi
-  if [ ! -f /etc/apt/sources.list.d/docker.list ]; then
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+  sudo systemctl enable --now docker || true
+  sudo usermod -aG docker "$USER" || true
+}
+
+ensure_runtime_tools() {
+  if ! command -v curl >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo apt-get install -y curl
   fi
-  sudo apt-get update
-  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+  if ! command -v fuser >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo apt-get install -y psmisc
+  fi
 }
 
 ensure_env_file() {
@@ -116,12 +154,12 @@ deploy_stack() {
   export APP_PORT APP_VERSION GIT_COMMIT
 
   log "Stopping previous containers"
-  docker_cmd compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down --remove-orphans || true
+  compose_cmd --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down --remove-orphans || true
 
   stop_existing_listener
 
   log "Starting containers"
-  docker_cmd compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build --remove-orphans
+  compose_cmd --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build --remove-orphans
 }
 
 healthcheck() {
@@ -137,7 +175,7 @@ healthcheck() {
   done
 
   log "Deployment healthcheck failed"
-  docker_cmd compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps
+  compose_cmd --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps
   return 1
 }
 
@@ -145,6 +183,7 @@ main() {
   promote_release_dir
   cd "$APP_DIR"
   ensure_docker
+  ensure_runtime_tools
   ensure_env_file
   deploy_stack
   healthcheck
