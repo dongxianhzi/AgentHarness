@@ -73,23 +73,23 @@ jobs:
 
           scp -i ~/.ssh/tencent.pem /tmp/agentharness-runtime.env ubuntu@101.43.60.21:/tmp/agentharness-runtime.env
           ssh -i ~/.ssh/tencent.pem ubuntu@101.43.60.21 'bash -s' <<'REMOTE'
-            set -eu
-            APP_DIR=/opt/agentharness
-            RELEASE_DIR=/tmp/agentharness-release
-            ENV_FILE="$APP_DIR/.env.production"
+          set -eu
+          APP_DIR=/opt/agentharness
+          RELEASE_DIR=/tmp/agentharness-release
+          ENV_FILE="$APP_DIR/.env.production"
 
-            if [ ! -f "$ENV_FILE" ]; then
-              if [ -f "$RELEASE_DIR/.env.production.example" ]; then
-                cp "$RELEASE_DIR/.env.production.example" "$ENV_FILE"
-              else
-                : > "$ENV_FILE"
-              fi
+          if [ ! -f "$ENV_FILE" ]; then
+            if [ -f "$RELEASE_DIR/.env.production.example" ]; then
+              cp "$RELEASE_DIR/.env.production.example" "$ENV_FILE"
+            else
+              : > "$ENV_FILE"
             fi
+          fi
 
-            python3 "$RELEASE_DIR/scripts/merge_runtime_env.py" "$ENV_FILE" /tmp/agentharness-runtime.env
+          python3 "$RELEASE_DIR/scripts/merge_runtime_env.py" "$ENV_FILE" /tmp/agentharness-runtime.env
 
-            rm -f /tmp/agentharness-runtime.env
-            REMOTE
+          rm -f /tmp/agentharness-runtime.env
+          REMOTE
 
       - name: Deploy native services
         run: |
