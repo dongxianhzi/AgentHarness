@@ -3,6 +3,7 @@
 set -Eeuo pipefail
 
 APP_DIR=${APP_DIR:-$(pwd)}
+RELEASE_DIR=${RELEASE_DIR:-}
 ENV_FILE=${ENV_FILE:-.env.production}
 COMPOSE_FILE=${COMPOSE_FILE:-docker-compose.deploy.yml}
 APP_PORT=${APP_PORT:-9997}
@@ -88,6 +89,20 @@ ensure_env_file() {
   fi
 }
 
+promote_release_dir() {
+  if [ -z "$RELEASE_DIR" ] || [ "$RELEASE_DIR" = "$APP_DIR" ]; then
+    return
+  fi
+
+  log "Promoting release payload from $RELEASE_DIR to $APP_DIR"
+  mkdir -p "$APP_DIR"
+  find "$APP_DIR" -mindepth 1 -maxdepth 1 \
+    ! -name '.env.production' \
+    ! -name '.env.production.local' \
+    -exec rm -rf {} +
+  cp -a "$RELEASE_DIR"/. "$APP_DIR"/
+}
+
 stop_existing_listener() {
   local pids
   pids=$(sudo fuser -n tcp "$APP_PORT" 2>/dev/null || true)
@@ -127,6 +142,7 @@ healthcheck() {
 }
 
 main() {
+  promote_release_dir
   cd "$APP_DIR"
   ensure_docker
   ensure_env_file
