@@ -213,8 +213,6 @@ export const en: LandingDict = {
   },
 
   footer: {
-    tagline:
-      "Project management for human + agent teams. Open source, self-hostable, built for the future of work.",
     cta: "Get started",
     groups: {
       product: {

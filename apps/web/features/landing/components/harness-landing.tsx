@@ -682,7 +682,7 @@ export function HarnessLanding() {
 
             <div className="grid gap-5 md:grid-cols-3">
               {t.audiences.items.map((item, index) => {
-                const Icon = audienceIcons[index];
+                const Icon = audienceIcons[index] ?? ShieldCheck;
 
                 return (
                   <article
@@ -755,7 +755,7 @@ export function HarnessLanding() {
 
             <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {t.rhythm.steps.map((step, index) => {
-                const Icon = rhythmIcons[index];
+                const Icon = rhythmIcons[index] ?? Workflow;
 
                 return (
                   <article key={step.title} className="rounded-[24px] border border-white/10 bg-white/6 p-6">

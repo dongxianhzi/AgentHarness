@@ -213,8 +213,6 @@ export const zh: LandingDict = {
   },
 
   footer: {
-    tagline:
-      "\u4eba\u7c7b + Agent \u56e2\u961f\u7684\u9879\u76ee\u7ba1\u7406\u3002\u5f00\u6e90\u3001\u53ef\u81ea\u6258\u7ba1\u3001\u4e3a\u672a\u6765\u7684\u5de5\u4f5c\u65b9\u5f0f\u800c\u5efa\u3002",
     cta: "\u5f00\u59cb\u4f7f\u7528",
     groups: {
       product: {
