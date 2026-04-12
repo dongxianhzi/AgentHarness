@@ -80,6 +80,7 @@ ensure_docker() {
   fi
 
   log "Installing Docker from Ubuntu apt repositories"
+  sudo rm -f /etc/apt/sources.list.d/docker.list /etc/apt/keyrings/docker.asc || true
   sudo apt-get update
   if sudo apt-get install -y docker.io docker-compose-v2; then
     :
