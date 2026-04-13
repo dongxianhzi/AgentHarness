@@ -127,7 +127,7 @@ func (b *hermesBackend) Execute(ctx context.Context, prompt string, opts ExecOpt
 			"protocolVersion": 1,
 			"clientInfo": map[string]any{
 				"name":    "multica-agent-sdk",
-				"version": "0.2.1",
+				"version": "0.2.2",
 			},
 			"clientCapabilities": map[string]any{},
 		})

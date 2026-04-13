@@ -28,7 +28,7 @@ export function ChangelogPageClient() {
   const categoryLabels = t.changelog.categories;
   const latest = t.changelog.entries[0];
   const releaseCount = t.changelog.entries.length;
-  const latestVersion = latest?.version ?? "0.2.1";
+  const latestVersion = latest?.version ?? "0.2.2";
   const serifClass =
     locale === "zh"
       ? "font-[family:var(--font-serif-zh)]"

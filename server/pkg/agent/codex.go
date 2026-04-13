@@ -128,7 +128,7 @@ func (b *codexBackend) Execute(ctx context.Context, prompt string, opts ExecOpti
 			"clientInfo": map[string]any{
 				"name":    "multica-agent-sdk",
 				"title":   "Multica Agent SDK",
-				"version": "0.2.1",
+				"version": "0.2.2",
 			},
 			"capabilities": map[string]any{
 				"experimentalApi": true,
