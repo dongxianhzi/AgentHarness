@@ -1,3 +1,4 @@
+// e:\AgentHarness\apps\web\features\landing\i18n\types.ts
 export type Locale = "en" | "zh";
 
 export const locales: Locale[] = ["en", "zh"];
@@ -17,6 +18,275 @@ type FeatureSection = {
 type FooterGroup = {
   label: string;
   links: { label: string; href: string }[];
+};
+
+// 通用字段类型
+type CommonDict = {
+  workspace: string;
+  status?: string;
+  priority?: string;
+  assignee?: string;
+  creator?: string;
+  project?: string;
+  searchPlaceholder?: string;
+  actions?: CommonActionsDict;
+};
+
+// 侧边栏字段类型
+type SidebarDict = {
+  inbox: string;
+  myIssues: string;
+  issues: string;
+  projects: string;
+  agents: string;
+  runtimes: string;
+  skills: string;
+  settings: string;
+  pinned: string;
+  workspace: string;
+  configure: string;
+  newIssue: string;
+  workspaces: string;
+  createWorkspace: string;
+  logout: string;
+  unpin: string;
+};
+
+// 新增：仪表盘 Issues 页面字段类型
+type DashboardIssuesDict = {
+  title: string;
+  createNew: string;
+  searchPlaceholder: string;
+  columns: {
+    id: string;
+    title: string;
+    status: string;
+    assignee: string;
+    createdAt: string;
+  };
+  status: {
+    open: string;
+    closed: string;
+    inProgress: string;
+  };
+};
+
+// 新增：仪表盘通用字段类型
+type DashboardDict = {
+  issues: DashboardIssuesDict;
+};
+
+// 新增：Issues 组件通用错误/状态字段
+type IssuesDict = {
+  emptyState: {
+    title: string;
+    subtitle: string;
+  };
+  errors: {
+    moveFailed: string;
+  };
+};
+type IssuesHeaderDict = {
+  filter: string;
+  displaySettings: string;
+  ordering: string;
+  cardProperties: string;
+  view: string;
+  boardView: string;
+  listView: string;
+  resetAllFilters: string;
+  ascending: string;
+  descending: string;
+  noResults: string;
+  members: string;
+  agents: string;
+  noAssignee: string;
+  noProject: string;
+  issue: string; // 单数
+  issues: string; // 复数
+  scopes: {
+    all: { label: string; description: string };
+    members: { label: string; description: string };
+    agents: { label: string; description: string };
+  };
+  sortOptions: {
+    manual: string;
+    createdAt: string;
+    updatedAt: string;
+    dueDate: string;
+    priority: string;
+    title: string;
+  };
+  cardPropertyOptions: {
+    assignee: string;
+    priority: string;
+    dueDate: string;
+    description: string;
+  };
+};
+
+type BoardDict = {
+  hideColumn: string;
+  addIssue: string;
+  noIssues: string;
+  hiddenColumns: string;
+  showColumn: string;
+  statuses: {
+    backlog: string;
+    todo: string;
+    inProgress: string;
+    inReview: string;
+    done: string;
+    blocked: string;
+    cancelled?: string;
+  };
+  priorities: {
+    urgent: string;
+    high: string;
+    medium: string;
+    low: string;
+    noPriority: string;
+  };
+};
+type ModalDict = {
+  createIssue: {
+    title: string;
+    fields: {
+      title: string;
+      description: string;
+      // 添加其他字段
+    };
+    placeholders: {
+      title: string;
+      description: string;
+    };
+  };
+};
+
+type CommonActionsDict = {
+  cancel: string;
+  create: string;
+  creating: string;
+  save: string;
+  delete: string;
+};
+
+type IssueDetailDict = {
+  // 通用状态/错误
+  emptyState: {
+    notFound: string;
+  };
+  errors: {
+    updateFailed: string;
+    deleteFailed: string;
+  };
+  toast: {
+    deleted: string;
+    linkCopied: string;
+  };
+
+  // 导航与操作
+  navigation: {
+    previous: string;
+    next: string;
+  };
+  actions: {
+    backToIssues: string;
+    pin: string;
+    unpin: string;
+    createSubIssue: string;
+    addSubIssues: string; // 按钮文本 "Add sub-issues"
+    addSubIssue: string; // Tooltip/Label "Add sub-issue"
+    copyLink: string;
+    delete: string;
+    toggleSidebar: string;
+    subscribe: string;
+    unsubscribe: string;
+  };
+
+  // 删除确认弹窗
+  delete: {
+    title: string;
+    description: string;
+  };
+
+  // 占位符
+  placeholders: {
+    title: string;
+    description: string;
+  };
+
+  // 标签与标题
+  labels: {
+    subIssueOf: string;
+    subIssues: string;
+    parentIssue: string;
+  };
+
+  // 侧边栏区块标题
+  sections: {
+    properties: string;
+    details: string;
+    tokenUsage: string;
+  };
+
+  // 属性行标签 (Sidebar)
+  properties: {
+    dueDate: string;
+  };
+
+  // 详情部分标签 (Sidebar -> Details)
+  details: {
+    createdBy: string;
+    created: string;
+    updated: string;
+  };
+
+  // Token 用量标签 (Sidebar -> Token usage)
+  tokenUsage: {
+    input: string;
+    output: string;
+    cache: string;
+    runs: string;
+  };
+
+  // 日期快捷选项
+  dueDate: {
+    today: string;
+    tomorrow: string;
+    nextWeek: string;
+    clear: string;
+  };
+
+  // 活动日志 (Activity Timeline)
+  activity: {
+    title: string;
+    created: string;
+    statusChanged: string; // 支持 {from}, {to占位符}
+    priorityChanged: string; // 支持 {from}, {to}
+    selfAssigned: string;
+    assignedTo: string; // 支持 {name}
+    removedAssignee: string;
+    changedAssignee: string;
+    removedDueDate: string;
+    setDueDate: string; // 支持 {date}
+    renamed: string; // 支持 {from}, {to}
+    updatedDescription: string;
+    taskCompleted: string;
+    taskFailed: string;
+  };
+
+  // 订阅者弹窗
+  subscribers: {
+    placeholder: string;
+    members: string;
+    agents: string;
+  };
+
+  // 指派状态
+  assignee: {
+    unassigned: string;
+  };
 };
 
 export type LandingDict = {
@@ -90,4 +360,14 @@ export type LandingDict = {
       fixes?: string[];
     }[];
   };
+
+  // 新增字段
+  common: CommonDict & { actions?: CommonActionsDict }; // 合并 actions
+  modal?: ModalDict; // 可选或必填，视结构而定
+  sidebar: SidebarDict;
+  dashboard: DashboardDict;
+  issues: IssuesDict;
+  board: BoardDict;
+  issuesHeader: IssuesHeaderDict;
+  issueDetail: IssueDetailDict;
 };

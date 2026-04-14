@@ -19,6 +19,9 @@ import { InfiniteScrollSentinel } from "./infinite-scroll-sentinel";
 
 const EMPTY_PROGRESS_MAP = new Map<string, ChildProgress>();
 
+// 定义翻译函数类型
+type TranslateFn = (key: string, fallback: string) => string;
+
 export function ListView({
   issues,
   visibleStatuses,
@@ -26,6 +29,7 @@ export function ListView({
   doneTotal: doneTotalOverride,
   myIssuesScope,
   myIssuesFilter,
+  t = (_, fallback) => fallback, // 默认 fallback
 }: {
   issues: Issue[];
   visibleStatuses: IssueStatus[];
@@ -35,6 +39,7 @@ export function ListView({
   /** When set, use the My Issues load-more hook instead of the workspace one. */
   myIssuesScope?: string;
   myIssuesFilter?: MyIssuesFilter;
+  t?: TranslateFn;
 }) {
   const sortBy = useViewStore((s) => s.sortBy);
   const sortDirection = useViewStore((s) => s.sortDirection);
@@ -136,12 +141,14 @@ export function ListView({
                               .getState()
                               .open("create-issue", { status })
                           }
-                        />
+                        >
+                          <Plus className="size-3.5" />
+                        </Button>
                       }
                     >
-                      <Plus className="size-3.5" />
+                      {/* 使用 t 函数进行国际化 */}
+                      <TooltipContent>{t('board.addIssue', 'Add issue')}</TooltipContent>
                     </TooltipTrigger>
-                    <TooltipContent>Add issue</TooltipContent>
                   </Tooltip>
                 </div>
               </Accordion.Header>
@@ -157,7 +164,8 @@ export function ListView({
                   </>
                 ) : (
                   <p className="py-6 text-center text-xs text-muted-foreground">
-                    No issues
+                    {/* 使用 t 函数进行国际化 */}
+                    {t('board.noIssues', 'No issues')}
                   </p>
                 )}
               </Accordion.Panel>

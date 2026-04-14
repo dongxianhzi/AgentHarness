@@ -67,22 +67,21 @@ import { pinKeys } from "@multica/core/pins/queries";
 import { useDeletePin, useReorderPins } from "@multica/core/pins/mutations";
 import type { PinnedItem } from "@multica/core/types";
 
-const personalNav = [
-  { href: "/inbox", label: "Inbox", icon: Inbox },
-  { href: "/my-issues", label: "My Issues", icon: CircleUser },
-];
+// 定义翻译函数类型
+type TranslateFn = (key: string, fallback: string) => string;
 
-const workspaceNav = [
-  { href: "/issues", label: "Issues", icon: ListTodo },
-  { href: "/projects", label: "Projects", icon: FolderKanban },
-  { href: "/agents", label: "Agents", icon: Bot },
-];
-
-const configureNav = [
-  { href: "/runtimes", label: "Runtimes", icon: Monitor },
-  { href: "/skills", label: "Skills", icon: BookOpenText },
-  { href: "/settings", label: "Settings", icon: Settings },
-];
+interface AppSidebarProps {
+  /** Rendered above SidebarHeader (e.g. desktop traffic light spacer) */
+  topSlot?: React.ReactNode;
+  /** Rendered in the header between workspace switcher and new-issue button (e.g. search trigger) */
+  searchSlot?: React.ReactNode;
+  /** Extra className for SidebarHeader */
+  headerClassName?: string;
+  /** Extra style for SidebarHeader */
+  headerStyle?: React.CSSProperties;
+  /** Translation function */
+  t?: TranslateFn;
+}
 
 function DraftDot() {
   const hasDraft = useIssueDraftStore((s) => !!(s.draft.title || s.draft.description));
@@ -90,7 +89,17 @@ function DraftDot() {
   return <span className="absolute top-0 right-0 size-1.5 rounded-full bg-brand" />;
 }
 
-function SortablePinItem({ pin, pathname, onUnpin }: { pin: PinnedItem; pathname: string; onUnpin: () => void }) {
+function SortablePinItem({ 
+  pin, 
+  pathname, 
+  onUnpin, 
+  t 
+}: { 
+  pin: PinnedItem; 
+  pathname: string; 
+  onUnpin: () => void;
+  t: TranslateFn;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: pin.id });
   const wasDragged = useRef(false);
   const { push } = useNavigation();
@@ -102,6 +111,7 @@ function SortablePinItem({ pin, pathname, onUnpin }: { pin: PinnedItem; pathname
   const style = { transform: CSS.Transform.toString(transform), transition };
   const href = pin.item_type === "issue" ? `/issues/${pin.item_id}` : `/projects/${pin.item_id}`;
   const isActive = pathname === href;
+  // Pinned items usually keep their original title, but we could translate types if needed
   const label = pin.item_type === "issue" && pin.identifier ? `${pin.identifier} ${pin.title}` : pin.title;
 
   return (
@@ -136,6 +146,7 @@ function SortablePinItem({ pin, pathname, onUnpin }: { pin: PinnedItem; pathname
             e.stopPropagation();
             onUnpin();
           }}
+          aria-label={t('sidebar.unpin', 'Unpin')}
         >
           <PinOff className="size-3 text-muted-foreground" />
         </button>
@@ -144,18 +155,13 @@ function SortablePinItem({ pin, pathname, onUnpin }: { pin: PinnedItem; pathname
   );
 }
 
-interface AppSidebarProps {
-  /** Rendered above SidebarHeader (e.g. desktop traffic light spacer) */
-  topSlot?: React.ReactNode;
-  /** Rendered in the header between workspace switcher and new-issue button (e.g. search trigger) */
-  searchSlot?: React.ReactNode;
-  /** Extra className for SidebarHeader */
-  headerClassName?: string;
-  /** Extra style for SidebarHeader */
-  headerStyle?: React.CSSProperties;
-}
-
-export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }: AppSidebarProps = {}) {
+export function AppSidebar({ 
+  topSlot, 
+  searchSlot, 
+  headerClassName, 
+  headerStyle,
+  t = (_, fallback) => fallback 
+}: AppSidebarProps = {}) {
   const { pathname, push } = useNavigation();
   const user = useAuthStore((s) => s.user);
   const authLogout = useAuthStore((s) => s.logout);
@@ -225,6 +231,24 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [pathname]);
 
+  // Define nav items with translation keys
+  const personalNav = [
+    { href: "/inbox", labelKey: "sidebar.inbox", defaultLabel: "Inbox", icon: Inbox },
+    { href: "/my-issues", labelKey: "sidebar.myIssues", defaultLabel: "My Issues", icon: CircleUser },
+  ];
+
+  const workspaceNav = [
+    { href: "/issues", labelKey: "sidebar.issues", defaultLabel: "Issues", icon: ListTodo },
+    { href: "/projects", labelKey: "sidebar.projects", defaultLabel: "Projects", icon: FolderKanban },
+    { href: "/agents", labelKey: "sidebar.agents", defaultLabel: "Agents", icon: Bot },
+  ];
+
+  const configureNav = [
+    { href: "/runtimes", labelKey: "sidebar.runtimes", defaultLabel: "Runtimes", icon: Monitor },
+    { href: "/skills", labelKey: "sidebar.skills", defaultLabel: "Skills", icon: BookOpenText },
+    { href: "/settings", labelKey: "sidebar.settings", defaultLabel: "Settings", icon: Settings },
+  ];
+
   return (
       <Sidebar variant="inset">
         {topSlot}
@@ -238,7 +262,7 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                     <SidebarMenuButton>
                       <WorkspaceAvatar name={workspace?.name ?? "M"} size="sm" />
                       <span className="flex-1 truncate font-medium">
-                        {workspace?.name ?? "Harness"}
+                        {workspace?.name ?? t('common.workspace', 'Harness')}                   
                       </span>
                       <ChevronDown className="size-3 text-muted-foreground" />
                     </SidebarMenuButton>
@@ -258,16 +282,17 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup className="group/ws-section">
                     <DropdownMenuLabel className="flex items-center text-xs text-muted-foreground">
-                      Workspaces
+                      {t('sidebar.workspaces', 'Workspaces')}
                       <Tooltip>
                         <TooltipTrigger
                           className="ml-auto opacity-0 group-hover/ws-section:opacity-100 transition-opacity rounded hover:bg-accent p-0.5"
                           onClick={() => useModalStore.getState().open("create-workspace")}
+                          aria-label={t('sidebar.createWorkspace', 'Create workspace')}
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </TooltipTrigger>
                         <TooltipContent side="right">
-                          Create workspace
+                          {t('sidebar.createWorkspace', 'Create workspace')}
                         </TooltipContent>
                       </Tooltip>
                     </DropdownMenuLabel>
@@ -293,7 +318,7 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                   <DropdownMenuGroup>
                     <DropdownMenuItem variant="destructive" onClick={logout}>
                       <LogOut className="h-3.5 w-3.5" />
-                      Log out
+                      {t('sidebar.logout', 'Log out')}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>
@@ -315,7 +340,7 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                   <SquarePen />
                   <DraftDot />
                 </span>
-                <span>New Issue</span>
+                <span>{t('sidebar.newIssue', 'New Issue')}</span>
                 <kbd className="pointer-events-none ml-auto inline-flex h-5 select-none items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">C</kbd>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -329,6 +354,7 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
               <SidebarMenu className="gap-0.5">
                 {personalNav.map((item) => {
                   const isActive = pathname === item.href;
+                  const label = t(item.labelKey, item.defaultLabel);
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
@@ -337,8 +363,8 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                         className="text-muted-foreground hover:not-data-active:bg-sidebar-accent/70 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground"
                       >
                         <item.icon />
-                        <span>{item.label}</span>
-                        {item.label === "Inbox" && unreadCount > 0 && (
+                        <span>{label}</span>
+                        {item.labelKey === "sidebar.inbox" && unreadCount > 0 && (
                           <span className="ml-auto text-xs">
                             {unreadCount > 99 ? "99+" : unreadCount}
                           </span>
@@ -353,7 +379,7 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
 
           {pinnedItems.length > 0 && (
             <SidebarGroup>
-              <SidebarGroupLabel>Pinned</SidebarGroupLabel>
+              <SidebarGroupLabel>{t('sidebar.pinned', 'Pinned')}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={pinnedItems.map((p) => p.id)} strategy={verticalListSortingStrategy}>
@@ -364,6 +390,7 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                           pin={pin}
                           pathname={pathname}
                           onUnpin={() => deletePin.mutate({ itemType: pin.item_type, itemId: pin.item_id })}
+                          t={t}
                         />
                       ))}
                     </SidebarMenu>
@@ -374,11 +401,12 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
           )}
 
           <SidebarGroup>
-            <SidebarGroupLabel>Workspace</SidebarGroupLabel>
+            <SidebarGroupLabel>{t('sidebar.workspace', 'Workspace')}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">
                 {workspaceNav.map((item) => {
                   const isActive = pathname === item.href;
+                  const label = t(item.labelKey, item.defaultLabel);
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
@@ -387,7 +415,7 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                         className="text-muted-foreground hover:not-data-active:bg-sidebar-accent/70 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground"
                       >
                         <item.icon />
-                        <span>{item.label}</span>
+                        <span>{label}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
@@ -397,11 +425,12 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel>Configure</SidebarGroupLabel>
+            <SidebarGroupLabel>{t('sidebar.configure', 'Configure')}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-0.5">
                 {configureNav.map((item) => {
                   const isActive = pathname === item.href;
+                  const label = t(item.labelKey, item.defaultLabel);
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
@@ -410,8 +439,8 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                         className="text-muted-foreground hover:not-data-active:bg-sidebar-accent/70 data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground"
                       >
                         <item.icon />
-                        <span>{item.label}</span>
-                        {item.label === "Runtimes" && hasRuntimeUpdates && (
+                        <span>{label}</span>
+                        {item.labelKey === "sidebar.runtimes" && hasRuntimeUpdates && (
                           <span className="ml-auto size-1.5 rounded-full bg-destructive" />
                         )}
                       </SidebarMenuButton>
@@ -447,7 +476,7 @@ export function AppSidebar({ topSlot, searchSlot, headerClassName, headerStyle }
                 <DropdownMenuContent align="end" side="top" sideOffset={4}>
                   <DropdownMenuItem variant="destructive" onClick={logout}>
                     <LogOut className="h-3.5 w-3.5" />
-                    Log out
+                    {t('sidebar.logout', 'Log out')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@multica/ui/components/common/theme-provider";
+import { useI18nStore } from "@multica/core";
 import { cn } from "@multica/ui/lib/utils";
 
 const LIGHT_COLORS = {
@@ -84,8 +85,22 @@ const themeOptions = [
   { value: "system" as const, label: "System" },
 ];
 
+const languageOptions = [
+  { value: "en" as const, label: "English" },
+  { value: "zh" as const, label: "中文" },
+];
+
 export function AppearanceTab() {
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage } = useI18nStore();
+
+  const handleLanguageChange = (newLanguage: "en" | "zh") => {
+    setLanguage(newLanguage);
+    // Set cookie for server-side rendering
+    document.cookie = `harness-locale=${newLanguage}; path=/; max-age=31536000`;
+    // Update html lang
+    document.documentElement.lang = newLanguage;
+  };
 
   return (
     <div className="space-y-8">
@@ -125,6 +140,48 @@ export function AppearanceTab() {
                   ) : (
                     <WindowMockup variant={opt.value} />
                   )}
+                </div>
+                <span
+                  className={cn(
+                    "text-sm transition-colors",
+                    active
+                      ? "font-medium text-foreground"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {opt.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-sm font-semibold">Language</h2>
+        <div className="flex gap-6" role="radiogroup" aria-label="Language">
+          {languageOptions.map((opt) => {
+            const active = language === opt.value;
+            return (
+              <button
+                key={opt.value}
+                role="radio"
+                aria-checked={active}
+                aria-label={`Select ${opt.label} language`}
+                onClick={() => handleLanguageChange(opt.value)}
+                className="group flex flex-col items-center gap-2"
+              >
+                <div
+                  className={cn(
+                    "flex aspect-[4/3] w-36 items-center justify-center rounded-lg ring-1 transition-all",
+                    active
+                      ? "ring-2 ring-brand bg-accent"
+                      : "ring-border hover:ring-2 hover:ring-border hover:bg-accent/50"
+                  )}
+                >
+                  <span className="text-2xl font-bold text-muted-foreground">
+                    {opt.value === "en" ? "EN" : "中"}
+                  </span>
                 </div>
                 <span
                   className={cn(

@@ -101,41 +101,51 @@ function priorityLabel(priority: string): string {
   return PRIORITY_CONFIG[priority as IssuePriority]?.label ?? priority;
 }
 
+// 定义翻译函数类型
+type TranslateFn = (key: string, fallback: string) => string;
+
 function formatActivity(
   entry: TimelineEntry,
   resolveActorName?: (type: string, id: string) => string,
+  t: TranslateFn = (_, fb) => fb,
 ): string {
   const details = (entry.details ?? {}) as Record<string, string>;
   switch (entry.action) {
     case "created":
-      return "created this issue";
+      return t('issueDetail.activity.created', 'created this issue');
     case "status_changed":
-      return `changed status from ${statusLabel(details.from ?? "?")} to ${statusLabel(details.to ?? "?")}`;
+      return t('issueDetail.activity.statusChanged', 'changed status from {from} to {to}')
+        .replace('{from}', statusLabel(details.from ?? "?"))
+        .replace('{to}', statusLabel(details.to ?? "?"));
     case "priority_changed":
-      return `changed priority from ${priorityLabel(details.from ?? "?")} to ${priorityLabel(details.to ?? "?")}`;
+      return t('issueDetail.activity.priorityChanged', 'changed priority from {from} to {to}')
+        .replace('{from}', priorityLabel(details.from ?? "?"))
+        .replace('{to}', priorityLabel(details.to ?? "?"));
     case "assignee_changed": {
       const isSelfAssign = details.to_type === entry.actor_type && details.to_id === entry.actor_id;
-      if (isSelfAssign) return "self-assigned this issue";
+      if (isSelfAssign) return t('issueDetail.activity.selfAssigned', 'self-assigned this issue');
       const toName = details.to_id && details.to_type && resolveActorName
         ? resolveActorName(details.to_type, details.to_id)
         : null;
-      if (toName) return `assigned to ${toName}`;
-      if (details.from_id && !details.to_id) return "removed assignee";
-      return "changed assignee";
+      if (toName) return t('issueDetail.activity.assignedTo', 'assigned to {name}').replace('{name}', toName);
+      if (details.from_id && !details.to_id) return t('issueDetail.activity.removedAssignee', 'removed assignee');
+      return t('issueDetail.activity.changedAssignee', 'changed assignee');
     }
     case "due_date_changed": {
-      if (!details.to) return "removed due date";
+      if (!details.to) return t('issueDetail.activity.removedDueDate', 'removed due date');
       const formatted = new Date(details.to).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-      return `set due date to ${formatted}`;
+      return t('issueDetail.activity.setDueDate', 'set due date to {date}').replace('{date}', formatted);
     }
     case "title_changed":
-      return `renamed this issue from "${details.from ?? "?"}" to "${details.to ?? "?"}"`;
+      return t('issueDetail.activity.renamed', 'renamed this issue from "{from}" to "{to}"')
+        .replace('{from}', details.from ?? "?")
+        .replace('{to}', details.to ?? "?");
     case "description_updated":
-      return "updated the description";
+      return t('issueDetail.activity.updatedDescription', 'updated the description');
     case "task_completed":
-      return "completed the task";
+      return t('issueDetail.activity.taskCompleted', 'completed the task');
     case "task_failed":
-      return "task failed";
+      return t('issueDetail.activity.taskFailed', 'task failed');
     default:
       return entry.action ?? "";
   }
@@ -185,13 +195,21 @@ interface IssueDetailProps {
   layoutId?: string;
   /** When set, the issue detail will auto-scroll to this comment and briefly highlight it. */
   highlightCommentId?: string;
+  t?: TranslateFn; 
 }
 
 // ---------------------------------------------------------------------------
 // IssueDetail
 // ---------------------------------------------------------------------------
 
-export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layoutId = "multica_issue_detail_layout", highlightCommentId }: IssueDetailProps) {
+export function IssueDetail({ 
+  issueId, 
+  onDelete, 
+  defaultSidebarOpen = true, 
+  layoutId = "multica_issue_detail_layout", 
+  highlightCommentId,
+  t = (_, fallback) => fallback 
+}: IssueDetailProps) {
   const id = issueId;
   const router = useNavigation();
   const user = useAuthStore((s) => s.user);
@@ -313,10 +331,10 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
       if (!issue) return;
       updateIssueMutation.mutate(
         { id, ...updates },
-        { onError: () => toast.error("Failed to update issue") },
+        { onError: () => toast.error(t('issueDetail.errors.updateFailed', 'Failed to update issue')) },
       );
     },
-    [issue, id, updateIssueMutation],
+    [issue, id, updateIssueMutation, t],
   );
 
   const descEditorRef = useRef<ContentEditorRef>(null);
@@ -335,11 +353,11 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
     setDeleting(true);
     try {
       await deleteIssueMutation.mutateAsync(issue!.id);
-      toast.success("Issue deleted");
+      toast.success(t('issueDetail.toast.deleted', 'Issue deleted'));
       if (onDelete) onDelete();
       else router.push("/issues");
     } catch {
-      toast.error("Failed to delete issue");
+      toast.error(t('issueDetail.errors.deleteFailed', 'Failed to delete issue'));
       setDeleting(false);
     }
   };
@@ -398,11 +416,11 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
   if (!issue) {
     return (
       <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-3 text-sm text-muted-foreground">
-        <p>This issue does not exist or has been deleted in this workspace.</p>
+        <p>{t('issueDetail.emptyState.notFound', 'This issue does not exist or has been deleted in this workspace.')}</p>
         {!onDelete && (
           <Button variant="outline" size="sm" onClick={() => router.push("/issues")}>
             <ChevronLeft className="mr-1 h-3.5 w-3.5" />
-            Back to Issues
+            {t('issueDetail.actions.backToIssues', 'Back to Issues')}
           </Button>
         )}
       </div>
@@ -463,7 +481,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                       </Button>
                     }
                   />
-                  <TooltipContent side="bottom">Previous issue</TooltipContent>
+                  <TooltipContent side="bottom">{t('issueDetail.navigation.previous', 'Previous issue')}</TooltipContent>
                 </Tooltip>
                 <span className="text-xs text-muted-foreground tabular-nums px-0.5">
                   {currentIndex >= 0 ? currentIndex + 1 : "?"} / {allIssues.length}
@@ -482,7 +500,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                       </Button>
                     }
                   />
-                  <TooltipContent side="bottom">Next issue</TooltipContent>
+                  <TooltipContent side="bottom">{t('issueDetail.navigation.next', 'Next issue')}</TooltipContent>
                 </Tooltip>
               </div>
             )}
@@ -505,7 +523,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                   </Button>
                 }
               />
-              <TooltipContent side="bottom">{isPinned ? "Unpin from sidebar" : "Pin to sidebar"}</TooltipContent>
+              <TooltipContent side="bottom">{isPinned ? t('issueDetail.actions.unpin', 'Unpin from sidebar') : t('issueDetail.actions.pin', 'Pin to sidebar')}</TooltipContent>
             </Tooltip>
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -520,7 +538,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <StatusIcon status={issue.status} className="h-3.5 w-3.5" />
-                    Status
+                    {t('common.status', 'Status')}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     {ALL_STATUSES.map((s) => (
@@ -540,7 +558,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <PriorityIcon priority={issue.priority} />
-                    Priority
+                    {t('common.priority', 'Priority')}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     {PRIORITY_ORDER.map((p) => (
@@ -562,14 +580,14 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <UserMinus className="h-3.5 w-3.5" />
-                    Assignee
+                    {t('common.assignee', 'Assignee')}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem
                       onClick={() => handleUpdateField({ assignee_type: null, assignee_id: null })}
                     >
                       <UserMinus className="h-3.5 w-3.5 text-muted-foreground" />
-                      Unassigned
+                      {t('issueDetail.assignee.unassigned', 'Unassigned')}
                       {!issue.assignee_type && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                     </DropdownMenuItem>
                     {members.map((m) => (
@@ -599,29 +617,29 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <Calendar className="h-3.5 w-3.5" />
-                    Due date
+                    {t('issueDetail.properties.dueDate', 'Due date')}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem onClick={() => handleUpdateField({ due_date: new Date().toISOString() })}>
-                      Today
+                      {t('issueDetail.dueDate.today', 'Today')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => {
                       const d = new Date(); d.setDate(d.getDate() + 1);
                       handleUpdateField({ due_date: d.toISOString() });
                     }}>
-                      Tomorrow
+                      {t('issueDetail.dueDate.tomorrow', 'Tomorrow')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => {
                       const d = new Date(); d.setDate(d.getDate() + 7);
                       handleUpdateField({ due_date: d.toISOString() });
                     }}>
-                      Next week
+                      {t('issueDetail.dueDate.nextWeek', 'Next week')}
                     </DropdownMenuItem>
                     {issue.due_date && (
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => handleUpdateField({ due_date: null })}>
-                          Clear date
+                          {t('issueDetail.dueDate.clear', 'Clear date')}
                         </DropdownMenuItem>
                       </>
                     )}
@@ -638,7 +656,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                   });
                 }}>
                   <Plus className="h-3.5 w-3.5" />
-                  Create sub-issue
+                  {t('issueDetail.actions.createSubIssue', 'Create sub-issue')}
                 </DropdownMenuItem>
 
                 {/* Pin / Unpin */}
@@ -650,7 +668,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                   }
                 }}>
                   {isPinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
-                  {isPinned ? "Unpin from sidebar" : "Pin to sidebar"}
+                  {isPinned ? t('issueDetail.actions.unpin', 'Unpin from sidebar') : t('issueDetail.actions.pin', 'Pin to sidebar')}
                 </DropdownMenuItem>
 
                 {/* Copy link */}
@@ -659,10 +677,10 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                     ? router.getShareableUrl(router.pathname)
                     : window.location.href;
                   navigator.clipboard.writeText(url);
-                  toast.success("Link copied");
+                  toast.success(t('issueDetail.toast.linkCopied', 'Link copied'));
                 }}>
                   <Link2 className="h-3.5 w-3.5" />
-                  Copy link
+                  {t('issueDetail.actions.copyLink', 'Copy link')}
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />
@@ -673,7 +691,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                   onClick={() => setDeleteDialogOpen(true)}
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                  Delete issue
+                  {t('issueDetail.actions.delete', 'Delete issue')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -695,7 +713,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                   </Button>
                 }
               />
-              <TooltipContent side="bottom">Toggle sidebar</TooltipContent>
+              <TooltipContent side="bottom">{t('issueDetail.actions.toggleSidebar', 'Toggle sidebar')}</TooltipContent>
             </Tooltip>
           </div>
 
@@ -703,19 +721,19 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete issue</AlertDialogTitle>
+                  <AlertDialogTitle>{t('issueDetail.delete.title', 'Delete issue')}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete this issue and all its comments. This action cannot be undone.
+                    {t('issueDetail.delete.description', 'This will permanently delete this issue and all its comments. This action cannot be undone.')}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t('common.actions.cancel', 'Cancel')}</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
                     disabled={deleting}
                     className="bg-destructive text-white hover:bg-destructive/90"
                   >
-                    {deleting ? "Deleting..." : "Delete"}
+                    {deleting ? t('common.actions.deleting', 'Deleting...') : t('common.actions.delete', 'Delete')}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -728,7 +746,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
           <TitleEditor
             key={`title-${id}`}
             defaultValue={issue.title}
-            placeholder="Issue title"
+            placeholder={t('issueDetail.placeholders.title', 'Issue title')}
             className="w-full text-2xl font-bold leading-snug tracking-tight"
             onBlur={(value) => {
               const trimmed = value.trim();
@@ -741,7 +759,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
               href={`/issues/${parentIssue.id}`}
               className="mt-2 inline-flex max-w-full items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group/parent"
             >
-              <span className="font-medium shrink-0">Sub-issue of</span>
+              <span className="font-medium shrink-0">{t('issueDetail.labels.subIssueOf', 'Sub-issue of')}</span>
               <StatusIcon status={parentIssue.status} className="h-3.5 w-3.5 shrink-0" />
               <span className="tabular-nums shrink-0">{parentIssue.identifier}</span>
               <span className="truncate group-hover/parent:text-foreground">
@@ -766,7 +784,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
               ref={descEditorRef}
               key={id}
               defaultValue={issue.description || ""}
-              placeholder="Add description..."
+              placeholder={t('issueDetail.placeholders.description', 'Add description...')}
               onUpdate={(md) => handleUpdateField({ description: md || undefined })}
               onUploadFile={handleDescriptionUpload}
               debounceMs={1500}
@@ -808,7 +826,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                 }
               >
                 <Plus className="h-3.5 w-3.5" />
-                <span>Add sub-issues</span>
+                <span>{t('issueDetail.actions.addSubIssues', 'Add sub-issues')}</span>
               </button>
             </div>
           )}
@@ -829,7 +847,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                         subIssuesCollapsed && "-rotate-90",
                       )}
                     />
-                    <span>Sub-issues</span>
+                    <span>{t('issueDetail.labels.subIssues', 'Sub-issues')}</span>
                   </button>
                   <div className="inline-flex items-center gap-1.5 rounded-full bg-muted/60 px-2 py-0.5">
                     <ProgressRing done={doneCount} total={childIssues.length} size={11} />
@@ -849,13 +867,13 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                               parent_issue_identifier: issue.identifier,
                             })
                           }
-                          aria-label="Add sub-issue"
+                          aria-label={t('issueDetail.actions.addSubIssue', 'Add sub-issue')}
                         >
                           <Plus className="h-4 w-4" />
                         </button>
                       }
                     />
-                    <TooltipContent side="bottom">Add sub-issue</TooltipContent>
+                    <TooltipContent side="bottom">{t('issueDetail.actions.addSubIssue', 'Add sub-issue')}</TooltipContent>
                   </Tooltip>
                 </div>
 
@@ -916,7 +934,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
           <div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <h2 className="text-base font-semibold">Activity</h2>
+                <h2 className="text-base font-semibold">{t('issueDetail.activity.title', 'Activity')}</h2>
               </div>
               <div className="flex items-center gap-2">
                 {subscribersLoading ? (
@@ -932,7 +950,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                   onClick={handleToggleSubscribe}
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  {isSubscribed ? "Unsubscribe" : "Subscribe"}
+                  {isSubscribed ? t('issueDetail.actions.unsubscribe', 'Unsubscribe') : t('issueDetail.actions.subscribe', 'Subscribe')}
                 </button>
                 <Popover>
                   <PopoverTrigger className="cursor-pointer hover:opacity-80 transition-opacity">
@@ -958,11 +976,11 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                   </PopoverTrigger>
                   <PopoverContent align="end" className="w-64 p-0">
                     <Command>
-                      <CommandInput placeholder="Change subscribers..." />
+                      <CommandInput placeholder={t('issueDetail.subscribers.placeholder', 'Change subscribers...')} />
                       <CommandList className="max-h-64">
-                        <CommandEmpty>No results found</CommandEmpty>
+                        <CommandEmpty>{t('common.noResults', 'No results found')}</CommandEmpty>
                         {members.length > 0 && (
-                          <CommandGroup heading="Members">
+                          <CommandGroup heading={t('issueDetail.subscribers.members', 'Members')}>
                             {members.filter((m, i, arr) => arr.findIndex((x) => x.user_id === m.user_id) === i).map((m) => {
                               const sub = subscribers.find((s) => s.user_type === "member" && s.user_id === m.user_id);
                               const isSubbed = !!sub;
@@ -982,7 +1000,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                           </CommandGroup>
                         )}
                         {agents.filter((a) => !a.archived_at).length > 0 && (
-                          <CommandGroup heading="Agents">
+                          <CommandGroup heading={t('issueDetail.subscribers.agents', 'Agents')}>
                             {agents.filter((a) => !a.archived_at).map((a) => {
                               const sub = subscribers.find((s) => s.user_type === "agent" && s.user_id === a.id);
                               const isSubbed = !!sub;
@@ -1125,7 +1143,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                             </div>
                             <div className="flex min-w-0 flex-1 items-center gap-1">
                               <span className="shrink-0 font-medium">{getActorName(entry.actor_type, entry.actor_id)}</span>
-                              <span className="truncate">{formatActivity(entry, getActorName)}</span>
+                              <span className="truncate">{formatActivity(entry, getActorName, t)}</span>
                               <Tooltip>
                                 <TooltipTrigger
                                   render={
@@ -1178,12 +1196,12 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
               onClick={() => setPropertiesOpen(!propertiesOpen)}
             >
               <ChevronRight className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${propertiesOpen ? "rotate-90" : ""}`} />
-              Properties
+              {t('issueDetail.sections.properties', 'Properties')}
             </button>
 
             {propertiesOpen && <div className="space-y-0.5 pl-2">
               {/* Status */}
-              <PropRow label="Status">
+              <PropRow label={t('common.status', 'Status')}>
                 <StatusPicker
                   status={issue.status}
                   onUpdate={handleUpdateField}
@@ -1192,7 +1210,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
               </PropRow>
 
               {/* Priority */}
-              <PropRow label="Priority">
+              <PropRow label={t('common.priority', 'Priority')}>
                 <PriorityPicker
                   priority={issue.priority}
                   onUpdate={handleUpdateField}
@@ -1201,7 +1219,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
               </PropRow>
 
               {/* Assignee */}
-              <PropRow label="Assignee">
+              <PropRow label={t('common.assignee', 'Assignee')}>
                 <AssigneePicker
                   assigneeType={issue.assignee_type}
                   assigneeId={issue.assignee_id}
@@ -1211,7 +1229,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
               </PropRow>
 
               {/* Due date */}
-              <PropRow label="Due date">
+              <PropRow label={t('issueDetail.properties.dueDate', 'Due date')}>
                 <DueDatePicker
                   dueDate={issue.due_date}
                   onUpdate={handleUpdateField}
@@ -1219,7 +1237,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
               </PropRow>
 
               {/* Project */}
-              <PropRow label="Project">
+              <PropRow label={t('common.project', 'Project')}>
                 <ProjectPicker
                   projectId={issue.project_id}
                   onUpdate={handleUpdateField}
@@ -1233,7 +1251,7 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
             <div>
               <div className="text-xs font-medium mb-2 flex items-center gap-1">
                 <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground rotate-90" />
-                Parent issue
+                {t('issueDetail.labels.parentIssue', 'Parent issue')}
               </div>
               <div className="pl-2">
                 <AppLink
@@ -1255,11 +1273,11 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
               onClick={() => setDetailsOpen(!detailsOpen)}
             >
               <ChevronRight className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${detailsOpen ? "rotate-90" : ""}`} />
-              Details
+              {t('issueDetail.sections.details', 'Details')}
             </button>
 
             {detailsOpen && <div className="space-y-0.5 pl-2">
-              <PropRow label="Created by">
+              <PropRow label={t('issueDetail.details.createdBy', 'Created by')}>
                 <ActorAvatar
                   actorType={issue.creator_type}
                   actorId={issue.creator_id}
@@ -1267,10 +1285,10 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
                 />
                 <span className="truncate">{getActorName(issue.creator_type, issue.creator_id)}</span>
               </PropRow>
-              <PropRow label="Created">
+              <PropRow label={t('issueDetail.details.created', 'Created')}>
                 <span className="text-muted-foreground">{shortDate(issue.created_at)}</span>
               </PropRow>
-              <PropRow label="Updated">
+              <PropRow label={t('issueDetail.details.updated', 'Updated')}>
                 <span className="text-muted-foreground">{shortDate(issue.updated_at)}</span>
               </PropRow>
             </div>}
@@ -1281,23 +1299,23 @@ export function IssueDetail({ issueId, onDelete, defaultSidebarOpen = true, layo
             <div>
               <div className="text-xs font-medium mb-2 flex items-center gap-1">
                 <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground rotate-90" />
-                Token usage
+                {t('issueDetail.sections.tokenUsage', 'Token usage')}
               </div>
               <div className="space-y-0.5 pl-2">
-                <PropRow label="Input">
+                <PropRow label={t('issueDetail.tokenUsage.input', 'Input')}>
                   <span className="text-muted-foreground">{formatTokenCount(usage.total_input_tokens)}</span>
                 </PropRow>
-                <PropRow label="Output">
+                <PropRow label={t('issueDetail.tokenUsage.output', 'Output')}>
                   <span className="text-muted-foreground">{formatTokenCount(usage.total_output_tokens)}</span>
                 </PropRow>
                 {(usage.total_cache_read_tokens > 0 || usage.total_cache_write_tokens > 0) && (
-                  <PropRow label="Cache">
+                  <PropRow label={t('issueDetail.tokenUsage.cache', 'Cache')}>
                     <span className="text-muted-foreground">
                       {formatTokenCount(usage.total_cache_read_tokens)} read / {formatTokenCount(usage.total_cache_write_tokens)} write
                     </span>
                   </PropRow>
                 )}
-                <PropRow label="Runs">
+                <PropRow label={t('issueDetail.tokenUsage.runs', 'Runs')}>
                   <span className="text-muted-foreground">{usage.task_count}</span>
                 </PropRow>
               </div>

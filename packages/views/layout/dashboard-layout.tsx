@@ -6,6 +6,9 @@ import { ModalRegistry } from "../modals/registry";
 import { AppSidebar } from "./app-sidebar";
 import { DashboardGuard } from "./dashboard-guard";
 
+// 定义翻译函数类型
+type TranslateFn = (key: string, fallback: string) => string;
+
 interface DashboardLayoutProps {
   children: ReactNode;
   /** Sibling of SidebarInset (e.g. SearchCommand, ChatWindow) */
@@ -14,6 +17,8 @@ interface DashboardLayoutProps {
   searchSlot?: ReactNode;
   /** Loading indicator */
   loadingIndicator?: ReactNode;
+  /** Translation function */
+  t?: TranslateFn;
 }
 
 export function DashboardLayout({
@@ -21,6 +26,7 @@ export function DashboardLayout({
   extra,
   searchSlot,
   loadingIndicator,
+  t,
 }: DashboardLayoutProps) {
   return (
     <DashboardGuard
@@ -32,7 +38,7 @@ export function DashboardLayout({
       }
     >
       <SidebarProvider className="h-svh">
-        <AppSidebar searchSlot={searchSlot} />
+        <AppSidebar searchSlot={searchSlot} t={t} />
         <SidebarInset className="overflow-hidden">
           <div className="flex h-10 shrink-0 items-center border-b px-2 md:hidden">
             <SidebarTrigger />
