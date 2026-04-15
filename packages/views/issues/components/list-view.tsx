@@ -22,6 +22,20 @@ const EMPTY_PROGRESS_MAP = new Map<string, ChildProgress>();
 // 定义翻译函数类型
 type TranslateFn = (key: string, fallback: string) => string;
 
+// 将 Config Key 映射到 Dictionary Key 的辅助函数
+const getStatusDictKey = (status: IssueStatus): string => {
+  const map: Record<string, string> = {
+    'backlog': 'backlog',
+    'todo': 'todo',
+    'in_progress': 'inProgress',
+    'in_review': 'inReview',
+    'done': 'done',
+    'blocked': 'blocked',
+    'cancelled': 'cancelled',
+  };
+  return map[status] || status;
+};
+
 export function ListView({
   issues,
   visibleStatuses,
@@ -122,7 +136,7 @@ export function ListView({
                   <ChevronRight className="size-3.5 shrink-0 text-muted-foreground transition-transform group-aria-expanded/trigger:rotate-90" />
                   <span className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs font-semibold ${cfg.badgeBg} ${cfg.badgeText}`}>
                     <StatusIcon status={status} className="h-3 w-3" inheritColor />
-                    {cfg.label}
+                    {t(`board.statuses.${getStatusDictKey(status)}`, cfg.label)}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {status === "done" ? displayDoneTotal : statusIssues.length}

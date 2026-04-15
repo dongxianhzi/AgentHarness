@@ -759,4 +759,15 @@ export const zh: LandingDict = {
       description: "描述",
     },
   },
+  myIssues: {
+    emptyState: {
+      title: "没有分配给你的任务",
+      subtitle: "你创建或分配给你的任务将显示在这里。",
+    },
+    scopes: {
+      assigned: { label: "已分配", description: "分配给我的任务" },
+      created: { label: "已创建", description: "我创建的任务" },
+      agents: { label: "我的代理", description: "分配给我代理的任务" },
+    },
+  },
 };

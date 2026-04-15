@@ -712,6 +712,17 @@ export const en: LandingDict = {
       noPriority: "No priority",
     },
   },
+  myIssues: {
+    emptyState: {
+      title: "No issues assigned to you",
+      subtitle: "Issues you create or are assigned to will appear here.",
+    },
+    scopes: {
+      assigned: { label: "Assigned", description: "Issues assigned to me" },
+      created: { label: "Created", description: "Issues I created" },
+      agents: { label: "My Agents", description: "Issues assigned to my agents" },
+    },
+  },
   issuesHeader: {
     filter: "Filter",
     displaySettings: "Display settings",

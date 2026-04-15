@@ -125,6 +125,18 @@ type IssuesHeaderDict = {
   };
 };
 
+type MyIssuesDict = {
+  emptyState: {
+    title: string;
+    subtitle: string;
+  };
+  scopes: {
+    assigned: { label: string; description: string };
+    created: { label: string; description: string };
+    agents: { label: string; description: string };
+  };
+};
+
 type BoardDict = {
   hideColumn: string;
   addIssue: string;
@@ -369,5 +381,6 @@ export type LandingDict = {
   issues: IssuesDict;
   board: BoardDict;
   issuesHeader: IssuesHeaderDict;
+  myIssues: MyIssuesDict;
   issueDetail: IssueDetailDict;
 };
