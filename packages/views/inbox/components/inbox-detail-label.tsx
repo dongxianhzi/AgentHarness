@@ -5,6 +5,8 @@ import { useActorName } from "@multica/core/workspace/hooks";
 import { StatusIcon, PriorityIcon } from "../../issues/components";
 import type { InboxItem, InboxItemType, IssueStatus, IssuePriority } from "@multica/core/types";
 
+type TranslateFn = (key: string, fallback: string) => string;
+
 const typeLabels: Record<InboxItemType, string> = {
   issue_assigned: "Assigned",
   unassigned: "Unassigned",
@@ -32,28 +34,30 @@ function shortDate(dateStr: string): string {
   });
 }
 
-export function InboxDetailLabel({ item }: { item: InboxItem }) {
+export function getInboxDetailLabel(item: InboxItem, t?: TranslateFn): React.ReactNode {
   const { getActorName } = useActorName();
   const details = item.details ?? {};
+  const defaultT = (key: string, fallback: string) => fallback;
+  const translate = t || defaultT;
 
   switch (item.type) {
     case "status_changed": {
-      if (!details.to) return <span>{typeLabels[item.type]}</span>;
+      if (!details.to) return <span>{translate(`inbox.types.${item.type}`, typeLabels[item.type])}</span>;
       const label = STATUS_CONFIG[details.to as IssueStatus]?.label ?? details.to;
       return (
         <span className="inline-flex items-center gap-1">
-          Set status to
+          {translate('inbox.detailLabels.setStatusTo', 'Set status to')}
           <StatusIcon status={details.to as IssueStatus} className="h-3 w-3" />
           {label}
         </span>
       );
     }
     case "priority_changed": {
-      if (!details.to) return <span>{typeLabels[item.type]}</span>;
+      if (!details.to) return <span>{translate(`inbox.types.${item.type}`, typeLabels[item.type])}</span>;
       const label = PRIORITY_CONFIG[details.to as IssuePriority]?.label ?? details.to;
       return (
         <span className="inline-flex items-center gap-1">
-          Set priority to
+          {translate('inbox.detailLabels.setPriorityTo', 'Set priority to')}
           <PriorityIcon priority={details.to as IssuePriority} className="h-3 w-3" />
           {label}
         </span>
@@ -61,32 +65,32 @@ export function InboxDetailLabel({ item }: { item: InboxItem }) {
     }
     case "issue_assigned": {
       if (details.new_assignee_id) {
-        return <span>Assigned to {getActorName(details.new_assignee_type ?? "member", details.new_assignee_id)}</span>;
+        return <span>{translate('inbox.detailLabels.assignedTo', 'Assigned to')} {getActorName(details.new_assignee_type ?? "member", details.new_assignee_id)}</span>;
       }
-      return <span>{typeLabels[item.type]}</span>;
+      return <span>{translate(`inbox.types.${item.type}`, typeLabels[item.type])}</span>;
     }
     case "unassigned":
-      return <span>Removed assignee</span>;
+      return <span>{translate('inbox.detailLabels.removedAssignee', 'Removed assignee')}</span>;
     case "assignee_changed": {
       if (details.new_assignee_id) {
-        return <span>Assigned to {getActorName(details.new_assignee_type ?? "member", details.new_assignee_id)}</span>;
+        return <span>{translate('inbox.detailLabels.assignedTo', 'Assigned to')} {getActorName(details.new_assignee_type ?? "member", details.new_assignee_id)}</span>;
       }
-      return <span>{typeLabels[item.type]}</span>;
+      return <span>{translate(`inbox.types.${item.type}`, typeLabels[item.type])}</span>;
     }
     case "due_date_changed": {
-      if (details.to) return <span>Set due date to {shortDate(details.to)}</span>;
-      return <span>Removed due date</span>;
+      if (details.to) return <span>{translate('inbox.detailLabels.setDueDateTo', 'Set due date to')} {shortDate(details.to)}</span>;
+      return <span>{translate('inbox.detailLabels.removedDueDate', 'Removed due date')}</span>;
     }
     case "new_comment": {
       if (item.body) return <span>{item.body}</span>;
-      return <span>{typeLabels[item.type]}</span>;
+      return <span>{translate(`inbox.types.${item.type}`, typeLabels[item.type])}</span>;
     }
     case "reaction_added": {
       const emoji = details.emoji;
-      if (emoji) return <span>Reacted {emoji} to your comment</span>;
-      return <span>{typeLabels[item.type]}</span>;
+      if (emoji) return <span>{translate('inbox.detailLabels.reactedTo', 'Reacted {emoji} to your comment').replace('{emoji}', emoji)}</span>;
+      return <span>{translate(`inbox.types.${item.type}`, typeLabels[item.type])}</span>;
     }
     default:
-      return <span>{typeLabels[item.type] ?? item.type}</span>;
+      return <span>{translate(`inbox.types.${item.type}`, typeLabels[item.type] ?? item.type)}</span>;
   }
 }

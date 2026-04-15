@@ -137,6 +137,58 @@ type MyIssuesDict = {
   };
 };
 
+type InboxDict = {
+  title: string;
+  emptyState: {
+    title: string;
+    subtitle: string;
+  };
+  detail: {
+    empty: string;
+    selectNotification: string;
+  };
+  actions: {
+    markAllRead: string;
+    archiveAll: string;
+    archiveAllRead: string;
+    archiveCompleted: string;
+    archive: string;
+  };
+  types: {
+    issue_assigned: string;
+    unassigned: string;
+    assignee_changed: string;
+    status_changed: string;
+    priority_changed: string;
+    due_date_changed: string;
+    new_comment: string;
+    mentioned: string;
+    review_requested: string;
+    task_completed: string;
+    task_failed: string;
+    agent_blocked: string;
+    agent_completed: string;
+    reaction_added: string;
+  };
+  detailLabels: {
+    setStatusTo: string;
+    setPriorityTo: string;
+    assignedTo: string;
+    removedAssignee: string;
+    setDueDateTo: string;
+    removedDueDate: string;
+    reactedTo: string;
+  };
+  errors: {
+    markReadFailed: string;
+    archiveFailed: string;
+    markAllReadFailed: string;
+    archiveAllFailed: string;
+    archiveAllReadFailed: string;
+    archiveCompletedFailed: string;
+  };
+};
+
 type BoardDict = {
   hideColumn: string;
   addIssue: string;
@@ -383,4 +435,5 @@ export type LandingDict = {
   issuesHeader: IssuesHeaderDict;
   myIssues: MyIssuesDict;
   issueDetail: IssueDetailDict;
+  inbox: InboxDict;
 };

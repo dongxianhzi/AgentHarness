@@ -4,7 +4,9 @@ import { StatusIcon } from "../../issues/components";
 import { ActorAvatar } from "../../common/actor-avatar";
 import { Archive } from "lucide-react";
 import type { InboxItem } from "@multica/core/types";
-import { InboxDetailLabel } from "./inbox-detail-label";
+import { getInboxDetailLabel } from "./inbox-detail-label";
+
+type TranslateFn = (key: string, fallback: string) => string;
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -24,11 +26,13 @@ export function InboxListItem({
   isSelected,
   onClick,
   onArchive,
+  t,
 }: {
   item: InboxItem;
   isSelected: boolean;
   onClick: () => void;
   onArchive: () => void;
+  t?: TranslateFn;
 }) {
   return (
     <button
@@ -80,7 +84,7 @@ export function InboxListItem({
         </div>
         <div className="mt-0.5 flex items-center justify-between gap-2">
           <p className={`min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs ${item.read ? "text-muted-foreground/60" : "text-muted-foreground"}`}>
-            <InboxDetailLabel item={item} />
+            {getInboxDetailLabel(item, t)}
           </p>
           <span className={`shrink-0 text-xs ${item.read ? "text-muted-foreground/60" : "text-muted-foreground"}`}>
             {timeAgo(item.created_at)}
