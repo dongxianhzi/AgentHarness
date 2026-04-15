@@ -189,6 +189,98 @@ type InboxDict = {
   };
 };
 
+type ProjectsDict = {
+  title: string;
+  createProject: string;
+  newProject: string;
+  emptyState: {
+    title: string;
+    subtitle: string;
+    action: string;
+  };
+  columns: {
+    name: string;
+    priority: string;
+    status: string;
+    progress: string;
+    lead: string;
+    created: string;
+  };
+  relativeTime: {
+    today: string;
+    daysAgo: string;
+    monthsAgo: string;
+  };
+  createDialog: {
+    title: string;
+    titlePlaceholder: string;
+    descriptionPlaceholder: string;
+    chooseIcon: string;
+    status: string;
+    priority: string;
+    lead: string;
+    noLead: string;
+    members: string;
+    agents: string;
+    noResults: string;
+    creating: string;
+    create: string;
+    collapse: string;
+    expand: string;
+    close: string;
+  };
+  errors: {
+    createFailed: string;
+  };
+  toast: {
+    created: string;
+  };
+  detail: {
+    projectNotFound: string;
+    noIssuesLinked: string;
+    assignIssuesHint: string;
+    pinToSidebar: string;
+    unpinFromSidebar: string;
+    copyLink: string;
+    deleteProject: string;
+    toggleSidebar: string;
+    changeIcon: string;
+    titlePlaceholder: string;
+    properties: string;
+    status: string;
+    priority: string;
+    lead: string;
+    noLead: string;
+    assignLeadPlaceholder: string;
+    members: string;
+    agents: string;
+    noResults: string;
+    progress: string;
+    description: string;
+    descriptionPlaceholder: string;
+    deleteDialog: {
+      title: string;
+      description: string;
+      cancel: string;
+      delete: string;
+    };
+  };
+  priorities: {
+    none: string;
+    urgent: string;
+    high: string;
+    medium: string;
+    low: string;
+  };
+  statuses: {
+    planned: string;
+    inProgress: string;
+    paused: string;
+    completed: string;
+    cancelled: string;
+  };
+};
+
 type BoardDict = {
   hideColumn: string;
   addIssue: string;
@@ -436,4 +528,5 @@ export type LandingDict = {
   myIssues: MyIssuesDict;
   issueDetail: IssueDetailDict;
   inbox: InboxDict;
+  projects: ProjectsDict;
 };
