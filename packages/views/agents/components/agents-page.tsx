@@ -17,12 +17,14 @@ import { useAuthStore } from "@multica/core/auth";
 import { runtimeListOptions } from "@multica/core/runtimes/queries";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWorkspaceId } from "@multica/core/hooks";
+import { useTranslation } from "@multica/core";
 import { agentListOptions, workspaceKeys } from "@multica/core/workspace/queries";
 import { CreateAgentDialog } from "./create-agent-dialog";
 import { AgentListItem } from "./agent-list-item";
 import { AgentDetail } from "./agent-detail";
 
 export function AgentsPage() {
+  const { t } = useTranslation();
   const isLoading = useAuthStore((s) => s.isLoading);
   const qc = useQueryClient();
   const wsId = useWorkspaceId();
@@ -59,9 +61,9 @@ export function AgentsPage() {
     try {
       await api.updateAgent(id, data as UpdateAgentRequest);
       qc.invalidateQueries({ queryKey: workspaceKeys.agents(wsId) });
-      toast.success("Agent updated");
+      toast.success(t("agents.agentUpdated", "Agent updated"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to update agent");
+      toast.error(e instanceof Error ? e.message : t("agents.failedToUpdate", "Failed to update agent"));
       throw e;
     }
   };
@@ -70,9 +72,9 @@ export function AgentsPage() {
     try {
       await api.archiveAgent(id);
       qc.invalidateQueries({ queryKey: workspaceKeys.agents(wsId) });
-      toast.success("Agent archived");
+      toast.success(t("agents.agentArchived", "Agent archived"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to archive agent");
+      toast.error(e instanceof Error ? e.message : t("agents.failedToArchive", "Failed to archive agent"));
     }
   };
 
@@ -80,9 +82,9 @@ export function AgentsPage() {
     try {
       await api.restoreAgent(id);
       qc.invalidateQueries({ queryKey: workspaceKeys.agents(wsId) });
-      toast.success("Agent restored");
+      toast.success(t("agents.agentRestored", "Agent restored"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to restore agent");
+      toast.error(e instanceof Error ? e.message : t("agents.failedToRestore", "Failed to restore agent"));
     }
   };
 
@@ -139,14 +141,14 @@ export function AgentsPage() {
         {/* Left column — agent list */}
         <div className="overflow-y-auto h-full border-r">
           <div className="flex h-12 items-center justify-between border-b px-4">
-            <h1 className="text-sm font-semibold">Agents</h1>
+            <h1 className="text-sm font-semibold">{t("agents.title", "Agents")}</h1>
             <div className="flex items-center gap-1">
               {archivedCount > 0 && (
                 <Button
                   variant={showArchived ? "secondary" : "ghost"}
                   size="icon-xs"
                   onClick={() => setShowArchived(!showArchived)}
-                  title={showArchived ? "Show active agents" : "Show archived agents"}
+                  title={showArchived ? t("agents.showActiveAgents", "Show active agents") : t("agents.showArchivedAgents", "Show archived agents")}
                 >
                   <Archive className="h-4 w-4 text-muted-foreground" />
                 </Button>
@@ -164,7 +166,7 @@ export function AgentsPage() {
             <div className="flex flex-col items-center justify-center px-4 py-12">
               <Bot className="h-8 w-8 text-muted-foreground/40" />
               <p className="mt-3 text-sm text-muted-foreground">
-                {showArchived ? "No archived agents" : archivedCount > 0 ? "No active agents" : "No agents yet"}
+                {showArchived ? t("agents.noArchivedAgents", "No archived agents") : archivedCount > 0 ? t("agents.noActiveAgents", "No active agents") : t("agents.noAgents", "No agents yet")}
               </p>
               {!showArchived && (
                 <Button
@@ -173,7 +175,7 @@ export function AgentsPage() {
                   className="mt-3"
                 >
                   <Plus className="h-3 w-3" />
-                  Create Agent
+                  {t("agents.createAgent", "Create Agent")}
                 </Button>
               )}
             </div>
@@ -208,14 +210,14 @@ export function AgentsPage() {
         ) : (
           <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
             <Bot className="h-10 w-10 text-muted-foreground/30" />
-            <p className="mt-3 text-sm">Select an agent to view details</p>
+            <p className="mt-3 text-sm">{t("agents.selectAgent", "Select an agent to view details")}</p>
             <Button
               onClick={() => setShowCreate(true)}
               size="xs"
               className="mt-3"
             >
               <Plus className="h-3 w-3" />
-              Create Agent
+              {t("agents.createAgent", "Create Agent")}
             </Button>
           </div>
         )}

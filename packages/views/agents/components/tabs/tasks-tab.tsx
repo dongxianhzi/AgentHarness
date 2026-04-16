@@ -9,8 +9,10 @@ import { useWorkspaceId } from "@multica/core/hooks";
 import { issueListOptions } from "@multica/core/issues/queries";
 import { useQuery } from "@tanstack/react-query";
 import { taskStatusConfig } from "../../config";
+import { useTranslation } from "@multica/core";
 
 export function TasksTab({ agent }: { agent: Agent }) {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState<AgentTask[]>([]);
   const [loading, setLoading] = useState(true);
   const wsId = useWorkspaceId();
@@ -59,21 +61,21 @@ export function TasksTab({ agent }: { agent: Agent }) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h3 className="text-sm font-semibold">Task Queue</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Issues assigned to this agent and their execution status.
-        </p>
-      </div>
+       <div>
+         <h3 className="text-sm font-semibold">{t("agents.taskQueue", "Task Queue")}</h3>
+         <p className="text-xs text-muted-foreground mt-0.5">
+           {t("agents.taskQueueDescription", "Issues assigned to this agent and their execution status.")}
+         </p>
+       </div>
 
-      {tasks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
-          <ListTodo className="h-8 w-8 text-muted-foreground/40" />
-          <p className="mt-3 text-sm text-muted-foreground">No tasks in queue</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Assign an issue to this agent to get started.
-          </p>
-        </div>
+       {tasks.length === 0 ? (
+         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
+           <ListTodo className="h-8 w-8 text-muted-foreground/40" />
+           <p className="mt-3 text-sm text-muted-foreground">{t("agents.noTasksInQueue", "No tasks in queue")}</p>
+           <p className="mt-1 text-xs text-muted-foreground">
+             {t("agents.assignIssueToGetStarted", "Assign an issue to this agent to get started.")}
+           </p>
+         </div>
       ) : (
         <div className="space-y-1.5">
           {sortedTasks.map((task) => {
@@ -122,9 +124,9 @@ export function TasksTab({ agent }: { agent: Agent }) {
                             : `Queued ${new Date(task.created_at).toLocaleString()}`}
                   </div>
                 </div>
-                <span className={`shrink-0 text-xs font-medium ${config.color}`}>
-                  {config.label}
-                </span>
+                 <span className={`shrink-0 text-xs font-medium ${config.color}`}>
+                   {t(config.labelKey, config.defaultLabel)}
+                 </span>
               </div>
             );
           })}

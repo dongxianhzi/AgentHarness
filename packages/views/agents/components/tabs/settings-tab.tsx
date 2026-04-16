@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { api } from "@multica/core/api";
 import { useFileUpload } from "@multica/core/hooks/use-file-upload";
 import { ActorAvatar } from "../../../common/actor-avatar";
+import { useTranslation } from "@multica/core";
 
 export function SettingsTab({
   agent,
@@ -34,6 +35,7 @@ export function SettingsTab({
   runtimes: RuntimeDevice[];
   onSave: (updates: Partial<Agent>) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [name, setName] = useState(agent.name);
   const [description, setDescription] = useState(agent.description ?? "");
   const [visibility, setVisibility] = useState<AgentVisibility>(agent.visibility);
@@ -54,9 +56,9 @@ export function SettingsTab({
       const result = await upload(file);
       if (!result) return;
       await onSave({ avatar_url: result.link });
-      toast.success("Avatar updated");
+      toast.success(t("agents.avatarUpdated", "Avatar updated"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload avatar");
+      toast.error(err instanceof Error ? err.message : t("agents.failedToUploadAvatar", "Failed to upload avatar"));
     }
   };
 
@@ -69,7 +71,7 @@ export function SettingsTab({
 
   const handleSave = async () => {
     if (!name.trim()) {
-      toast.error("Name is required");
+      toast.error(t("agents.nameRequired", "Name is required"));
       return;
     }
     setSaving(true);
@@ -81,9 +83,9 @@ export function SettingsTab({
         max_concurrent_tasks: maxTasks,
         runtime_id: selectedRuntimeId,
       });
-      toast.success("Settings saved");
+      toast.success(t("agents.settingsSaved", "Settings saved"));
     } catch {
-      toast.error("Failed to save settings");
+      toast.error(t("agents.failedToSaveSettings", "Failed to save settings"));
     } finally {
       setSaving(false);
     }
@@ -92,11 +94,11 @@ export function SettingsTab({
   return (
     <div className="max-w-lg space-y-6">
       <div>
-        <Label className="text-xs text-muted-foreground">Avatar</Label>
+        <Label className="text-xs text-muted-foreground">{t("common.avatar", "Avatar")}</Label>
         <div className="mt-1.5 flex items-center gap-4">
           <button
             type="button"
-            className="group relative h-16 w-16 shrink-0 rounded-full bg-muted overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group relative h-16 w-16 shrink-0 rounded-full bg-muted overflow-hidden focus:outline-none focus:visible:ring-2 focus:visible:ring-ring"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
           >
@@ -117,13 +119,13 @@ export function SettingsTab({
             onChange={handleAvatarUpload}
           />
           <div className="text-xs text-muted-foreground">
-            Click to upload avatar
+            {t("agents.clickToUploadAvatar", "Click to upload avatar")}
           </div>
         </div>
       </div>
 
-      <div>
-        <Label className="text-xs text-muted-foreground">Name</Label>
+       <div>
+         <Label className="text-xs text-muted-foreground">{t("common.name", "Name")}</Label>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -132,17 +134,17 @@ export function SettingsTab({
       </div>
 
       <div>
-        <Label className="text-xs text-muted-foreground">Description</Label>
+        <Label className="text-xs text-muted-foreground">{t("common.description", "Description")}</Label>
         <Input
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="What does this agent do?"
+          placeholder={t("agents.form.descriptionPlaceholder", "What does this agent do?")}
           className="mt-1"
         />
       </div>
 
       <div>
-        <Label className="text-xs text-muted-foreground">Visibility</Label>
+        <Label className="text-xs text-muted-foreground">{t("common.visibility", "Visibility")}</Label>
         <div className="mt-1.5 flex gap-2">
           <button
             type="button"
@@ -155,8 +157,8 @@ export function SettingsTab({
           >
             <Globe className="h-4 w-4 shrink-0 text-muted-foreground" />
             <div className="text-left">
-              <div className="font-medium">Workspace</div>
-              <div className="text-xs text-muted-foreground">All members can assign</div>
+              <div className="font-medium">{t("common.workspace", "Workspace")}</div>
+              <div className="text-xs text-muted-foreground">{t("agents.visibilityWorkspaceDesc", "All members can assign")}</div>
             </div>
           </button>
           <button
@@ -170,15 +172,15 @@ export function SettingsTab({
           >
             <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
             <div className="text-left">
-              <div className="font-medium">Private</div>
-              <div className="text-xs text-muted-foreground">Only you can assign</div>
+              <div className="font-medium">{t("common.private", "Private")}</div>
+              <div className="text-xs text-muted-foreground">{t("agents.visibilityPrivateDesc", "Only you can assign")}</div>
             </div>
           </button>
         </div>
       </div>
 
       <div>
-        <Label className="text-xs text-muted-foreground">Max Concurrent Tasks</Label>
+        <Label className="text-xs text-muted-foreground">{t("agents.maxConcurrentTasks", "Max Concurrent Tasks")}</Label>
         <Input
           type="number"
           min={1}
@@ -190,7 +192,7 @@ export function SettingsTab({
       </div>
 
       <div>
-        <Label className="text-xs text-muted-foreground">Runtime</Label>
+        <Label className="text-xs text-muted-foreground">{t("common.runtime", "Runtime")}</Label>
         <Popover open={runtimeOpen} onOpenChange={setRuntimeOpen}>
           <PopoverTrigger
             disabled={runtimes.length === 0}
@@ -204,16 +206,16 @@ export function SettingsTab({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="truncate font-medium">
-                  {selectedRuntime?.name ?? "No runtime available"}
+                  {selectedRuntime?.name ?? t("agents.noRuntimeAvailable", "No runtime available")}
                 </span>
                 {selectedRuntime?.runtime_mode === "cloud" && (
                   <span className="shrink-0 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
-                    Cloud
+                    {t("common.cloud", "Cloud")}
                   </span>
                 )}
               </div>
               <div className="truncate text-xs text-muted-foreground">
-                {selectedRuntime?.device_info ?? "Select a runtime"}
+                {selectedRuntime?.device_info ?? t("agents.selectRuntime", "Select a runtime")}
               </div>
             </div>
             <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${runtimeOpen ? "rotate-180" : ""}`} />
@@ -238,11 +240,11 @@ export function SettingsTab({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="truncate font-medium">{device.name}</span>
-                    {device.runtime_mode === "cloud" && (
-                      <span className="shrink-0 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
-                        Cloud
-                      </span>
-                    )}
+                     {device.runtime_mode === "cloud" && (
+                          <span className="shrink-0 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
+                            {t("common.cloud", "Cloud")}
+                          </span>
+                        )}
                   </div>
                   <div className="truncate text-xs text-muted-foreground">{device.device_info}</div>
                 </div>
@@ -259,7 +261,7 @@ export function SettingsTab({
 
       <Button onClick={handleSave} disabled={!dirty || saving} size="sm">
         {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1.5" />}
-        Save Changes
+        {t("agents.saveChanges", "Save Changes")}
       </Button>
     </div>
   );
