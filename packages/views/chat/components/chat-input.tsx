@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { ArrowUp, Square } from "lucide-react";
+import { useTranslation } from "@multica/core";
 
 interface ChatInputProps {
   onSend: (content: string) => void;
@@ -11,6 +12,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onSend, onStop, isRunning, disabled }: ChatInputProps) {
+  const { t } = useTranslation();
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -53,7 +55,7 @@ export function ChatInput({ onSend, onStop, isRunning, disabled }: ChatInputProp
             handleInput();
           }}
           onKeyDown={handleKeyDown}
-          placeholder={disabled ? "This session is archived" : "Ask Harness..."}
+          placeholder={disabled ? t("chat.archivedPlaceholder", "This session is archived") : t("chat.inputPlaceholder", "Ask Harness...")}
           disabled={isRunning || disabled}
           className="block w-full resize-none bg-transparent px-3 pt-3 pb-2 text-sm placeholder:text-muted-foreground focus:outline-none disabled:opacity-50"
           rows={1}

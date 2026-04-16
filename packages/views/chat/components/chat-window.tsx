@@ -23,6 +23,7 @@ import {
 } from "@multica/core/chat/queries";
 import { useCreateChatSession } from "@multica/core/chat/mutations";
 import { useChatStore } from "@multica/core/chat";
+import { useTranslation } from "@multica/core";
 import { ChatMessageList } from "./chat-message-list";
 import { ChatInput } from "./chat-input";
 import { ChatSessionHistory } from "./chat-session-history";
@@ -30,6 +31,7 @@ import { useWS } from "@multica/core/realtime";
 import type { TaskMessagePayload, ChatDonePayload, Agent, ChatMessage } from "@multica/core/types";
 
 export function ChatWindow() {
+  const { t } = useTranslation();
   const wsId = useWorkspaceId();
   const isOpen = useChatStore((s) => s.isOpen);
   const isFullscreen = useChatStore((s) => s.isFullscreen);
@@ -242,7 +244,7 @@ export function ChatWindow() {
           <div className="flex items-center gap-0.5">
             <button
               onClick={() => setShowHistory(true)}
-              title="Chat history"
+              title={t("chat.chatHistory", "Chat history")}
               className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               <History className="size-3.5" />
@@ -253,21 +255,21 @@ export function ChatWindow() {
                 clearTimeline();
                 setPendingTask(null);
               }}
-              title="New chat"
+              title={t("chat.newChat", "New chat")}
               className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               <Plus className="size-3.5" />
             </button>
             <button
               onClick={toggleFullscreen}
-              title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+              title={isFullscreen ? t("chat.exitFullscreen", "Exit fullscreen") : t("chat.fullscreen", "Fullscreen")}
               className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               {isFullscreen ? <Minimize2 className="size-3.5" /> : <Maximize2 className="size-3.5" />}
             </button>
             <button
               onClick={() => setOpen(false)}
-              title="Minimize"
+              title={t("chat.minimize", "Minimize")}
               className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               <Minus className="size-3.5" />
@@ -314,8 +316,10 @@ function AgentSelector({
   activeAgent: Agent | null;
   onSelect: (agent: Agent) => void;
 }) {
+  const { t } = useTranslation();
+
   if (!activeAgent) {
-    return <span className="text-sm text-muted-foreground">No agents</span>;
+    return <span className="text-sm text-muted-foreground">{t("chat.noAgents", "No agents")}</span>;
   }
 
   if (agents.length <= 1) {
@@ -362,15 +366,17 @@ function AgentAvatarSmall({ agent }: { agent: Agent }) {
 }
 
 function EmptyState({ agentName }: { agentName?: string }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8">
       <Send className="size-8 text-muted-foreground/50" />
       <div className="text-center">
-        <h3 className="text-base font-semibold">Welcome to Harness</h3>
+        <h3 className="text-base font-semibold">{t("chat.welcomeTitle", "Welcome to Harness")}</h3>
         <p className="mt-1 text-sm text-muted-foreground">
           {agentName
             ? `Chat with ${agentName} or ask anything`
-            : "Ask anything or tell Harness what you need"}
+            : t("chat.welcomeHint", "Ask anything or tell Harness what you need")}
         </p>
       </div>
     </div>
