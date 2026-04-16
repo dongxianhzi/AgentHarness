@@ -671,14 +671,39 @@ export const en: LandingDict = {
   modal: {
     createIssue: {
       title: "Create Issue",
+      newIssue: "New Issue",
+      newSubIssue: "New Sub-issue",
       fields: {
         title: "Title",
         description: "Description",
+        status: "Status",
+        priority: "Priority",
+        assignee: "Assignee",
+        dueDate: "Due Date",
+        project: "Project",
       },
       placeholders: {
         title: "Enter issue title...",
         description: "Enter description...",
+        assignee: "Assign to...",
+        dueDate: "Select date...",
+        project: "Select project...",
       },
+      labels: {
+        status: "Status",
+        priority: "Priority",
+        assignee: "Assign",
+        dueDate: "Date",
+        project: "Project",
+      },
+      expand: "Expand",
+      collapse: "Collapse",
+      close: "Close",
+      creating: "Creating...",
+      createIssue: "Create Issue",
+      failedToCreate: "Failed to create issue",
+      issueCreated: "Issue created",
+      viewIssue: "View Issue",
     },
   },
   issues: {
@@ -703,6 +728,7 @@ export const en: LandingDict = {
       inReview: "In Review",
       done: "Done",
       blocked: "Blocked",
+      cancelled: "Cancelled",
     },
     priorities: {
       urgent: "Urgent",
@@ -710,6 +736,13 @@ export const en: LandingDict = {
       medium: "Medium",
       low: "Low",
       noPriority: "No priority",
+    },
+    issues: {
+      urgent: "Urgent",
+      high: "High",
+      medium: "Medium",
+      low: "Low",
+      none: "None",
     },
   },
   myIssues: {
@@ -762,6 +795,13 @@ export const en: LandingDict = {
       priority: "Priority",
       dueDate: "Due date",
       description: "Description",
+    },
+    priorities: {
+      urgent: "Urgent",
+      high: "High",
+      medium: "Medium",
+      low: "Low",
+      noPriority: "No priority",
     },
   },
   inbox: {
@@ -884,6 +924,7 @@ export const en: LandingDict = {
       progress: "Progress",
       description: "Description",
       descriptionPlaceholder: "Add description...",
+      removeFromProject: "Remove from project",
       deleteDialog: {
         title: "Delete project",
         description: "This will delete the project. Issues will not be deleted but will be unlinked.",

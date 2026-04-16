@@ -678,14 +678,39 @@ export const zh: LandingDict = {
   modal: {
     createIssue: {
       title: "创建问题",
+      newIssue: "新建问题",
+      newSubIssue: "新建子问题",
       fields: {
         title: "标题",
         description: "描述",
+        status: "状态",
+        priority: "优先级",
+        assignee: "指派人",
+        dueDate: "截止日期",
+        project: "项目",
       },
       placeholders: {
         title: "输入问题标题...",
         description: "输入描述...",
+        assignee: "指派给...",
+        dueDate: "选择日期...",
+        project: "选择项目...",
       },
+      labels: {
+        status: "状态",
+        priority: "优先级",
+        assignee: "指派",
+        dueDate: "日期",
+        project: "项目",
+      },
+      expand: "展开",
+      collapse: "收起",
+      close: "关闭",
+      creating: "创建中...",
+      createIssue: "创建问题",
+      failedToCreate: "创建问题失败",
+      issueCreated: "问题已创建",
+      viewIssue: "查看问题",
     },
   },
   issues: {
@@ -704,7 +729,7 @@ export const zh: LandingDict = {
     hiddenColumns: "隐藏的列",
     showColumn: "显示列",
     statuses: {
-      backlog: "待办事项",
+      backlog: "待办",
       todo: "准备开始",
       inProgress: "进行中",
       inReview: "审查中",
@@ -718,6 +743,13 @@ export const zh: LandingDict = {
       medium: "中",
       low: "低",
       noPriority: "无优先级",
+    },
+    issues: {
+      urgent: "紧急",
+      high: "高",
+      medium: "中",
+      low: "低",
+      none: "无优先级",
     },
   },
   issuesHeader: {
@@ -756,6 +788,13 @@ export const zh: LandingDict = {
       priority: "优先级",
       dueDate: "截止日期",
       description: "描述",
+    },
+    priorities: {
+      urgent: "紧急",
+      high: "高",
+      medium: "中",
+      low: "低",
+      noPriority: "无优先级",
     },
   },
   myIssues: {
@@ -889,6 +928,7 @@ export const zh: LandingDict = {
       progress: "进度",
       description: "描述",
       descriptionPlaceholder: "添加描述...",
+      removeFromProject: "从项目中移除",
       deleteDialog: {
         title: "删除项目",
         description: "这将删除该项目。问题不会被删除，但将取消关联。",

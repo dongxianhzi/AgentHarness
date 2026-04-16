@@ -6,6 +6,21 @@ import { ALL_STATUSES, STATUS_CONFIG } from "@multica/core/issues/config";
 import { StatusIcon } from "../status-icon";
 import { PropertyPicker, PickerItem } from "./property-picker";
 
+type TranslateFn = (key: string, fallback: string) => string;
+
+function getStatusDictKey(status: IssueStatus): string {
+  const map: Record<string, string> = {
+    backlog: "backlog",
+    todo: "todo",
+    in_progress: "inProgress",
+    in_review: "inReview",
+    done: "done",
+    blocked: "blocked",
+    cancelled: "cancelled",
+  };
+  return map[status] || status;
+}
+
 export function StatusPicker({
   status,
   onUpdate,
@@ -14,6 +29,7 @@ export function StatusPicker({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
   align,
+  t,
 }: {
   status: IssueStatus;
   onUpdate: (updates: Partial<UpdateIssueRequest>) => void;
@@ -22,11 +38,14 @@ export function StatusPicker({
   open?: boolean;
   onOpenChange?: (v: boolean) => void;
   align?: "start" | "center" | "end";
+  t?: TranslateFn;
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
   const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const cfg = STATUS_CONFIG[status];
+  const defaultT = (key: string, fallback: string) => fallback;
+  const translate = t || defaultT;
 
   return (
     <PropertyPicker
@@ -39,7 +58,7 @@ export function StatusPicker({
         customTrigger ?? (
           <>
             <StatusIcon status={status} className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{cfg.label}</span>
+            <span className="truncate">{translate(`board.statuses.${getStatusDictKey(status)}`, cfg.label)}</span>
           </>
         )
       }
@@ -57,7 +76,7 @@ export function StatusPicker({
             }}
           >
             <StatusIcon status={s} className="h-3.5 w-3.5" />
-            <span>{c.label}</span>
+            <span>{translate(`board.statuses.${getStatusDictKey(s)}`, c.label)}</span>
           </PickerItem>
         );
       })}

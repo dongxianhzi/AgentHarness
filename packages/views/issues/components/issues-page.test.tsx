@@ -205,6 +205,24 @@ vi.mock("@multica/core/modals", () => ({
   ),
 }));
 
+// Mock @multica/core
+vi.mock("@multica/core", () => ({
+  useTranslation: () => ({
+    t: (key: string, fallback: string) => {
+      // Return English fallbacks for tests, with specific translations
+      const translations: Record<string, string> = {
+        'issuesHeader.scopes.all.label': 'All',
+        'issuesHeader.scopes.members.label': 'Members', 
+        'issuesHeader.scopes.agents.label': 'Agents',
+        'issues.emptyState.title': 'No issues yet',
+        'issues.emptyState.subtitle': 'Create an issue to get started.',
+        'dashboard.issues.title': 'Issues',
+      };
+      return translations[key] || fallback;
+    },
+  }),
+}));
+
 // Mock sonner toast
 vi.mock("sonner", () => ({
   toast: { error: vi.fn(), success: vi.fn() },

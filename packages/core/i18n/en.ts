@@ -30,6 +30,9 @@ export const en = {
       issueCreated: "Issue created",
       viewIssue: "View issue",
       failedToCreate: "Failed to create issue",
+      placeholders: {
+        assignee: "Assign to...",
+      },
     },
   },
   dashboard: {
@@ -53,6 +56,25 @@ export const en = {
     assignee: "Assignee",
     creator: "Creator",
     project: "Project",
+  },
+  issueDetail: {
+    assignee: {
+      unassigned: "Unassigned",
+    },
+    properties: {
+      dueDate: "Due date",
+    },
+    dueDate: {
+      clear: "Clear date",
+    },
+  },
+  projects: {
+    detail: {
+      removeFromProject: "Remove from project",
+    },
+    emptyState: {
+      title: "No projects yet",
+    },
   },
   myIssues: {
     emptyState: {

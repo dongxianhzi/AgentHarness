@@ -13,20 +13,26 @@ import {
   DropdownMenuSeparator,
 } from "@multica/ui/components/ui/dropdown-menu";
 
+type TranslateFn = (key: string, fallback: string) => string;
+
 export function ProjectPicker({
   projectId,
   onUpdate,
   triggerRender,
   align = "start",
+  t,
 }: {
   projectId: string | null;
   onUpdate: (updates: Partial<UpdateIssueRequest>) => void;
   triggerRender?: React.ReactElement;
   align?: "start" | "center" | "end";
+  t?: TranslateFn;
 }) {
   const wsId = useWorkspaceId();
   const { data: projects = [] } = useQuery(projectListOptions(wsId));
   const current = projects.find((p) => p.id === projectId);
+  const defaultT = (key: string, fallback: string) => fallback;
+  const translate = t || defaultT;
 
   return (
     <DropdownMenu>
@@ -35,7 +41,7 @@ export function ProjectPicker({
         render={triggerRender}
       >
         <FolderKanban className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-        <span className="truncate">{current ? current.title : "No project"}</span>
+        <span className="truncate">{current ? current.title : translate('issuesHeader.noProject', 'No project')}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className="w-52">
         {projects.map((p) => (
@@ -49,11 +55,11 @@ export function ProjectPicker({
         {projectId && (
           <DropdownMenuItem onClick={() => onUpdate({ project_id: null })}>
             <X className="h-3.5 w-3.5 text-muted-foreground" />
-            Remove from project
+            {translate('projects.detail.removeFromProject', 'Remove from project')}
           </DropdownMenuItem>
         )}
         {projects.length === 0 && (
-          <div className="px-2 py-1.5 text-xs text-muted-foreground">No projects yet</div>
+          <div className="px-2 py-1.5 text-xs text-muted-foreground">{translate('projects.emptyState.title', 'No projects yet')}</div>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

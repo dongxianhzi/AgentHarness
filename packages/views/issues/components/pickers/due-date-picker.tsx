@@ -11,22 +11,28 @@ import {
 } from "@multica/ui/components/ui/popover";
 import { Button } from "@multica/ui/components/ui/button";
 
+type TranslateFn = (key: string, fallback: string) => string;
+
 export function DueDatePicker({
   dueDate,
   onUpdate,
   trigger: customTrigger,
   triggerRender,
   align = "start",
+  t,
 }: {
   dueDate: string | null;
   onUpdate: (updates: Partial<UpdateIssueRequest>) => void;
   trigger?: React.ReactNode;
   triggerRender?: React.ReactElement;
   align?: "start" | "center" | "end";
+  t?: TranslateFn;
 }) {
   const [open, setOpen] = useState(false);
   const date = dueDate ? new Date(dueDate) : undefined;
   const isOverdue = date ? date < new Date() : false;
+  const defaultT = (key: string, fallback: string) => fallback;
+  const translate = t || defaultT;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -42,7 +48,7 @@ export function DueDatePicker({
                 {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
               </span>
             ) : (
-              <span className="text-muted-foreground">Due date</span>
+              <span className="text-muted-foreground">{translate('issueDetail.properties.dueDate', 'Due date')}</span>
             )}
           </>
         )}
@@ -67,7 +73,7 @@ export function DueDatePicker({
               }}
               className="text-muted-foreground hover:text-foreground"
             >
-              Clear date
+              {translate('issueDetail.dueDate.clear', 'Clear date')}
             </Button>
           </div>
         )}

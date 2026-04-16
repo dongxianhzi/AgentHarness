@@ -6,6 +6,19 @@ import { PRIORITY_ORDER, PRIORITY_CONFIG } from "@multica/core/issues/config";
 import { PriorityIcon } from "../priority-icon";
 import { PropertyPicker, PickerItem } from "./property-picker";
 
+type TranslateFn = (key: string, fallback: string) => string;
+
+function getPriorityDictKey(priority: IssuePriority): string {
+  const map: Record<string, string> = {
+    urgent: "urgent",
+    high: "high",
+    medium: "medium",
+    low: "low",
+    none: "noPriority",
+  };
+  return map[priority] || priority;
+}
+
 export function PriorityPicker({
   priority,
   onUpdate,
@@ -14,6 +27,7 @@ export function PriorityPicker({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
   align,
+  t,
 }: {
   priority: IssuePriority;
   onUpdate: (updates: Partial<UpdateIssueRequest>) => void;
@@ -22,11 +36,14 @@ export function PriorityPicker({
   open?: boolean;
   onOpenChange?: (v: boolean) => void;
   align?: "start" | "center" | "end";
+  t?: TranslateFn;
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
   const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const cfg = PRIORITY_CONFIG[priority];
+  const defaultT = (key: string, fallback: string) => fallback;
+  const translate = t || defaultT;
 
   return (
     <PropertyPicker
@@ -39,7 +56,7 @@ export function PriorityPicker({
         customTrigger ?? (
           <>
             <PriorityIcon priority={priority} className="shrink-0" />
-            <span className="truncate">{cfg.label}</span>
+            <span className="truncate">{translate(`issuesHeader.priorities.${getPriorityDictKey(priority)}`, cfg.label)}</span>
           </>
         )
       }
@@ -57,7 +74,7 @@ export function PriorityPicker({
           >
             <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium ${c.badgeBg} ${c.badgeText}`}>
               <PriorityIcon priority={p} className="h-3 w-3" inheritColor />
-              {c.label}
+              {translate(`issuesHeader.priorities.${getPriorityDictKey(p)}`, c.label)}
             </span>
           </PickerItem>
         );

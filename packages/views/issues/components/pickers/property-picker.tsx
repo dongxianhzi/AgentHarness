@@ -12,6 +12,8 @@ import {
 // PropertyPicker — generic Popover shell with optional search
 // ---------------------------------------------------------------------------
 
+type TranslateFn = (key: string, fallback: string) => string;
+
 export function PropertyPicker({
   open,
   onOpenChange,
@@ -23,6 +25,7 @@ export function PropertyPicker({
   searchPlaceholder = "Filter...",
   onSearchChange,
   children,
+  t,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -34,8 +37,11 @@ export function PropertyPicker({
   searchPlaceholder?: string;
   onSearchChange?: (query: string) => void;
   children: React.ReactNode;
+  t?: TranslateFn;
 }) {
   const [query, setQuery] = useState("");
+  const defaultT = (key: string, fallback: string) => fallback;
+  const translate = t || defaultT;
 
   const handleOpenChange = useCallback(
     (v: boolean) => {
@@ -66,7 +72,7 @@ export function PropertyPicker({
                 setQuery(e.target.value);
                 onSearchChange?.(e.target.value);
               }}
-              placeholder={searchPlaceholder}
+              placeholder={translate('issuesHeader.filter', searchPlaceholder)}
               aria-label="Filter options"
               className="w-full bg-transparent text-sm placeholder:text-muted-foreground outline-none"
             />

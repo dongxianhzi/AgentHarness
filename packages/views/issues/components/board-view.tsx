@@ -325,6 +325,7 @@ export function BoardView({
             <BoardCardContent
               issue={activeIssue}
               childProgress={childProgressMap.get(activeIssue.id)}
+              t={t}
             />
           </div>
         ) : null}

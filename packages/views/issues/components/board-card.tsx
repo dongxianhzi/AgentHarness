@@ -16,6 +16,20 @@ import { PRIORITY_CONFIG } from "@multica/core/issues/config";
 import { useViewStore } from "@multica/core/issues/stores/view-store-context";
 import { ProgressRing } from "./progress-ring";
 import type { ChildProgress } from "./list-row";
+import type { IssuePriority } from "@multica/core/types";
+
+type TranslateFn = (key: string, fallback: string) => string;
+
+function getPriorityDictKey(priority: IssuePriority): string {
+  const map: Record<string, string> = {
+    urgent: "urgent",
+    high: "high",
+    medium: "medium",
+    low: "low",
+    none: "none",
+  };
+  return map[priority] || priority;
+}
 
 function formatDate(date: string): string {
   return new Date(date).toLocaleDateString("en-US", {
@@ -41,13 +55,17 @@ export const BoardCardContent = memo(function BoardCardContent({
   issue,
   editable = false,
   childProgress,
+  t,
 }: {
   issue: Issue;
   editable?: boolean;
   childProgress?: ChildProgress;
+  t?: TranslateFn;
 }) {
   const storeProperties = useViewStore((s) => s.cardProperties);
   const priorityCfg = PRIORITY_CONFIG[issue.priority];
+  const defaultT = (key: string, fallback: string) => fallback;
+  const translate = t || defaultT;
 
   const updateIssueMutation = useUpdateIssue();
   const handleUpdate = useCallback(
@@ -124,10 +142,11 @@ export const BoardCardContent = memo(function BoardCardContent({
                 <PriorityPicker
                   priority={issue.priority}
                   onUpdate={handleUpdate}
+                  t={translate}
                   trigger={
                     <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium ${priorityCfg.badgeBg} ${priorityCfg.badgeText}`}>
                       <PriorityIcon priority={issue.priority} className="h-3 w-3" inheritColor />
-                      {priorityCfg.label}
+                      {translate(`board.issues.${getPriorityDictKey(issue.priority)}`, priorityCfg.label)}
                     </span>
                   }
                 />
@@ -135,7 +154,7 @@ export const BoardCardContent = memo(function BoardCardContent({
             ) : (
               <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium ${priorityCfg.badgeBg} ${priorityCfg.badgeText}`}>
                 <PriorityIcon priority={issue.priority} className="h-3 w-3" inheritColor />
-                {priorityCfg.label}
+                {translate(`board.issues.${getPriorityDictKey(issue.priority)}`, priorityCfg.label)}
               </span>
             ))}
           {showDueDate && (
@@ -185,7 +204,7 @@ const animateLayoutChanges: AnimateLayoutChanges = (args) => {
   return defaultAnimateLayoutChanges(args);
 };
 
-export const DraggableBoardCard = memo(function DraggableBoardCard({ issue, childProgress }: { issue: Issue; childProgress?: ChildProgress }) {
+export const DraggableBoardCard = memo(function DraggableBoardCard({ issue, childProgress, t }: { issue: Issue; childProgress?: ChildProgress; t?: TranslateFn }) {
   const {
     attributes,
     listeners,
@@ -216,7 +235,7 @@ export const DraggableBoardCard = memo(function DraggableBoardCard({ issue, chil
         href={`/issues/${issue.id}`}
         className={`group block transition-colors ${isDragging ? "pointer-events-none" : ""}`}
       >
-        <BoardCardContent issue={issue} editable childProgress={childProgress} />
+        <BoardCardContent issue={issue} editable childProgress={childProgress} t={t} />
       </AppLink>
     </div>
   );

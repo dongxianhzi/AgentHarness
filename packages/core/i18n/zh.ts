@@ -1,13 +1,13 @@
 export const zh = {
   board: {
     statuses: {
-      backlog: "积压",
-      todo: "待办",
-      in_progress: "进行中",
-      in_review: "审核中",
-      done: "完成",
-      blocked: "阻塞",
-      cancelled: "取消",
+      backlog: "待办",
+      todo: "准备开始",
+      inProgress: "进行中",
+      inReview: "审查中",
+      done: "已完成",
+      blocked: "已阻塞",
+      cancelled: "已取消",
     },
     hideColumn: "隐藏列",
     addIssue: "添加问题",
@@ -30,6 +30,9 @@ export const zh = {
       issueCreated: "问题已创建",
       viewIssue: "查看问题",
       failedToCreate: "创建问题失败",
+      placeholders: {
+        assignee: "分配给...",
+      },
     },
   },
   dashboard: {
@@ -53,6 +56,25 @@ export const zh = {
     assignee: "指派人",
     creator: "创建人",
     project: "项目",
+  },
+  issueDetail: {
+    assignee: {
+      unassigned: "未分配",
+    },
+    properties: {
+      dueDate: "截止日期",
+    },
+    dueDate: {
+      clear: "清除日期",
+    },
+  },
+  projects: {
+    detail: {
+      removeFromProject: "从项目中移除",
+    },
+    emptyState: {
+      title: "还没有项目",
+    },
   },
   myIssues: {
     emptyState: {

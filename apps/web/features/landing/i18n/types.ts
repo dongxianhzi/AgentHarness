@@ -258,6 +258,7 @@ type ProjectsDict = {
     progress: string;
     description: string;
     descriptionPlaceholder: string;
+    removeFromProject: string;
     deleteDialog: {
       title: string;
       description: string;
@@ -266,7 +267,7 @@ type ProjectsDict = {
     };
   };
   priorities: {
-    none: string;
+    noPriority: string;
     urgent: string;
     high: string;
     medium: string;
@@ -303,19 +304,50 @@ type BoardDict = {
     low: string;
     noPriority: string;
   };
+  issues: {
+    urgent: string;
+    high: string;
+    medium: string;
+    low: string;
+    none: string;
+  };
 };
 type ModalDict = {
   createIssue: {
     title: string;
+    newIssue: string;
+    newSubIssue: string;
     fields: {
       title: string;
       description: string;
-      // 添加其他字段
+      status: string;
+      priority: string;
+      assignee: string;
+      dueDate: string;
+      project: string;
     };
     placeholders: {
       title: string;
       description: string;
+      assignee: string;
+      dueDate: string;
+      project: string;
     };
+    labels: {
+      status: string;
+      priority: string;
+      assignee: string;
+      dueDate: string;
+      project: string;
+    };
+    expand: string;
+    collapse: string;
+    close: string;
+    creating: string;
+    createIssue: string;
+    failedToCreate: string;
+    issueCreated: string;
+    viewIssue: string;
   };
 };
 

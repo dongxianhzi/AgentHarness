@@ -101,6 +101,42 @@ function priorityLabel(priority: string): string {
   return PRIORITY_CONFIG[priority as IssuePriority]?.label ?? priority;
 }
 
+function getPriorityDictKey(priority: string): string {
+  const map: Record<string, string> = {
+    urgent: "urgent",
+    high: "high",
+    medium: "medium",
+    low: "low",
+    none: "none",
+  };
+  return map[priority] || priority;
+}
+
+function priorityLabelWithT(priority: string, t: TranslateFn): string {
+  const key = getPriorityDictKey(priority);
+  const cfg = PRIORITY_CONFIG[priority as IssuePriority];
+  return t(`board.issues.${key}`, cfg?.label ?? priority);
+}
+
+function getStatusDictKey(status: string): string {
+  const map: Record<string, string> = {
+    backlog: 'backlog',
+    todo: 'todo',
+    in_progress: 'inProgress',
+    in_review: 'inReview',
+    done: 'done',
+    blocked: 'blocked',
+    cancelled: 'cancelled',
+  };
+  return map[status] || status;
+}
+
+function statusLabelWithT(status: string, t: TranslateFn): string {
+  const key = getStatusDictKey(status);
+  const cfg = STATUS_CONFIG[status as IssueStatus];
+  return t(`board.statuses.${key}`, cfg?.label ?? status);
+}
+
 // 定义翻译函数类型
 type TranslateFn = (key: string, fallback: string) => string;
 
@@ -547,7 +583,7 @@ export function IssueDetail({
                         onClick={() => handleUpdateField({ status: s })}
                       >
                         <StatusIcon status={s} className="h-3.5 w-3.5" />
-                        {STATUS_CONFIG[s].label}
+                        {statusLabelWithT(s, t)}
                         {issue.status === s && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                       </DropdownMenuItem>
                     ))}
@@ -568,7 +604,7 @@ export function IssueDetail({
                       >
                         <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium ${PRIORITY_CONFIG[p].badgeBg} ${PRIORITY_CONFIG[p].badgeText}`}>
                           <PriorityIcon priority={p} className="h-3 w-3" inheritColor />
-                          {PRIORITY_CONFIG[p].label}
+                          {priorityLabelWithT(p, t)}
                         </span>
                         {issue.priority === p && <span className="ml-auto text-xs text-muted-foreground">✓</span>}
                       </DropdownMenuItem>
@@ -1215,6 +1251,7 @@ export function IssueDetail({
                   priority={issue.priority}
                   onUpdate={handleUpdateField}
                   align="start"
+                  t={t}
                 />
               </PropRow>
 
@@ -1225,6 +1262,7 @@ export function IssueDetail({
                   assigneeId={issue.assignee_id}
                   onUpdate={handleUpdateField}
                   align="start"
+                  t={t}
                 />
               </PropRow>
 
@@ -1233,6 +1271,7 @@ export function IssueDetail({
                 <DueDatePicker
                   dueDate={issue.due_date}
                   onUpdate={handleUpdateField}
+                  t={t}
                 />
               </PropRow>
 
@@ -1241,6 +1280,7 @@ export function IssueDetail({
                 <ProjectPicker
                   projectId={issue.project_id}
                   onUpdate={handleUpdateField}
+                  t={t}
                 />
               </PropRow>
             </div>}

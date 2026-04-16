@@ -16,6 +16,8 @@ import {
   PickerEmpty,
 } from "./property-picker";
 
+type TranslateFn = (key: string, fallback: string) => string;
+
 export function canAssignAgent(agent: Agent, userId: string | undefined, memberRole: string | undefined): boolean {
   if (agent.visibility !== "private") return true;
   if (agent.owner_id === userId) return true;
@@ -32,6 +34,7 @@ export function AssigneePicker({
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
   align,
+  t,
 }: {
   assigneeType: IssueAssigneeType | null;
   assigneeId: string | null;
@@ -41,6 +44,7 @@ export function AssigneePicker({
   open?: boolean;
   onOpenChange?: (v: boolean) => void;
   align?: "start" | "center" | "end";
+  t?: TranslateFn;
 }) {
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
@@ -52,6 +56,8 @@ export function AssigneePicker({
   const { data: agents = [] } = useQuery(agentListOptions(wsId));
   const { data: frequency = [] } = useQuery(assigneeFrequencyOptions(wsId));
   const { getActorName } = useActorName();
+  const defaultT = (key: string, fallback: string) => fallback;
+  const translate = t || defaultT;
 
   const currentMember = members.find((m) => m.user_id === user?.id);
   const memberRole = currentMember?.role;
@@ -81,7 +87,7 @@ export function AssigneePicker({
   const triggerLabel =
     assigneeType && assigneeId
       ? getActorName(assigneeType, assigneeId)
-      : "Unassigned";
+      : translate('issueDetail.assignee.unassigned', 'Unassigned');
 
   return (
     <PropertyPicker
@@ -93,8 +99,9 @@ export function AssigneePicker({
       width="w-52"
       align={align}
       searchable
-      searchPlaceholder="Assign to..."
+      searchPlaceholder={translate('modal.createIssue.placeholders.assignee', 'Assign to...')}
       onSearchChange={setFilter}
+      t={t}
       triggerRender={triggerRender}
       trigger={
         customTrigger ? customTrigger : assigneeType && assigneeId ? (
@@ -103,7 +110,7 @@ export function AssigneePicker({
             <span className="truncate">{triggerLabel}</span>
           </>
         ) : (
-          <span className="text-muted-foreground">Unassigned</span>
+          <span className="text-muted-foreground">{translate('issueDetail.assignee.unassigned', 'Unassigned')}</span>
         )
       }
     >
@@ -116,12 +123,12 @@ export function AssigneePicker({
         }}
       >
         <UserMinus className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-muted-foreground">Unassigned</span>
+        <span className="text-muted-foreground">{translate('issueDetail.assignee.unassigned', 'Unassigned')}</span>
       </PickerItem>
 
       {/* Members */}
       {filteredMembers.length > 0 && (
-        <PickerSection label="Members">
+        <PickerSection label={translate('issuesHeader.members', 'Members')}>
           {filteredMembers.map((m) => (
             <PickerItem
               key={m.user_id}
@@ -143,7 +150,7 @@ export function AssigneePicker({
 
       {/* Agents */}
       {filteredAgents.length > 0 && (
-        <PickerSection label="Agents">
+        <PickerSection label={translate('issuesHeader.agents', 'Agents')}>
           {filteredAgents.map((a) => {
             const allowed = canAssignAgent(a, user?.id, memberRole);
             return (
