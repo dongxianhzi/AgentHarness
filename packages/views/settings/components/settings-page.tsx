@@ -3,6 +3,7 @@
 import { User, Palette, Key, Settings, Users, FolderGit2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@multica/ui/components/ui/tabs";
 import { useWorkspaceStore } from "@multica/core/workspace";
+import { useTranslation } from "@multica/core";
 import { AccountTab } from "./account-tab";
 import { AppearanceTab } from "./appearance-tab";
 import { TokensTab } from "./tokens-tab";
@@ -10,30 +11,31 @@ import { WorkspaceTab } from "./workspace-tab";
 import { MembersTab } from "./members-tab";
 import { RepositoriesTab } from "./repositories-tab";
 
-const accountTabs = [
-  { value: "profile", label: "Profile", icon: User },
-  { value: "appearance", label: "Appearance", icon: Palette },
-  { value: "tokens", label: "API Tokens", icon: Key },
-];
-
-const workspaceTabs = [
-  { value: "workspace", label: "General", icon: Settings },
-  { value: "repositories", label: "Repositories", icon: FolderGit2 },
-  { value: "members", label: "Members", icon: Users },
-];
-
 export function SettingsPage() {
+  const { t } = useTranslation();
   const workspaceName = useWorkspaceStore((s) => s.workspace?.name);
+
+  const accountTabs = [
+    { value: "profile", label: t("settings.navigation.profile", "Profile"), icon: User },
+    { value: "appearance", label: t("settings.navigation.appearance", "Appearance"), icon: Palette },
+    { value: "tokens", label: t("settings.navigation.apiTokens", "API Tokens"), icon: Key },
+  ];
+
+  const workspaceTabs = [
+    { value: "workspace", label: t("settings.navigation.general", "General"), icon: Settings },
+    { value: "repositories", label: t("settings.navigation.repositories", "Repositories"), icon: FolderGit2 },
+    { value: "members", label: t("settings.navigation.members", "Members"), icon: Users },
+  ];
 
   return (
     <Tabs defaultValue="profile" orientation="vertical" className="flex-1 min-h-0 gap-0">
       {/* Left nav */}
       <div className="w-52 shrink-0 border-r overflow-y-auto p-4">
-        <h1 className="text-sm font-semibold mb-4 px-2">Settings</h1>
+        <h1 className="text-sm font-semibold mb-4 px-2">{t("common.settings", "Settings")}</h1>
         <TabsList variant="line" className="flex-col items-stretch">
           {/* My Account group */}
           <span className="px-2 pb-1 pt-2 text-xs font-medium text-muted-foreground">
-            My Account
+            {t("settings.navigation.myAccount", "My Account")}
           </span>
           {accountTabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
@@ -44,7 +46,7 @@ export function SettingsPage() {
 
           {/* Workspace group */}
           <span className="px-2 pb-1 pt-4 text-xs font-medium text-muted-foreground truncate">
-            {workspaceName ?? "Workspace"}
+            {workspaceName ?? t("common.workspace", "Workspace")}
           </span>
           {workspaceTabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>
