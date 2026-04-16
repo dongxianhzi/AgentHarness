@@ -1,5 +1,6 @@
-import { Server, ArrowUpCircle, ChevronDown, Check } from "lucide-react";
+import { Server, ArrowUpCircle, ChevronDown, Check, Play, Square } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import type { AgentRuntime, MemberWithUser } from "@multica/core/types";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { memberListOptions } from "@multica/core/workspace/queries";
@@ -31,9 +32,8 @@ function RuntimeListItem({
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
-        isSelected ? "bg-accent" : "hover:bg-accent/50"
-      }`}
+      className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${isSelected ? "bg-accent" : "hover:bg-accent/50"
+        }`}
     >
       <div className="flex h-8 w-8 shrink-0 items-center justify-center">
         <ProviderLogo provider={runtime.provider} className="h-5 w-5" />
@@ -62,9 +62,8 @@ function RuntimeListItem({
           </span>
         )}
         <div
-          className={`h-2 w-2 rounded-full ${
-            runtime.status === "online" ? "bg-success" : "bg-muted-foreground/40"
-          }`}
+          className={`h-2 w-2 rounded-full ${runtime.status === "online" ? "bg-success" : "bg-muted-foreground/40"
+            }`}
         />
       </div>
     </button>
@@ -92,6 +91,170 @@ export function RuntimeList({
 }) {
   const wsId = useWorkspaceId();
   const { data: members = [] } = useQuery(memberListOptions(wsId));
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isStartingMultica, setIsStartingMultica] = useState(false);
+  const [isStoppingMultica, setIsStoppingMultica] = useState(false);
+  const [daemonStatus, setDaemonStatus] = useState<"running" | "stopped" | "unknown">("unknown");
+
+  // Get token from localStorage (matches what auth store uses)
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Read token from localStorage - this is what the auth store uses
+    const storedToken = localStorage.getItem("multica_token");
+    setToken(storedToken);
+  }, []);
+
+  // Fetch daemon status on mount and periodically
+  useEffect(() => {
+    const fetchStatus = async () => {
+      if (!token) return;
+      
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      };
+
+      try {
+        const statusResponse = await fetch("/api/multica/cli", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ command: "daemon status" }),
+        });
+
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          const output = statusData.output as { status?: string } | undefined;
+          setDaemonStatus(output?.status === "running" ? "running" : "stopped");
+        } else {
+          setDaemonStatus("stopped");
+        }
+      } catch {
+        setDaemonStatus("stopped");
+      }
+    };
+
+    fetchStatus();
+    // Poll every 10 seconds
+    const interval = setInterval(fetchStatus, 10000);
+    return () => clearInterval(interval);
+  }, [token]);
+
+  const handleStopMultica = async () => {
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      setIsStoppingMultica(true);
+
+      // Call daemon stop
+      const stopResponse = await fetch("/api/multica/cli", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ command: "daemon stop" }),
+      });
+
+      if (!stopResponse.ok) {
+        const errorData = await stopResponse.json();
+        throw new Error(errorData.error || "Failed to stop daemon");
+      }
+
+      // Update status immediately after successful stop
+      setDaemonStatus("stopped");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("Failed to stop Multica:", error);
+      alert("Failed to stop Multica: " + message);
+    } finally {
+      setIsStoppingMultica(false);
+    }
+  };
+
+  const handleStartMultica = async () => {
+    try {
+      // Use existing token from localStorage to authenticate with the API
+      // The "login" command will auto-create a PAT and configure multica CLI
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      // First call login to auto-create PAT and configure multica
+      const loginResponse = await fetch("/api/multica/cli", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ command: "login" }),
+      });
+
+      if (!loginResponse.ok) {
+        const errorData = await loginResponse.json();
+        throw new Error(errorData.error || "Login failed");
+      }
+
+      setIsStartingMultica(true);
+
+      // Call daemon start (ignore error if already running)
+      const daemonStartResponse = await fetch("/api/multica/cli", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ command: "daemon start" }),
+      });
+
+      if (!daemonStartResponse.ok) {
+        const errorData = await daemonStartResponse.json();
+        // If daemon is already running, that's okay - we'll check status below
+        if (!errorData.error?.includes("already running")) {
+          throw new Error(errorData.error || "Failed to start daemon");
+        }
+      }
+
+      // Poll for daemon status
+      let isRunning = false;
+      for (let i = 0; i < 10; i++) {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between checks
+        const statusResponse = await fetch("/api/multica/cli", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ command: "daemon status" }),
+        });
+
+        if (statusResponse.ok) {
+          const statusData = await statusResponse.json();
+          // Response is { status: "success", output: { status: "running", ... } }
+          const output = statusData.output as { status?: string } | undefined;
+          if (output?.status === "running") {
+            isRunning = true;
+            setDaemonStatus("running");
+            break;
+          }
+        } else {
+          const errorData = await statusResponse.json();
+          throw new Error(errorData.error || "Failed to check daemon status");
+        }
+      }
+
+      if (!isRunning) {
+        throw new Error("Daemon failed to start");
+      }
+
+      // Refresh runtimes list - relies on WS event
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("Failed to start Multica:", error);
+      alert("Failed to start Multica: " + message);
+    } finally {
+      setIsLoggingIn(false);
+      setIsStartingMultica(false);
+    }
+  };
 
   const getOwnerMember = (ownerId: string | null) => {
     if (!ownerId) return null;
@@ -101,8 +264,8 @@ export function RuntimeList({
   // Get unique owners from runtimes for filter dropdown
   const uniqueOwners = filter === "all"
     ? Array.from(new Set(runtimes.map((r) => r.owner_id).filter(Boolean) as string[]))
-        .map((id) => members.find((m) => m.user_id === id))
-        .filter(Boolean) as MemberWithUser[]
+      .map((id) => members.find((m) => m.user_id === id))
+      .filter(Boolean) as MemberWithUser[]
     : [];
 
   // Count runtimes per owner
@@ -130,74 +293,120 @@ export function RuntimeList({
 
       {/* Filter bar */}
       <div className="flex items-center justify-between border-b px-4 py-2">
-        {/* Scope toggle */}
-        <div className="flex items-center gap-0.5 rounded-md bg-muted p-0.5">
-          <button
-            onClick={() => { onFilterChange("mine"); onOwnerFilterChange(null); }}
-            className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-              filter === "mine"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Mine
-          </button>
-          <button
-            onClick={() => { onFilterChange("all"); onOwnerFilterChange(null); }}
-            className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${
-              filter === "all"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            All
-          </button>
-        </div>
-
-        {/* Owner dropdown (only in All mode with multiple owners) */}
-        {filter === "all" && uniqueOwners.length > 1 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <button className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent" />
-              }
+        <div className="flex items-center gap-2">
+          {/* Scope toggle */}
+          <div className="flex items-center gap-0.5 rounded-md bg-muted p-0.5">
+            <button
+              onClick={() => { onFilterChange("mine"); onOwnerFilterChange(null); }}
+              className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${filter === "mine"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+                }`}
             >
-              {selectedOwner ? (
-                <>
-                  <ActorAvatar actorType="member" actorId={selectedOwner.user_id} size={16} />
-                  <span className="max-w-20 truncate">{selectedOwner.name}</span>
-                </>
-              ) : (
-                <span>Owner</span>
-              )}
-              <ChevronDown className="h-3 w-3 opacity-50" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem
-                onClick={() => onOwnerFilterChange(null)}
-                className="flex items-center justify-between"
+              Mine
+            </button>
+            <button
+              onClick={() => { onFilterChange("all"); onOwnerFilterChange(null); }}
+              className={`rounded px-2.5 py-1 text-xs font-medium transition-colors ${filter === "all"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              All
+            </button>
+          </div>
+
+          {/* Owner dropdown (only in All mode with multiple owners) */}
+          {filter === "all" && uniqueOwners.length > 1 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-accent" />
+                }
               >
-                <span className="text-xs">All owners</span>
-                {!ownerFilter && <Check className="h-3.5 w-3.5 text-foreground" />}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {uniqueOwners.map((m) => (
+                {selectedOwner ? (
+                  <>
+                    <ActorAvatar actorType="member" actorId={selectedOwner.user_id} size={16} />
+                    <span className="max-w-20 truncate">{selectedOwner.name}</span>
+                  </>
+                ) : (
+                  <span>Owner</span>
+                )}
+                <ChevronDown className="h-3 w-3 opacity-50" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem
-                  key={m.user_id}
-                  onClick={() => onOwnerFilterChange(ownerFilter === m.user_id ? null : m.user_id)}
+                  onClick={() => onOwnerFilterChange(null)}
                   className="flex items-center justify-between"
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <ActorAvatar actorType="member" actorId={m.user_id} size={18} />
-                    <span className="text-xs truncate">{m.name}</span>
-                    <span className="text-xs text-muted-foreground">{ownerCounts.get(m.user_id) ?? 0}</span>
-                  </div>
-                  {ownerFilter === m.user_id && <Check className="h-3.5 w-3.5 shrink-0 text-foreground" />}
+                  <span className="text-xs">All owners</span>
+                  {!ownerFilter && <Check className="h-3.5 w-3.5 text-foreground" />}
                 </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+                <DropdownMenuSeparator />
+                {uniqueOwners.map((m) => (
+                  <DropdownMenuItem
+                    key={m.user_id}
+                    onClick={() => onOwnerFilterChange(ownerFilter === m.user_id ? null : m.user_id)}
+                    className="flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <ActorAvatar actorType="member" actorId={m.user_id} size={18} />
+                      <span className="text-xs truncate">{m.name}</span>
+                      <span className="text-xs text-muted-foreground">{ownerCounts.get(m.user_id) ?? 0}</span>
+                    </div>
+                    {ownerFilter === m.user_id && <Check className="h-3.5 w-3.5 shrink-0 text-foreground" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+
+        {/* Start/Stop Multica Button */}
+        <div className="flex items-center gap-2">
+          {daemonStatus === "running" ? (
+            <button
+              onClick={handleStopMultica}
+              disabled={isStoppingMultica}
+              className="flex items-center gap-2 rounded-md bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+            >
+              {isStoppingMultica ? (
+                <>
+                  <Square className="h-3 w-3 animate-spin" />
+                  <span>Stopping...</span>
+                </>
+              ) : (
+                <>
+                  <Square className="h-3 w-3" />
+                  <span>Stop</span>
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={handleStartMultica}
+              disabled={isStartingMultica || isLoggingIn || daemonStatus === "unknown"}
+              className="flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              {isStartingMultica ? (
+                <>
+                  <Play className="h-3 w-3 animate-spin" />
+                  <span>Starting...</span>
+                </>
+              ) : isLoggingIn ? (
+                <>
+                  <Play className="h-3 w-3 animate-spin" />
+                  <span>Logging in...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="h-3 w-3" />
+                  <span>Start</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {filteredRuntimes.length === 0 ? (

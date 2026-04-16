@@ -15,6 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
+// S3Storage is an AWS S3 object storage implementation.
 type S3Storage struct {
 	client      *s3.Client
 	bucket      string
@@ -89,7 +90,7 @@ func (s *S3Storage) storageClass() types.StorageClass {
 }
 
 // sanitizeFilename removes characters that could cause header injection in Content-Disposition.
-func sanitizeFilename(name string) string {
+func (s *S3Storage) sanitizeFilename(name string) string {
 	var b strings.Builder
 	b.Grow(len(name))
 	for _, r := range name {
@@ -148,6 +149,21 @@ func (s *S3Storage) DeleteKeys(ctx context.Context, keys []string) {
 	for _, key := range keys {
 		s.Delete(ctx, key)
 	}
+}
+
+// sanitizeFilename removes characters that could cause header injection in Content-Disposition.
+func sanitizeFilename(name string) string {
+	var b strings.Builder
+	b.Grow(len(name))
+	for _, r := range name {
+		// Strip control chars, newlines, null bytes, quotes, semicolons, backslashes
+		if r < 0x20 || r == 0x7f || r == '"' || r == ';' || r == '\\' || r == '\x00' {
+			b.WriteRune('_')
+		} else {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
 
 // isInlineContentType returns true for media types that browsers should

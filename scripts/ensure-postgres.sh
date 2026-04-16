@@ -67,30 +67,31 @@ is_local() {
 }
 
 if is_local; then
-  # ---------- Local: use Docker ----------
-  echo "==> Ensuring shared PostgreSQL container is running on localhost:5432..."
-  docker compose up -d postgres
+  # ---------- Local: use manual PostgreSQL ----------
+  echo "==> Ensuring PostgreSQL is running on localhost:5432..."
+  
+  if ! pg_isready -h localhost -p 5432 -U "$POSTGRES_USER" > /dev/null 2>&1; then
+    echo "PostgreSQL is not running. Please start PostgreSQL service."
+    exit 1
+  fi
 
   echo "==> Waiting for PostgreSQL to be ready..."
-  until docker compose exec -T postgres pg_isready -U "$POSTGRES_USER" -d postgres > /dev/null 2>&1; do
+  until pg_isready -h localhost -p 5432 -U "$POSTGRES_USER" > /dev/null 2>&1; do
     sleep 1
   done
 
   echo "==> Ensuring database '$POSTGRES_DB' exists..."
-  db_exists="$(docker compose exec -T postgres \
-    psql -U "$POSTGRES_USER" -d postgres -Atqc "SELECT 1 FROM pg_database WHERE datname = '$POSTGRES_DB'")"
-
-  if [ "$db_exists" != "1" ]; then
-    docker compose exec -T postgres \
-      psql -U "$POSTGRES_USER" -d postgres -v ON_ERROR_STOP=1 \
-      -c "CREATE DATABASE \"$POSTGRES_DB\"" \
-      > /dev/null
+  if ! psql -h localhost -U "$POSTGRES_USER" -lqt | cut -d \| -f 1 | grep -qw "$POSTGRES_DB"; then
+    echo "Creating database $POSTGRES_DB..."
+    createdb -h localhost -U "$POSTGRES_USER" "$POSTGRES_DB"
+  else
+    echo "Database $POSTGRES_DB already exists"
   fi
 
-  echo "✓ PostgreSQL ready (local Docker). Database: $POSTGRES_DB"
+  echo "✓ PostgreSQL ready (local manual). Database: $POSTGRES_DB"
 else
   # ---------- Remote: skip Docker, verify connectivity ----------
-  echo "==> Remote database detected (host: $db_host). Skipping Docker."
+  echo "==> Remote database detected (host: $db_host). Skipping local checks."
   if command -v pg_isready > /dev/null 2>&1; then
     echo "==> Waiting for PostgreSQL at $db_host:$db_port to be ready..."
     until pg_isready -d "$DATABASE_URL" > /dev/null 2>&1; do
