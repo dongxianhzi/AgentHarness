@@ -11,6 +11,7 @@ import {
   ChartContainer,
   type ChartConfig,
 } from "@multica/ui/components/ui/chart";
+import { useTranslation } from "@multica/core";
 import type { DailyTokenData } from "../../utils";
 import { formatTokens } from "../../utils";
 
@@ -47,19 +48,21 @@ function TokenTooltipContent({
   active,
   payload,
   label,
+  t,
 }: {
   active?: boolean;
   payload?: Array<{ payload: DailyTokenRow }>;
   label?: string;
+  t: ReturnType<typeof useTranslation>["t"];
 }) {
   if (!active || !payload?.length) return null;
   const row = payload[0]!.payload;
 
   const items = [
-    { label: "Input", value: row.input },
-    { label: "Output", value: row.output },
-    { label: "Cache Read", value: row.cacheRead },
-    { label: "Cache Write", value: row.cacheWrite },
+    { label: t("runtimes.usage.input", "Input"), value: row.input },
+    { label: t("runtimes.usage.output", "Output"), value: row.output },
+    { label: t("runtimes.usage.cacheRead", "Cache Read"), value: row.cacheRead },
+    { label: t("runtimes.usage.cacheWrite", "Cache Write"), value: row.cacheWrite },
   ];
 
   return (
@@ -78,7 +81,7 @@ function TokenTooltipContent({
           </div>
         ))}
         <div className="flex items-center justify-between gap-6 border-t pt-1 mt-0.5 font-medium">
-          <span>Total</span>
+          <span>{t("runtimes.usage.charts.total", "Total")}</span>
           <span className="font-mono tabular-nums">
             {formatTokens(row.total)}
           </span>
@@ -89,6 +92,7 @@ function TokenTooltipContent({
 }
 
 export function DailyTokenChart({ data }: { data: DailyTokenData[] }) {
+  const { t } = useTranslation();
   const chartData = useMemo<DailyTokenRow[]>(
     () =>
       data.map((d) => ({
@@ -103,7 +107,7 @@ export function DailyTokenChart({ data }: { data: DailyTokenData[] }) {
   return (
     <div className="rounded-lg border p-4">
       <h4 className="text-xs font-medium text-muted-foreground mb-3">
-        Daily Token Usage
+        {t("runtimes.usage.charts.dailyTokenUsage", "Daily Token Usage")}
       </h4>
       <ChartContainer
         config={tokenChartConfig}
@@ -131,7 +135,7 @@ export function DailyTokenChart({ data }: { data: DailyTokenData[] }) {
             domain={[0, yMax]}
             ticks={ticks}
           />
-          <Tooltip content={<TokenTooltipContent />} />
+          <Tooltip content={<TokenTooltipContent t={t} />} />
           <Area
             type="monotone"
             dataKey="total"
