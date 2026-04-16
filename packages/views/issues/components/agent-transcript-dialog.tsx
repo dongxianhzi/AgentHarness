@@ -17,6 +17,7 @@ import {
   Cloud,
   Cpu,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { cn } from "@multica/ui/lib/utils";
 import { Dialog, DialogContent, DialogTitle } from "@multica/ui/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@multica/ui/components/ui/collapsible";
@@ -586,6 +587,16 @@ const TranscriptEventRow = ({
 
 // ─── Event detail content ───────────────────────────────────────────────────
 
+// Decode escaped markdown (handles \n, \|, etc.)
+function decodeMarkdown(content: string): string {
+  return content
+    .replace(/\\n/g, "\n")
+    .replace(/\\\|/g, "|")
+    .replace(/\\#/g, "#")
+    .replace(/\\*/g, "*")
+    .replace(/\\-/g, "-");
+}
+
 function EventDetailContent({ item }: { item: TimelineItem }) {
   switch (item.type) {
     case "tool_use":
@@ -596,25 +607,29 @@ function EventDetailContent({ item }: { item: TimelineItem }) {
       );
     case "tool_result":
       return (
-        <pre className="max-h-60 overflow-auto p-3 text-[11px] text-muted-foreground whitespace-pre-wrap break-all">
-          {item.output
-            ? item.output.length > 4000
-              ? redactSecrets(item.output.slice(0, 4000)) + "\n... (truncated)"
-              : redactSecrets(item.output)
-            : ""}
-        </pre>
+        <div className="max-h-60 overflow-auto p-3 text-xs text-muted-foreground">
+          <ReactMarkdown>
+            {decodeMarkdown(
+              item.output
+                ? item.output.length > 4000
+                  ? redactSecrets(item.output.slice(0, 4000)) + "\n\n_... (truncated)_"
+                  : redactSecrets(item.output)
+                : ""
+            )}
+          </ReactMarkdown>
+        </div>
       );
     case "thinking":
       return (
-        <pre className="max-h-60 overflow-auto p-3 text-[11px] text-muted-foreground whitespace-pre-wrap break-words">
-          {item.content ?? ""}
-        </pre>
+        <div className="max-h-60 overflow-auto p-3 text-xs text-muted-foreground">
+          <ReactMarkdown>{decodeMarkdown(item.content ?? "")}</ReactMarkdown>
+        </div>
       );
     case "text":
       return (
-        <pre className="max-h-60 overflow-auto p-3 text-[11px] text-muted-foreground whitespace-pre-wrap break-words">
-          {item.content ?? ""}
-        </pre>
+        <div className="max-h-60 overflow-auto p-3 text-xs text-muted-foreground">
+          <ReactMarkdown>{decodeMarkdown(item.content ?? "")}</ReactMarkdown>
+        </div>
       );
     case "error":
       return (
