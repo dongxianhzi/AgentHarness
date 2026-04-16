@@ -2,20 +2,11 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Loader2, CheckCircle2, XCircle, Zap } from "lucide-react";
 import { Button } from "@multica/ui/components/ui/button";
 import { api } from "@multica/core/api";
+import { useTranslation } from "@multica/core";
 import type { RuntimePingStatus } from "@multica/core/types";
 
-const pingStatusConfig: Record<
-  RuntimePingStatus,
-  { label: string; icon: typeof Loader2; color: string }
-> = {
-  pending: { label: "Waiting for daemon...", icon: Loader2, color: "text-muted-foreground" },
-  running: { label: "Running test...", icon: Loader2, color: "text-info" },
-  completed: { label: "Connected", icon: CheckCircle2, color: "text-success" },
-  failed: { label: "Failed", icon: XCircle, color: "text-destructive" },
-  timeout: { label: "Timeout", icon: XCircle, color: "text-warning" },
-};
-
 export function PingSection({ runtimeId }: { runtimeId: string }) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<RuntimePingStatus | null>(null);
   const [output, setOutput] = useState("");
   const [error, setError] = useState("");
@@ -31,6 +22,14 @@ export function PingSection({ runtimeId }: { runtimeId: string }) {
   }, []);
 
   useEffect(() => cleanup, [cleanup]);
+
+  const pingStatusConfig: Record<RuntimePingStatus, { label: string; icon: typeof Loader2; color: string }> = {
+    pending: { label: t("runtimes.ping.waiting", "Waiting for daemon..."), icon: Loader2, color: "text-muted-foreground" },
+    running: { label: t("runtimes.ping.running", "Running test..."), icon: Loader2, color: "text-info" },
+    completed: { label: t("runtimes.ping.connected", "Connected"), icon: CheckCircle2, color: "text-success" },
+    failed: { label: t("runtimes.ping.failed", "Failed"), icon: XCircle, color: "text-destructive" },
+    timeout: { label: t("runtimes.ping.timeout", "Timeout"), icon: XCircle, color: "text-warning" },
+  };
 
   const handleTest = async () => {
     cleanup();
@@ -54,7 +53,7 @@ export function PingSection({ runtimeId }: { runtimeId: string }) {
             setTesting(false);
             cleanup();
           } else if (result.status === "failed" || result.status === "timeout") {
-            setError(result.error ?? "Unknown error");
+            setError(result.error ?? t("runtimes.ping.unknownError", "Unknown error"));
             setDurationMs(result.duration_ms ?? null);
             setTesting(false);
             cleanup();
@@ -65,7 +64,7 @@ export function PingSection({ runtimeId }: { runtimeId: string }) {
       }, 2000);
     } catch {
       setStatus("failed");
-      setError("Failed to initiate test");
+      setError(t("runtimes.ping.failedToInitiate", "Failed to initiate test"));
       setTesting(false);
     }
   };
@@ -88,7 +87,7 @@ export function PingSection({ runtimeId }: { runtimeId: string }) {
           ) : (
             <Zap className="h-3 w-3" />
           )}
-          {testing ? "Testing..." : "Test Connection"}
+          {testing ? t("runtimes.ping.testing", "Testing...") : t("runtimes.ping.testBtn", "Test Connection")}
         </Button>
 
         {config && Icon && (

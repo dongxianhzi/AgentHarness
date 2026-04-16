@@ -6,6 +6,7 @@ import { ChatFab, ChatWindow } from "@multica/views/chat";
 import { LocaleProvider, useLocale } from "@/features/landing/i18n/context";
 import { en } from "@/features/landing/i18n/en";
 import { zh } from "@/features/landing/i18n/zh";
+import { useI18nStore } from "@multica/core";
 import type { ReactNode } from "react";
 
 function getNestedValue(obj: any, path: string): any {
@@ -29,6 +30,13 @@ function getNestedValue(obj: any, path: string): any {
     }
     return next;
   }, obj);
+}
+
+function getInitialLocale(): "en" | "zh" {
+  if (typeof window === "undefined") return "en";
+  const match = document.cookie.match(/(?:^|;\s*)harness-locale=(\w+)/);
+  const locale = match?.[1];
+  return locale === "zh" ? "zh" : "en";
 }
 
 function DashboardLayoutWithI18n({ children }: { children: ReactNode }) {
@@ -66,8 +74,10 @@ function DashboardLayoutWithI18n({ children }: { children: ReactNode }) {
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const initialLocale = getInitialLocale();
+  
   return (
-    <LocaleProvider>
+    <LocaleProvider initialLocale={initialLocale}>
       <DashboardLayoutWithI18n>{children}</DashboardLayoutWithI18n>
     </LocaleProvider>
   );

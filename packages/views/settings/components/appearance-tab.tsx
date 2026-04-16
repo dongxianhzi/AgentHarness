@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "@multica/ui/components/common/theme-provider";
-import { useI18nStore } from "@multica/core";
+import { useI18nStore, useTranslation } from "@multica/core";
 import { cn } from "@multica/ui/lib/utils";
 
 const LIGHT_COLORS = {
@@ -79,34 +79,31 @@ function WindowMockup({
   );
 }
 
-const themeOptions = [
-  { value: "light" as const, label: "Light" },
-  { value: "dark" as const, label: "Dark" },
-  { value: "system" as const, label: "System" },
-];
-
-const languageOptions = [
-  { value: "en" as const, label: "English" },
-  { value: "zh" as const, label: "中文" },
-];
-
 export function AppearanceTab() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useI18nStore();
 
+  const themeOptions = [
+    { value: "light" as const, label: t("settings.appearance.light", "Light") },
+    { value: "dark" as const, label: t("settings.appearance.dark", "Dark") },
+    { value: "system" as const, label: t("settings.appearance.system", "System") },
+  ];
+
+  const languageOptions = [
+    { value: "en" as const, label: t("settings.appearance.english", "English") },
+    { value: "zh" as const, label: t("settings.appearance.chinese", "中文") },
+  ];
+
   const handleLanguageChange = (newLanguage: "en" | "zh") => {
     setLanguage(newLanguage);
-    // Set cookie for server-side rendering
-    document.cookie = `harness-locale=${newLanguage}; path=/; max-age=31536000`;
-    // Update html lang
-    document.documentElement.lang = newLanguage;
   };
 
   return (
     <div className="space-y-8">
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold">Theme</h2>
-        <div className="flex gap-6" role="radiogroup" aria-label="Theme">
+        <h2 className="text-sm font-semibold">{t("settings.appearance.theme", "Theme")}</h2>
+        <div className="flex gap-6" role="radiogroup" aria-label={t("settings.appearance.theme", "Theme")}>
           {themeOptions.map((opt) => {
             const active = theme === opt.value;
             return (
@@ -158,8 +155,8 @@ export function AppearanceTab() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold">Language</h2>
-        <div className="flex gap-6" role="radiogroup" aria-label="Language">
+        <h2 className="text-sm font-semibold">{t("settings.appearance.language", "Language")}</h2>
+        <div className="flex gap-6" role="radiogroup" aria-label={t("settings.appearance.language", "Language")}>
           {languageOptions.map((opt) => {
             const active = language === opt.value;
             return (

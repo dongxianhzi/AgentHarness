@@ -5,6 +5,7 @@ import { BarChart3 } from "lucide-react";
 import { Skeleton } from "@multica/ui/components/ui/skeleton";
 import type { RuntimeUsage } from "@multica/core/types";
 import { api } from "@multica/core/api";
+import { useTranslation } from "@multica/core";
 import { formatTokens, estimateCost, aggregateByDate } from "../utils";
 import { TokenCard } from "./shared";
 import {
@@ -15,23 +16,16 @@ import {
   ModelDistributionChart,
 } from "./charts";
 
-const TIME_RANGES = [
-  { label: "7d", days: 7 },
-  { label: "30d", days: 30 },
-  { label: "90d", days: 90 },
-] as const;
-
-type TimeRange = (typeof TIME_RANGES)[number]["days"];
-
 export function UsageSection({ runtimeId }: { runtimeId: string }) {
+  const { t } = useTranslation();
   const [usage, setUsage] = useState<RuntimeUsage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [days, setDays] = useState<TimeRange>(30);
+  const [days, setDays] = useState<number>(30);
 
   useEffect(() => {
     setLoading(true);
     api
-      .getRuntimeUsage(runtimeId, { days: 90 }) // always fetch 90d, filter client-side
+      .getRuntimeUsage(runtimeId, { days: 90 })
       .then(setUsage)
       .catch(() => setUsage([]))
       .finally(() => setLoading(false));
@@ -62,18 +56,22 @@ export function UsageSection({ runtimeId }: { runtimeId: string }) {
     return (
       <div className="flex flex-col items-center rounded-lg border border-dashed py-6">
         <BarChart3 className="h-5 w-5 text-muted-foreground/40" />
-        <p className="mt-2 text-xs text-muted-foreground">No usage data yet</p>
+        <p className="mt-2 text-xs text-muted-foreground">{t("runtimes.usage.noData", "No usage data yet")}</p>
       </div>
     );
   }
 
-  // Filter by selected time range
+  const TIME_RANGES = [
+    { label: t("runtimes.usage.period7d", "7d"), days: 7 },
+    { label: t("runtimes.usage.period30d", "30d"), days: 30 },
+    { label: t("runtimes.usage.period90d", "90d"), days: 90 },
+  ] as const;
+
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - days);
   const cutoff = cutoffDate.toISOString().slice(0, 10);
   const filtered = usage.filter((u) => u.date >= cutoff);
 
-  // Compute totals
   const totals = filtered.reduce(
     (acc, u) => ({
       input: acc.input + u.input_tokens,
@@ -87,7 +85,6 @@ export function UsageSection({ runtimeId }: { runtimeId: string }) {
 
   const { dailyTokens, dailyCost, modelDist } = aggregateByDate(filtered);
 
-  // Group by date for the table
   const byDate = new Map<string, RuntimeUsage[]>();
   for (const u of filtered) {
     const existing = byDate.get(u.date) ?? [];
@@ -97,7 +94,6 @@ export function UsageSection({ runtimeId }: { runtimeId: string }) {
 
   return (
     <div className="space-y-4">
-      {/* Time range selector */}
       <div className="flex items-center gap-1">
         {TIME_RANGES.map((range) => (
           <button
@@ -114,18 +110,17 @@ export function UsageSection({ runtimeId }: { runtimeId: string }) {
         ))}
       </div>
 
-      {/* Summary cards */}
       <div className="grid grid-cols-4 gap-3">
-        <TokenCard label="Input" value={formatTokens(totals.input)} />
-        <TokenCard label="Output" value={formatTokens(totals.output)} />
-        <TokenCard label="Cache Read" value={formatTokens(totals.cacheRead)} />
-        <TokenCard label="Cache Write" value={formatTokens(totals.cacheWrite)} />
+        <TokenCard label={t("runtimes.usage.input", "Input")} value={formatTokens(totals.input)} />
+        <TokenCard label={t("runtimes.usage.output", "Output")} value={formatTokens(totals.output)} />
+        <TokenCard label={t("runtimes.usage.cacheRead", "Cache Read")} value={formatTokens(totals.cacheRead)} />
+        <TokenCard label={t("runtimes.usage.cacheWrite", "Cache Write")} value={formatTokens(totals.cacheWrite)} />
       </div>
 
       {totals.cost > 0 && (
         <div className="rounded-lg border bg-muted/30 px-3 py-2">
           <span className="text-xs text-muted-foreground">
-            Estimated cost ({days}d):{" "}
+            {t("runtimes.usage.estimatedCost", `Estimated cost (${days}d):`)}{" "}
           </span>
           <span className="text-sm font-semibold">
             ${totals.cost.toFixed(2)}
@@ -133,13 +128,11 @@ export function UsageSection({ runtimeId }: { runtimeId: string }) {
         </div>
       )}
 
-      {/* Heatmap + Hourly */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <ActivityHeatmap usage={usage} />
         <HourlyActivityChart runtimeId={runtimeId} />
       </div>
 
-      {/* Token & Cost charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <DailyTokenChart data={dailyTokens} />
         <DailyCostChart data={dailyCost} />
@@ -147,15 +140,14 @@ export function UsageSection({ runtimeId }: { runtimeId: string }) {
 
       <ModelDistributionChart data={modelDist} />
 
-      {/* Daily breakdown table */}
       <div className="rounded-lg border">
         <div className="grid grid-cols-[100px_1fr_80px_80px_80px_80px] gap-2 border-b px-3 py-2 text-xs font-medium text-muted-foreground">
-          <div>Date</div>
-          <div>Model</div>
-          <div className="text-right">Input</div>
-          <div className="text-right">Output</div>
-          <div className="text-right">Cache R</div>
-          <div className="text-right">Cache W</div>
+          <div>{t("runtimes.usage.date", "Date")}</div>
+          <div>{t("runtimes.usage.model", "Model")}</div>
+          <div className="text-right">{t("runtimes.usage.input", "Input")}</div>
+          <div className="text-right">{t("runtimes.usage.output", "Output")}</div>
+          <div className="text-right">{t("runtimes.usage.cacheR", "Cache R")}</div>
+          <div className="text-right">{t("runtimes.usage.cacheW", "Cache W")}</div>
         </div>
         <div className="max-h-64 overflow-y-auto divide-y">
           {[...byDate.entries()].map(([date, rows]) =>

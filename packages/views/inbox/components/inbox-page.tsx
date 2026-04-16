@@ -18,6 +18,7 @@ import {
 } from "@multica/core/inbox/mutations";
 import { IssueDetail } from "../../issues/components";
 import { useNavigation } from "../../navigation";
+import { useTranslation } from "@multica/core";
 import { toast } from "sonner";
 import {
   MoreHorizontal,
@@ -45,9 +46,18 @@ import {
 } from "@multica/ui/components/ui/dropdown-menu";
 import { useIsMobile } from "@multica/ui/hooks/use-mobile";
 import { InboxListItem, timeAgo } from "./inbox-list-item";
-import { typeLabels } from "./inbox-detail-label";
+import { typeLabels, getInboxDetailLabel } from "./inbox-detail-label";
 
-export function InboxPage() {
+type TranslateFn = (key: string, fallback: string) => string;
+
+interface InboxPageProps {
+  t?: TranslateFn;
+}
+
+export function InboxPage({ t: tProp }: InboxPageProps) {
+  const { t: defaultT } = useTranslation();
+  const t = tProp || defaultT;
+  
   const { searchParams, replace } = useNavigation();
   const urlIssue = searchParams.get("issue") ?? "";
 
@@ -88,7 +98,7 @@ export function InboxPage() {
     setSelectedKey(item.issue_id ?? item.id);
     if (!item.read) {
       markReadMutation.mutate(item.id, {
-        onError: () => toast.error("Failed to mark as read"),
+        onError: () => toast.error(t('inbox.errors.markReadFailed', 'Failed to mark as read')),
       });
     }
   };
@@ -97,21 +107,21 @@ export function InboxPage() {
     const archived = items.find((i) => i.id === id);
     if (archived && (archived.issue_id ?? archived.id) === selectedKey) setSelectedKey("");
     archiveMutation.mutate(id, {
-      onError: () => toast.error("Failed to archive"),
+      onError: () => toast.error(t('inbox.errors.archiveFailed', 'Failed to archive')),
     });
   };
 
   // Batch operations
   const handleMarkAllRead = () => {
     markAllReadMutation.mutate(undefined, {
-      onError: () => toast.error("Failed to mark all as read"),
+      onError: () => toast.error(t('inbox.errors.markAllReadFailed', 'Failed to mark all as read')),
     });
   };
 
   const handleArchiveAll = () => {
     setSelectedKey("");
     archiveAllMutation.mutate(undefined, {
-      onError: () => toast.error("Failed to archive all"),
+      onError: () => toast.error(t('inbox.errors.archiveAllFailed', 'Failed to archive all')),
     });
   };
 
@@ -119,14 +129,14 @@ export function InboxPage() {
     const readKeys = items.filter((i) => i.read).map((i) => i.issue_id ?? i.id);
     if (readKeys.includes(selectedKey)) setSelectedKey("");
     archiveAllReadMutation.mutate(undefined, {
-      onError: () => toast.error("Failed to archive read items"),
+      onError: () => toast.error(t('inbox.errors.archiveAllReadFailed', 'Failed to archive read items')),
     });
   };
 
   const handleArchiveCompleted = () => {
     setSelectedKey("");
     archiveCompletedMutation.mutate(undefined, {
-      onError: () => toast.error("Failed to archive completed"),
+      onError: () => toast.error(t('inbox.errors.archiveCompletedFailed', 'Failed to archive completed')),
     });
   };
 
@@ -135,7 +145,7 @@ export function InboxPage() {
   const listHeader = (
     <div className="flex h-12 shrink-0 items-center justify-between border-b px-4">
       <div className="flex items-center gap-2">
-        <h1 className="text-sm font-semibold">Inbox</h1>
+        <h1 className="text-sm font-semibold">{t('inbox.title', 'Inbox')}</h1>
         {unreadCount > 0 && (
           <span className="text-xs text-muted-foreground">
             {unreadCount}
@@ -157,20 +167,20 @@ export function InboxPage() {
         <DropdownMenuContent align="end" className="w-auto">
           <DropdownMenuItem onClick={handleMarkAllRead}>
             <CheckCheck className="h-4 w-4" />
-            Mark all as read
+            {t('inbox.actions.markAllRead', 'Mark all as read')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleArchiveAll}>
             <Archive className="h-4 w-4" />
-            Archive all
+            {t('inbox.actions.archiveAll', 'Archive all')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleArchiveAllRead}>
             <BookCheck className="h-4 w-4" />
-            Archive all read
+            {t('inbox.actions.archiveAllRead', 'Archive all read')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleArchiveCompleted}>
             <ListChecks className="h-4 w-4" />
-            Archive completed
+            {t('inbox.actions.archiveCompleted', 'Archive completed')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -180,7 +190,7 @@ export function InboxPage() {
   const listBody = items.length === 0 ? (
     <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
       <Inbox className="mb-3 h-8 w-8 text-muted-foreground/50" />
-      <p className="text-sm">No notifications</p>
+      <p className="text-sm">{t('inbox.emptyState.title', 'No notifications')}</p>
     </div>
   ) : (
     <div>
@@ -191,6 +201,7 @@ export function InboxPage() {
           isSelected={(item.issue_id ?? item.id) === selectedKey}
           onClick={() => handleSelect(item)}
           onArchive={() => handleArchive(item.id)}
+          t={t}
         />
       ))}
     </div>
@@ -211,7 +222,7 @@ export function InboxPage() {
     <div className="p-6">
       <h2 className="text-lg font-semibold">{selected.title}</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        {typeLabels[selected.type]} · {timeAgo(selected.created_at)}
+        {t(`inbox.types.${selected.type}`, typeLabels[selected.type])} · {timeAgo(selected.created_at)}
       </p>
       {selected.body && (
         <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/80">
@@ -225,7 +236,7 @@ export function InboxPage() {
           onClick={() => handleArchive(selected.id)}
         >
           <Archive className="mr-1.5 h-3.5 w-3.5" />
-          Archive
+          {t('inbox.actions.archive', 'Archive')}
         </Button>
       </div>
     </div>
@@ -267,7 +278,7 @@ export function InboxPage() {
               className="gap-1.5 text-muted-foreground"
             >
               <ArrowLeft className="h-4 w-4" />
-              Inbox
+              {t('inbox.title', 'Inbox')}
             </Button>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
@@ -340,8 +351,8 @@ export function InboxPage() {
             <Inbox className="mb-3 h-10 w-10 text-muted-foreground/30" />
             <p className="text-sm">
               {items.length === 0
-                ? "Your inbox is empty"
-                : "Select a notification to view details"}
+                ? t('inbox.detail.empty', 'Your inbox is empty')
+                : t('inbox.detail.selectNotification', 'Select a notification to view details')}
             </p>
           </div>
         )}

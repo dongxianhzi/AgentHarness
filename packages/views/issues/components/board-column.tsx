@@ -138,7 +138,7 @@ export function BoardColumn({
       >
         <SortableContext items={issueIds} strategy={verticalListSortingStrategy}>
           {resolvedIssues.map((issue) => (
-            <DraggableBoardCard key={issue.id} issue={issue} childProgress={childProgressMap?.get(issue.id)} />
+            <DraggableBoardCard key={issue.id} issue={issue} childProgress={childProgressMap?.get(issue.id)} t={t} />
           ))}
         </SortableContext>
         {issueIds.length === 0 && (

@@ -456,7 +456,7 @@ export function IssuesHeader({ scopedIssues, t = (_, fb) => fb }: { scopedIssues
       'high': 'high',
       'medium': 'medium',
       'low': 'low',
-      'no_priority': 'noPriority',
+      'none': 'noPriority',
     };
     return map[priority] || priority;
   };

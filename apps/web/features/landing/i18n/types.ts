@@ -125,6 +125,163 @@ type IssuesHeaderDict = {
   };
 };
 
+type MyIssuesDict = {
+  emptyState: {
+    title: string;
+    subtitle: string;
+  };
+  scopes: {
+    assigned: { label: string; description: string };
+    created: { label: string; description: string };
+    agents: { label: string; description: string };
+  };
+};
+
+type InboxDict = {
+  title: string;
+  emptyState: {
+    title: string;
+    subtitle: string;
+  };
+  detail: {
+    empty: string;
+    selectNotification: string;
+  };
+  actions: {
+    markAllRead: string;
+    archiveAll: string;
+    archiveAllRead: string;
+    archiveCompleted: string;
+    archive: string;
+  };
+  types: {
+    issue_assigned: string;
+    unassigned: string;
+    assignee_changed: string;
+    status_changed: string;
+    priority_changed: string;
+    due_date_changed: string;
+    new_comment: string;
+    mentioned: string;
+    review_requested: string;
+    task_completed: string;
+    task_failed: string;
+    agent_blocked: string;
+    agent_completed: string;
+    reaction_added: string;
+  };
+  detailLabels: {
+    setStatusTo: string;
+    setPriorityTo: string;
+    assignedTo: string;
+    removedAssignee: string;
+    setDueDateTo: string;
+    removedDueDate: string;
+    reactedTo: string;
+  };
+  errors: {
+    markReadFailed: string;
+    archiveFailed: string;
+    markAllReadFailed: string;
+    archiveAllFailed: string;
+    archiveAllReadFailed: string;
+    archiveCompletedFailed: string;
+  };
+};
+
+type ProjectsDict = {
+  title: string;
+  createProject: string;
+  newProject: string;
+  emptyState: {
+    title: string;
+    subtitle: string;
+    action: string;
+  };
+  columns: {
+    name: string;
+    priority: string;
+    status: string;
+    progress: string;
+    lead: string;
+    created: string;
+  };
+  relativeTime: {
+    today: string;
+    daysAgo: string;
+    monthsAgo: string;
+  };
+  createDialog: {
+    title: string;
+    titlePlaceholder: string;
+    descriptionPlaceholder: string;
+    chooseIcon: string;
+    status: string;
+    priority: string;
+    lead: string;
+    noLead: string;
+    members: string;
+    agents: string;
+    noResults: string;
+    creating: string;
+    create: string;
+    collapse: string;
+    expand: string;
+    close: string;
+  };
+  errors: {
+    createFailed: string;
+  };
+  toast: {
+    created: string;
+  };
+  detail: {
+    projectNotFound: string;
+    noIssuesLinked: string;
+    assignIssuesHint: string;
+    pinToSidebar: string;
+    unpinFromSidebar: string;
+    copyLink: string;
+    deleteProject: string;
+    toggleSidebar: string;
+    changeIcon: string;
+    titlePlaceholder: string;
+    properties: string;
+    status: string;
+    priority: string;
+    lead: string;
+    noLead: string;
+    assignLeadPlaceholder: string;
+    members: string;
+    agents: string;
+    noResults: string;
+    progress: string;
+    description: string;
+    descriptionPlaceholder: string;
+    removeFromProject: string;
+    deleteDialog: {
+      title: string;
+      description: string;
+      cancel: string;
+      delete: string;
+    };
+  };
+  priorities: {
+    noPriority: string;
+    urgent: string;
+    high: string;
+    medium: string;
+    low: string;
+  };
+  statuses: {
+    planned: string;
+    inProgress: string;
+    paused: string;
+    completed: string;
+    cancelled: string;
+  };
+};
+
 type BoardDict = {
   hideColumn: string;
   addIssue: string;
@@ -147,19 +304,50 @@ type BoardDict = {
     low: string;
     noPriority: string;
   };
+  issues: {
+    urgent: string;
+    high: string;
+    medium: string;
+    low: string;
+    none: string;
+  };
 };
 type ModalDict = {
   createIssue: {
     title: string;
+    newIssue: string;
+    newSubIssue: string;
     fields: {
       title: string;
       description: string;
-      // 添加其他字段
+      status: string;
+      priority: string;
+      assignee: string;
+      dueDate: string;
+      project: string;
     };
     placeholders: {
       title: string;
       description: string;
+      assignee: string;
+      dueDate: string;
+      project: string;
     };
+    labels: {
+      status: string;
+      priority: string;
+      assignee: string;
+      dueDate: string;
+      project: string;
+    };
+    expand: string;
+    collapse: string;
+    close: string;
+    creating: string;
+    createIssue: string;
+    failedToCreate: string;
+    issueCreated: string;
+    viewIssue: string;
   };
 };
 
@@ -369,5 +557,8 @@ export type LandingDict = {
   issues: IssuesDict;
   board: BoardDict;
   issuesHeader: IssuesHeaderDict;
+  myIssues: MyIssuesDict;
   issueDetail: IssueDetailDict;
+  inbox: InboxDict;
+  projects: ProjectsDict;
 };

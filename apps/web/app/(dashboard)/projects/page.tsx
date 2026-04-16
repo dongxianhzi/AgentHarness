@@ -1,7 +1,22 @@
 "use client";
 
+import { useLocale } from "@/features/landing/i18n/context";
+import { en } from "@/features/landing/i18n/en";
+import { zh } from "@/features/landing/i18n/zh";
 import { ProjectsPage } from "@multica/views/projects/components";
 
+function getNestedValue(obj: any, path: string): any {
+  return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+}
+
 export default function Page() {
-  return <ProjectsPage />;
+  const { locale } = useLocale();
+  const dict = locale === "zh" ? zh : en;
+
+  const t = (key: string, fallback: string) => {
+    const value = getNestedValue(dict, key);
+    return typeof value === "string" ? value : fallback;
+  };
+
+  return <ProjectsPage t={t} />;
 }

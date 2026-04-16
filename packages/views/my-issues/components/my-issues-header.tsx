@@ -48,6 +48,14 @@ import {
 import { Tooltip, TooltipTrigger, TooltipContent } from "@multica/ui/components/ui/tooltip";
 import type { Issue } from "@multica/core/types";
 import { myIssuesViewStore, type MyIssuesScope } from "@multica/core/issues/stores/my-issues-view-store";
+import type { ReactNode } from "react";
+
+type TranslateFn = (key: string, fallback: string) => string;
+
+interface MyIssuesHeaderProps {
+  allIssues: Issue[];
+  t?: TranslateFn;
+}
 
 // ---------------------------------------------------------------------------
 // HoverCheck
@@ -99,17 +107,31 @@ function useIssueCounts(allIssues: Issue[]) {
 // Scope config
 // ---------------------------------------------------------------------------
 
-const SCOPES: { value: MyIssuesScope; label: string; description: string }[] = [
-  { value: "assigned", label: "Assigned", description: "Issues assigned to me" },
-  { value: "created", label: "Created", description: "Issues I created" },
-  { value: "agents", label: "My Agents", description: "Issues assigned to my agents" },
-];
+function getScopes(t: TranslateFn): { value: MyIssuesScope; label: string; description: string }[] {
+  return [
+    { value: "assigned", label: t("myIssues.scopes.assigned.label", "Assigned"), description: t("myIssues.scopes.assigned.description", "Issues assigned to me") },
+    { value: "created", label: t("myIssues.scopes.created.label", "Created"), description: t("myIssues.scopes.created.description", "Issues I created") },
+    { value: "agents", label: t("myIssues.scopes.agents.label", "My Agents"), description: t("myIssues.scopes.agents.description", "Issues assigned to my agents") },
+  ];
+}
 
 // ---------------------------------------------------------------------------
 // MyIssuesHeader
 // ---------------------------------------------------------------------------
 
-export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
+export function MyIssuesHeader({ allIssues, t: tProp }: MyIssuesHeaderProps) {
+  const defaultT: TranslateFn = (key, fallback) => fallback;
+  const t = tProp || defaultT;
+
+  const getScopeLabel = (key: string, fallback: string) => t(`myIssues.scopes.${key}.label`, fallback);
+  const getScopeDesc = (key: string, fallback: string) => t(`myIssues.scopes.${key}.description`, fallback);
+
+  const SCOPES: { value: MyIssuesScope; label: string; description: string }[] = [
+    { value: "assigned", label: getScopeLabel("assigned", "Assigned"), description: getScopeDesc("assigned", "Issues assigned to me") },
+    { value: "created", label: getScopeLabel("created", "Created"), description: getScopeDesc("created", "Issues I created") },
+    { value: "agents", label: getScopeLabel("agents", "My Agents"), description: getScopeDesc("agents", "Issues assigned to my agents") },
+  ];
+
   const viewMode = useStore(myIssuesViewStore, (s) => s.viewMode);
   const statusFilters = useStore(myIssuesViewStore, (s) => s.statusFilters);
   const priorityFilters = useStore(myIssuesViewStore, (s) => s.priorityFilters);
@@ -124,8 +146,15 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
   const hasActiveFilters =
     getActiveFilterCount({ statusFilters, priorityFilters }) > 0;
 
-  const sortLabel =
-    SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? "Manual";
+  const sortKeyMap: Record<string, string> = {
+    position: "manual",
+    priority: "priority",
+    due_date: "dueDate",
+    created_at: "createdAt",
+    title: "title",
+    updated_at: "updatedAt",
+  };
+  const sortLabel = t(`issuesHeader.sortOptions.${sortKeyMap[sortBy] || "manual"}`, SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? "Manual");
 
   return (
     <div className="flex h-12 shrink-0 items-center justify-between px-4">
@@ -173,14 +202,14 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
                 />
               }
             />
-            <TooltipContent side="bottom">Filter</TooltipContent>
+            <TooltipContent side="bottom">{t("issuesHeader.filter", "Filter")}</TooltipContent>
           </Tooltip>
           <DropdownMenuContent align="end" className="w-auto">
             {/* Status */}
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <CircleDot className="size-3.5" />
-                <span className="flex-1">Status</span>
+                <span className="flex-1">{t("common.status", "Status")}</span>
                 {statusFilters.length > 0 && (
                   <span className="text-xs text-primary font-medium">
                     {statusFilters.length}
@@ -191,6 +220,15 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
                 {ALL_STATUSES.map((s) => {
                   const checked = statusFilters.includes(s);
                   const count = counts.status.get(s) ?? 0;
+                  const statusKeyMap: Record<string, string> = {
+                    backlog: "backlog",
+                    todo: "todo",
+                    in_progress: "inProgress",
+                    in_review: "inReview",
+                    done: "done",
+                    blocked: "blocked",
+                    cancelled: "cancelled",
+                  };
                   return (
                     <DropdownMenuCheckboxItem
                       key={s}
@@ -200,10 +238,10 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
                     >
                       <HoverCheck checked={checked} />
                       <StatusIcon status={s} className="h-3.5 w-3.5" />
-                      {STATUS_CONFIG[s].label}
+                      {t(`board.statuses.${statusKeyMap[s]}`, STATUS_CONFIG[s].label)}
                       {count > 0 && (
                         <span className="ml-auto text-xs text-muted-foreground">
-                          {count} {count === 1 ? "issue" : "issues"}
+                          {count} {t("issuesHeader.issue", "issue")}
                         </span>
                       )}
                     </DropdownMenuCheckboxItem>
@@ -216,7 +254,7 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <SignalHigh className="size-3.5" />
-                <span className="flex-1">Priority</span>
+                <span className="flex-1">{t("common.priority", "Priority")}</span>
                 {priorityFilters.length > 0 && (
                   <span className="text-xs text-primary font-medium">
                     {priorityFilters.length}
@@ -227,6 +265,13 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
                 {PRIORITY_ORDER.map((p) => {
                   const checked = priorityFilters.includes(p);
                   const count = counts.priority.get(p) ?? 0;
+                  const priorityKeyMap: Record<string, string> = {
+                    urgent: "urgent",
+                    high: "high",
+                    medium: "medium",
+                    low: "low",
+                    none: "noPriority",
+                  };
                   return (
                     <DropdownMenuCheckboxItem
                       key={p}
@@ -236,10 +281,10 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
                     >
                       <HoverCheck checked={checked} />
                       <PriorityIcon priority={p} />
-                      {PRIORITY_CONFIG[p].label}
+                      {t(`board.priorities.${priorityKeyMap[p]}`, PRIORITY_CONFIG[p].label)}
                       {count > 0 && (
                         <span className="ml-auto text-xs text-muted-foreground">
-                          {count} {count === 1 ? "issue" : "issues"}
+                          {count} {t("issuesHeader.issue", "issue")}
                         </span>
                       )}
                     </DropdownMenuCheckboxItem>
@@ -253,7 +298,7 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
               <>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={act.clearFilters}>
-                  Reset all filters
+                  {t("issuesHeader.resetAllFilters", "Reset all filters")}
                 </DropdownMenuItem>
               </>
             )}
@@ -274,12 +319,12 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
                 />
               }
             />
-            <TooltipContent side="bottom">Display settings</TooltipContent>
+            <TooltipContent side="bottom">{t("issuesHeader.displaySettings", "Display settings")}</TooltipContent>
           </Tooltip>
           <PopoverContent align="end" className="w-64 p-0">
             <div className="border-b px-3 py-2.5">
               <span className="text-xs font-medium text-muted-foreground">
-                Ordering
+                {t("issuesHeader.ordering", "Ordering")}
               </span>
               <div className="mt-2 flex items-center gap-1.5">
                 <DropdownMenu>
@@ -296,14 +341,17 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
                     }
                   />
                   <DropdownMenuContent align="start" className="w-auto">
-                    {SORT_OPTIONS.map((opt) => (
-                      <DropdownMenuItem
-                        key={opt.value}
-                        onClick={() => act.setSortBy(opt.value)}
-                      >
-                        {opt.label}
-                      </DropdownMenuItem>
-                    ))}
+                    {SORT_OPTIONS.map((opt) => {
+                      const sortKey = sortKeyMap[opt.value] || "manual";
+                      return (
+                        <DropdownMenuItem
+                          key={opt.value}
+                          onClick={() => act.setSortBy(opt.value)}
+                        >
+                          {t(`issuesHeader.sortOptions.${sortKey}`, opt.label)}
+                        </DropdownMenuItem>
+                      );
+                    })}
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <Button
@@ -314,7 +362,7 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
                       sortDirection === "asc" ? "desc" : "asc",
                     )
                   }
-                  title={sortDirection === "asc" ? "Ascending" : "Descending"}
+                  title={sortDirection === "asc" ? t("issuesHeader.ascending", "Ascending") : t("issuesHeader.descending", "Descending")}
                 >
                   {sortDirection === "asc" ? (
                     <ArrowUp className="size-3.5" />
@@ -327,22 +375,25 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
 
             <div className="px-3 py-2.5">
               <span className="text-xs font-medium text-muted-foreground">
-                Card properties
+                {t("issuesHeader.cardProperties", "Card properties")}
               </span>
               <div className="mt-2 space-y-2">
-                {CARD_PROPERTY_OPTIONS.map((opt) => (
-                  <label
-                    key={opt.key}
-                    className="flex cursor-pointer items-center justify-between"
-                  >
-                    <span className="text-sm">{opt.label}</span>
-                    <Switch
-                      size="sm"
-                      checked={cardProperties[opt.key]}
-                      onCheckedChange={() => act.toggleCardProperty(opt.key)}
-                    />
-                  </label>
-                ))}
+                {CARD_PROPERTY_OPTIONS.map((opt) => {
+                  const propKey = opt.key === "dueDate" ? "dueDate" : opt.key;
+                  return (
+                    <label
+                      key={opt.key}
+                      className="flex cursor-pointer items-center justify-between"
+                    >
+                      <span className="text-sm">{t(`issuesHeader.cardPropertyOptions.${propKey}`, opt.label)}</span>
+                      <Switch
+                        size="sm"
+                        checked={cardProperties[opt.key]}
+                        onCheckedChange={() => act.toggleCardProperty(opt.key)}
+                      />
+                    </label>
+                  );
+                })}
               </div>
             </div>
           </PopoverContent>
@@ -367,19 +418,19 @@ export function MyIssuesHeader({ allIssues }: { allIssues: Issue[] }) {
               }
             />
             <TooltipContent side="bottom">
-              {viewMode === "board" ? "Board view" : "List view"}
+              {viewMode === "board" ? t("issuesHeader.boardView", "Board view") : t("issuesHeader.listView", "List view")}
             </TooltipContent>
           </Tooltip>
           <DropdownMenuContent align="end" className="w-auto">
             <DropdownMenuGroup>
-              <DropdownMenuLabel>View</DropdownMenuLabel>
+              <DropdownMenuLabel>{t("issuesHeader.view", "View")}</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => act.setViewMode("board")}>
                 <Columns3 />
-                Board
+                {t("issuesHeader.boardView", "Board")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => act.setViewMode("list")}>
                 <List />
-                List
+                {t("issuesHeader.listView", "List")}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

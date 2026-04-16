@@ -25,6 +25,7 @@ import { Button } from "@multica/ui/components/ui/button";
 import { Input } from "@multica/ui/components/ui/input";
 import { Label } from "@multica/ui/components/ui/label";
 import { toast } from "sonner";
+import { useTranslation } from "@multica/core";
 
 export function CreateAgentDialog({
   runtimes,
@@ -50,6 +51,7 @@ export function CreateAgentDialog({
     }
   }, [runtimes, selectedRuntimeId]);
 
+  const { t } = useTranslation();
   const selectedRuntime = runtimes.find((d) => d.id === selectedRuntimeId) ?? null;
 
   const handleSubmit = async () => {
@@ -64,7 +66,7 @@ export function CreateAgentDialog({
       });
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create agent");
+      toast.error(err instanceof Error ? err.message : t("agents.failedToCreateAgent", "Failed to create agent"));
       setCreating(false);
     }
   };
@@ -73,75 +75,75 @@ export function CreateAgentDialog({
     <Dialog open onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Agent</DialogTitle>
+          <DialogTitle>{t("agents.createNewAgent", "Create Agent")}</DialogTitle>
           <DialogDescription>
-            Create a new AI agent for your workspace.
+            {t("agents.createAgentDescription", "Create a new AI agent for your workspace.")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 min-w-0">
-          <div>
-            <Label className="text-xs text-muted-foreground">Name</Label>
-            <Input
-              autoFocus
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Deep Research Agent"
-              className="mt-1"
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            />
-          </div>
+           <div>
+             <Label className="text-xs text-muted-foreground">{t("common.name", "Name")}</Label>
+             <Input
+               autoFocus
+               type="text"
+               value={name}
+               onChange={(e) => setName(e.target.value)}
+               placeholder={t("agents.form.namePlaceholder", "e.g. Deep Research Agent")}
+               className="mt-1"
+               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+             />
+           </div>
 
-          <div>
-            <Label className="text-xs text-muted-foreground">Description</Label>
-            <Input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What does this agent do?"
-              className="mt-1"
-            />
-          </div>
+           <div>
+             <Label className="text-xs text-muted-foreground">{t("common.description", "Description")}</Label>
+             <Input
+               type="text"
+               value={description}
+               onChange={(e) => setDescription(e.target.value)}
+               placeholder={t("agents.form.descriptionPlaceholder", "What does this agent do?")}
+               className="mt-1"
+             />
+           </div>
 
-          <div>
-            <Label className="text-xs text-muted-foreground">Visibility</Label>
-            <div className="mt-1.5 flex gap-2">
-              <button
-                type="button"
-                onClick={() => setVisibility("workspace")}
-                className={`flex flex-1 items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-                  visibility === "workspace"
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:bg-muted"
-                }`}
-              >
-                <Globe className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <div className="text-left">
-                  <div className="font-medium">Workspace</div>
-                  <div className="text-xs text-muted-foreground">All members can assign</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setVisibility("private")}
-                className={`flex flex-1 items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
-                  visibility === "private"
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:bg-muted"
-                }`}
-              >
-                <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <div className="text-left">
-                  <div className="font-medium">Private</div>
-                  <div className="text-xs text-muted-foreground">Only you can assign</div>
-                </div>
-              </button>
-            </div>
-          </div>
+           <div>
+             <Label className="text-xs text-muted-foreground">{t("common.visibility", "Visibility")}</Label>
+             <div className="mt-1.5 flex gap-2">
+               <button
+                 type="button"
+                 onClick={() => setVisibility("workspace")}
+                 className={`flex flex-1 items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
+                   visibility === "workspace"
+                     ? "border-primary bg-primary/5"
+                     : "border-border hover:bg-muted"
+                 }`}
+               >
+                 <Globe className="h-4 w-4 shrink-0 text-muted-foreground" />
+                 <div className="text-left">
+                   <div className="font-medium">{t("common.workspace", "Workspace")}</div>
+                   <div className="text-xs text-muted-foreground">{t("agents.visibilityWorkspaceDesc", "All members can assign")}</div>
+                 </div>
+               </button>
+               <button
+                 type="button"
+                 onClick={() => setVisibility("private")}
+                 className={`flex flex-1 items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
+                   visibility === "private"
+                     ? "border-primary bg-primary/5"
+                     : "border-border hover:bg-muted"
+                 }`}
+               >
+                 <Lock className="h-4 w-4 shrink-0 text-muted-foreground" />
+                 <div className="text-left">
+                   <div className="font-medium">{t("common.private", "Private")}</div>
+                   <div className="text-xs text-muted-foreground">{t("agents.visibilityPrivateDesc", "Only you can assign")}</div>
+                 </div>
+               </button>
+             </div>
+           </div>
 
-          <div className="min-w-0">
-            <Label className="text-xs text-muted-foreground">Runtime</Label>
+           <div className="min-w-0">
+             <Label className="text-xs text-muted-foreground">{t("common.runtime", "Runtime")}</Label>
             <Popover open={runtimeOpen} onOpenChange={setRuntimeOpen}>
               <PopoverTrigger
                 disabled={runtimes.length === 0 && !runtimesLoading}
@@ -156,18 +158,18 @@ export function CreateAgentDialog({
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="truncate font-medium">
-                      {runtimesLoading ? "Loading runtimes..." : (selectedRuntime?.name ?? "No runtime available")}
-                    </span>
+                     <span className="truncate font-medium">
+                       {runtimesLoading ? t("agents.loadingRuntimes", "Loading runtimes...") : (selectedRuntime?.name ?? t("agents.noRuntimeAvailable", "No runtime available"))}
+                     </span>
                     {selectedRuntime?.runtime_mode === "cloud" && (
                       <span className="shrink-0 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
                         Cloud
                       </span>
                     )}
                   </div>
-                  <div className="truncate text-xs text-muted-foreground">
-                    {selectedRuntime?.device_info ?? "Register a runtime before creating an agent"}
-                  </div>
+                   <div className="truncate text-xs text-muted-foreground">
+                     {selectedRuntime?.device_info ?? t("agents.registerRuntimeFirst", "Register a runtime before creating an agent")}
+                   </div>
                 </div>
                 <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${runtimeOpen ? "rotate-180" : ""}`} />
               </PopoverTrigger>
@@ -187,9 +189,9 @@ export function CreateAgentDialog({
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="truncate font-medium">{device.name}</span>
-                        {device.runtime_mode === "cloud" && (
+                         {device.runtime_mode === "cloud" && (
                           <span className="shrink-0 rounded bg-info/10 px-1.5 py-0.5 text-xs font-medium text-info">
-                            Cloud
+                            {t("common.cloud", "Cloud")}
                           </span>
                         )}
                       </div>
@@ -207,15 +209,15 @@ export function CreateAgentDialog({
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
+         <DialogFooter>
+           <Button variant="ghost" onClick={onClose}>
+             {t("common.cancel", "Cancel")}
+           </Button>
+           <Button
             onClick={handleSubmit}
             disabled={creating || !name.trim() || !selectedRuntime}
           >
-            {creating ? "Creating..." : "Create"}
+            {creating ? t("agents.creating", "Creating...") : t("common.create", "Create")}
           </Button>
         </DialogFooter>
       </DialogContent>

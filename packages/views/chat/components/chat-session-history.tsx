@@ -9,9 +9,11 @@ import { agentListOptions } from "@multica/core/workspace/queries";
 import { allChatSessionsOptions } from "@multica/core/chat/queries";
 import { useArchiveChatSession } from "@multica/core/chat/mutations";
 import { useChatStore } from "@multica/core/chat";
+import { useTranslation } from "@multica/core";
 import type { ChatSession, Agent } from "@multica/core/types";
 
 export function ChatSessionHistory() {
+  const { t } = useTranslation();
   const wsId = useWorkspaceId();
   const setShowHistory = useChatStore((s) => s.setShowHistory);
   const setActiveSession = useChatStore((s) => s.setActiveSession);
@@ -53,7 +55,7 @@ export function ChatSessionHistory() {
         >
           <ArrowLeft className="size-3.5" />
         </button>
-        <span className="text-sm font-medium">Chat History</span>
+        <span className="text-sm font-medium">{t("chat.chatHistory", "Chat History")}</span>
       </div>
 
       {/* Session list */}
@@ -61,27 +63,43 @@ export function ChatSessionHistory() {
         {sessions.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
             <MessageSquare className="size-6" />
-            <span className="text-sm">No chat sessions yet</span>
+            <span className="text-sm">{t("chat.noChatSessions", "No chat sessions yet")}</span>
           </div>
         ) : (
           <>
             {activeSessions.length > 0 && (
               <SessionGroup
-                label="Active"
+                label={t("chat.active", "Active")}
                 sessions={activeSessions}
                 agentMap={agentMap}
                 activeSessionId={activeSessionId}
                 onSelect={handleSelectSession}
                 onArchive={handleArchive}
+                timeAgoLabels={{
+                  justNow: t("chat.justNow", "just now"),
+                  minutesAgo: t("chat.minutesAgo", "m ago"),
+                  hoursAgo: t("chat.hoursAgo", "h ago"),
+                  daysAgo: t("chat.daysAgo", "d ago"),
+                }}
+                untitled={t("chat.untitled", "Untitled")}
+                archive={t("chat.archive", "Archive")}
               />
             )}
             {archivedSessions.length > 0 && (
               <SessionGroup
-                label="Archived"
+                label={t("chat.archived", "Archived")}
                 sessions={archivedSessions}
                 agentMap={agentMap}
                 activeSessionId={activeSessionId}
                 onSelect={handleSelectSession}
+                timeAgoLabels={{
+                  justNow: t("chat.justNow", "just now"),
+                  minutesAgo: t("chat.minutesAgo", "m ago"),
+                  hoursAgo: t("chat.hoursAgo", "h ago"),
+                  daysAgo: t("chat.daysAgo", "d ago"),
+                }}
+                untitled={t("chat.untitled", "Untitled")}
+                archive={t("chat.archive", "Archive")}
               />
             )}
           </>
@@ -98,6 +116,9 @@ function SessionGroup({
   activeSessionId,
   onSelect,
   onArchive,
+  timeAgoLabels,
+  untitled,
+  archive,
 }: {
   label: string;
   sessions: ChatSession[];
@@ -105,6 +126,14 @@ function SessionGroup({
   activeSessionId: string | null;
   onSelect: (session: ChatSession) => void;
   onArchive?: (e: React.MouseEvent, sessionId: string) => void;
+  timeAgoLabels: {
+    justNow: string;
+    minutesAgo: string;
+    hoursAgo: string;
+    daysAgo: string;
+  };
+  untitled: string;
+  archive: string;
 }) {
   return (
     <div>
@@ -121,6 +150,9 @@ function SessionGroup({
           isActive={session.id === activeSessionId}
           onSelect={() => onSelect(session)}
           onArchive={onArchive ? (e) => onArchive(e, session.id) : undefined}
+          timeAgoLabels={timeAgoLabels}
+          untitled={untitled}
+          archive={archive}
         />
       ))}
     </div>
@@ -133,14 +165,25 @@ function SessionItem({
   isActive,
   onSelect,
   onArchive,
+  timeAgoLabels,
+  untitled,
+  archive,
 }: {
   session: ChatSession;
   agent: Agent | null;
   isActive: boolean;
   onSelect: () => void;
   onArchive?: (e: React.MouseEvent) => void;
+  timeAgoLabels: {
+    justNow: string;
+    minutesAgo: string;
+    hoursAgo: string;
+    daysAgo: string;
+  };
+  untitled: string;
+  archive: string;
 }) {
-  const timeAgo = formatTimeAgo(session.updated_at);
+  const timeAgo = formatTimeAgo(session.updated_at, timeAgoLabels);
 
   return (
     <button
@@ -158,7 +201,7 @@ function SessionItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="truncate text-sm font-medium">
-            {session.title || "Untitled"}
+            {session.title || untitled}
           </span>
           {session.status === "archived" && (
             <Archive className="size-3 shrink-0 text-muted-foreground" />
@@ -176,7 +219,7 @@ function SessionItem({
       {onArchive && (
         <button
           onClick={onArchive}
-          title="Archive"
+          title={archive}
           className="invisible group-hover:visible flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-destructive shrink-0 mt-0.5"
         >
           <Trash2 className="size-3" />
@@ -186,7 +229,10 @@ function SessionItem({
   );
 }
 
-function formatTimeAgo(dateStr: string): string {
+function formatTimeAgo(
+  dateStr: string,
+  labels: { justNow: string; minutesAgo: string; hoursAgo: string; daysAgo: string }
+): string {
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -194,9 +240,9 @@ function formatTimeAgo(dateStr: string): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffMins < 1) return labels.justNow;
+  if (diffMins < 60) return `${diffMins}${labels.minutesAgo}`;
+  if (diffHours < 24) return `${diffHours}${labels.hoursAgo}`;
+  if (diffDays < 7) return `${diffDays}${labels.daysAgo}`;
   return date.toLocaleDateString();
 }

@@ -239,6 +239,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
             onUpdate={(u) => { if (u.status) updateStatus(u.status); }}
             triggerRender={<PillButton />}
             align="start"
+            t={translate}
           />
 
           {/* Priority */}
@@ -247,6 +248,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
             onUpdate={(u) => { if (u.priority) updatePriority(u.priority); }}
             triggerRender={<PillButton />}
             align="start"
+            t={translate}
           />
 
           {/* Assignee */}
@@ -259,6 +261,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
             )}
             triggerRender={<PillButton />}
             align="start"
+            t={translate}
           />
 
           {/* Due date */}
@@ -267,6 +270,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
             onUpdate={(u) => updateDueDate(u.due_date ?? null)}
             triggerRender={<PillButton />}
             align="start"
+            t={translate}
           />
 
           {/* Project */}
@@ -275,6 +279,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
             onUpdate={(u) => setProjectId(u.project_id ?? undefined)}
             triggerRender={<PillButton />}
             align="start"
+            t={translate}
           />
         </div>
 
