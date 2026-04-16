@@ -97,10 +97,6 @@ export function AppearanceTab() {
 
   const handleLanguageChange = (newLanguage: "en" | "zh") => {
     setLanguage(newLanguage);
-    // Set cookie for server-side rendering
-    document.cookie = `harness-locale=${newLanguage}; path=/; max-age=31536000`;
-    // Update html lang
-    document.documentElement.lang = newLanguage;
   };
 
   return (

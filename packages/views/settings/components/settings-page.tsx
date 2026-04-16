@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { User, Palette, Key, Settings, Users, FolderGit2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@multica/ui/components/ui/tabs";
 import { useWorkspaceStore } from "@multica/core/workspace";
-import { useTranslation } from "@multica/core";
+import { useTranslation, useI18nStore } from "@multica/core";
 import { AccountTab } from "./account-tab";
 import { AppearanceTab } from "./appearance-tab";
 import { TokensTab } from "./tokens-tab";
@@ -14,6 +15,11 @@ import { RepositoriesTab } from "./repositories-tab";
 export function SettingsPage() {
   const { t } = useTranslation();
   const workspaceName = useWorkspaceStore((s) => s.workspace?.name);
+  const language = useI18nStore((s) => s.language);
+
+  useEffect(() => {
+    // Subscribe to language changes for re-render
+  }, [language]);
 
   const accountTabs = [
     { value: "profile", label: t("settings.navigation.profile", "Profile"), icon: User },
