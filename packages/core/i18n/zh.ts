@@ -247,6 +247,12 @@ export const zh = {
     skillDeleted: "技能已删除",
     failedToDeleteSkill: "删除技能失败",
   },
+  search: {
+    trigger: "搜索...",
+    placeholder: "输入命令或搜索...",
+    typeToSearch: "输入搜索问题和项目...",
+    pressToOpen: "按 ⌘K 随时打开",
+  },
   sidebar: {
     inbox: "收件箱",
     myIssues: "我的任务",

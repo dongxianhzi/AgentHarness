@@ -247,6 +247,12 @@ export const en = {
     skillDeleted: "Skill deleted",
     failedToDeleteSkill: "Failed to delete skill",
   },
+  search: {
+    trigger: "Search...",
+    placeholder: "Type a command or search...",
+    typeToSearch: "Type to search issues and projects...",
+    pressToOpen: "Press ⌘K to open this anytime",
+  },
   sidebar: {
     inbox: "Inbox",
     myIssues: "My Issues",

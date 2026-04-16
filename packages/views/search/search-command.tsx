@@ -33,6 +33,7 @@ import {
 } from "@multica/ui/components/ui/dialog";
 import { useNavigation } from "../navigation";
 import { useSearchStore } from "./search-store";
+import { useTranslation } from "@multica/core";
 
 function HighlightText({ text, query }: { text: string; query: string }) {
   const parts = useMemo(() => {
@@ -94,6 +95,7 @@ interface SearchResults {
 }
 
 export function SearchCommand() {
+  const { t } = useTranslation();
   const { push } = useNavigation();
   const open = useSearchStore((s) => s.open);
   const setOpen = useSearchStore((s) => s.setOpen);
@@ -251,7 +253,7 @@ export function SearchCommand() {
           <div className="flex items-center gap-3 border-b px-4 py-3">
             <SearchIcon className="size-5 shrink-0 text-muted-foreground" />
             <CommandPrimitive.Input
-              placeholder="Type a command or search..."
+              placeholder={t("search.placeholder", "Type a command or search...")}
               value={query}
               onValueChange={handleValueChange}
               className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
@@ -417,8 +419,8 @@ export function SearchCommand() {
 
             {!isLoading && !query.trim() && recentIssues.length === 0 && (
               <div className="flex flex-col items-center gap-2 py-10 text-sm text-muted-foreground">
-                <span>Type to search issues and projects...</span>
-                <span className="text-xs">Press <kbd className="rounded bg-muted px-1.5 py-0.5 font-medium">⌘K</kbd> to open this anytime</span>
+                <span>{t("search.typeToSearch", "Type to search issues and projects...")}</span>
+                <span className="text-xs">{t("search.pressToOpen", "Press ⌘K to open this anytime")}</span>
               </div>
             )}
           </CommandPrimitive.List>
