@@ -22,6 +22,7 @@ import { useCreateIssue } from "@multica/core/issues/mutations";
 import { useFileUpload } from "@multica/core/hooks/use-file-upload";
 import { api } from "@multica/core/api";
 import { FileUploadButton } from "@multica/ui/components/common/file-upload-button";
+import { useTranslation } from "@multica/core";
 
 // ---------------------------------------------------------------------------
 // Pill trigger — shared rounded-full button style for toolbar
@@ -52,6 +53,7 @@ function PillButton({
 // ---------------------------------------------------------------------------
 
 export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?: Record<string, unknown> | null }) {
+  const { t: translate } = useTranslation();
   const router = useNavigation();
   const workspaceName = useWorkspaceStore((s) => s.workspace?.name);
 
@@ -121,7 +123,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
             <div className="flex items-center justify-center size-5 rounded-full bg-emerald-500/15 text-emerald-500">
               <Check className="size-3" />
             </div>
-            <span className="text-sm font-medium">Issue created</span>
+            <span className="text-sm font-medium">{translate('modal.createIssue.issueCreated')}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground ml-7">
             <StatusIcon status={issue.status} className="size-3.5 shrink-0" />
@@ -135,12 +137,12 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
               toast.dismiss(t);
             }}
           >
-            View issue
+            {translate('modal.createIssue.viewIssue')}
           </button>
         </div>
       ), { duration: 5000 });
     } catch {
-      toast.error("Failed to create issue");
+      toast.error(translate('modal.createIssue.failedToCreate'));
     } finally {
       setSubmitting(false);
     }
@@ -159,7 +161,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
             : "!max-w-2xl !w-full !h-96 !-translate-y-1/2",
         )}
       >
-        <DialogTitle className="sr-only">New Issue</DialogTitle>
+        <DialogTitle className="sr-only">{translate('modal.createIssue.title')}</DialogTitle>
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-3 pb-2 shrink-0">
@@ -172,7 +174,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
                 <ChevronRight className="size-3 text-muted-foreground/50" />
               </>
             )}
-            <span className="font-medium">{data?.parent_issue_id ? "New sub-issue" : "New issue"}</span>
+            <span className="font-medium">{data?.parent_issue_id ? translate('modal.createIssue.newSubIssue') : translate('modal.createIssue.newIssue')}</span>
           </div>
           <div className="flex items-center gap-1">
             <Tooltip>
@@ -186,7 +188,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
                   </button>
                 }
               />
-              <TooltipContent side="bottom">{isExpanded ? "Collapse" : "Expand"}</TooltipContent>
+              <TooltipContent side="bottom">{isExpanded ? translate('modal.createIssue.collapse') : translate('modal.createIssue.expand')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger
@@ -199,7 +201,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
                   </button>
                 }
               />
-              <TooltipContent side="bottom">Close</TooltipContent>
+              <TooltipContent side="bottom">{translate('modal.createIssue.close')}</TooltipContent>
             </Tooltip>
           </div>
         </div>
@@ -209,7 +211,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
           <TitleEditor
             autoFocus
             defaultValue={draft.title}
-            placeholder="Issue title"
+            placeholder={translate('modal.createIssue.titlePlaceholder')}
             className="text-lg font-semibold"
             onChange={(v) => updateTitle(v)}
             onSubmit={handleSubmit}
@@ -221,7 +223,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
           <ContentEditor
             ref={descEditorRef}
             defaultValue={draft.description}
-            placeholder="Add description..."
+            placeholder={translate('modal.createIssue.descriptionPlaceholder')}
             onUpdate={(md) => setDraft({ description: md })}
             onUploadFile={handleUpload}
             debounceMs={500}
@@ -282,7 +284,7 @@ export function CreateIssueModal({ onClose, data }: { onClose: () => void; data?
             onSelect={(file) => descEditorRef.current?.uploadFile(file)}
           />
           <Button size="sm" onClick={handleSubmit} disabled={!title.trim() || submitting}>
-            {submitting ? "Creating..." : "Create Issue"}
+            {submitting ? translate('modal.createIssue.creating') : translate('modal.createIssue.createIssue')}
           </Button>
         </div>
       </DialogContent>

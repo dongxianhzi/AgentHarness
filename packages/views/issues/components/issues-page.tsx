@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, type ReactNode } from "react";
 import { toast } from "sonner";
 import { ChevronRight, ListTodo } from "lucide-react";
 import type { IssueStatus } from "@multica/core/types";
@@ -17,12 +17,26 @@ import { useWorkspaceId } from "@multica/core/hooks";
 import { issueListOptions } from "@multica/core/issues/queries";
 import { useUpdateIssue } from "@multica/core/issues/mutations";
 import { useIssueSelectionStore } from "@multica/core/issues/stores/selection-store";
+import { useTranslation } from "@multica/core";
 import { IssuesHeader } from "./issues-header";
 import { BoardView } from "./board-view";
 import { ListView } from "./list-view";
 import { BatchActionToolbar } from "./batch-action-toolbar";
 
-export function IssuesPage() {
+// 定义翻译函数类型
+type TranslateFn = (key: string, fallback: string) => string;
+
+interface IssuesPageProps {
+  t?: TranslateFn;
+  /** 允许外部注入 Header 右侧的内容（如语言切换按钮） */
+  headerActions?: ReactNode;
+}
+
+export function IssuesPage({ t: tProp, headerActions }: IssuesPageProps = {}) {
+  const { t: defaultT } = useTranslation();
+  // 优先使用外部传入的 t，否则使用 core 提供的默认翻译
+  const t = tProp || defaultT;
+  
   const wsId = useWorkspaceId();
   const { data: allIssues = [], isLoading: loading } = useQuery(issueListOptions(wsId));
 
@@ -103,10 +117,10 @@ export function IssuesPage() {
 
       updateIssueMutation.mutate(
         { id: issueId, ...updates },
-        { onError: () => toast.error("Failed to move issue") },
+        { onError: () => toast.error(t('issues.errors.moveFailed', 'Failed to move issue')) },
       );
     },
-    [updateIssueMutation],
+    [updateIssueMutation, t],
   );
 
   if (loading) {
@@ -135,26 +149,33 @@ export function IssuesPage() {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col">
-      {/* Header 1: Workspace breadcrumb */}
-      <div className="flex h-12 shrink-0 items-center gap-1.5 border-b px-4">
-        <WorkspaceAvatar name={workspace?.name ?? "W"} size="sm" />
-        <span className="text-sm text-muted-foreground">
-          {workspace?.name ?? "Workspace"}
-        </span>
-        <ChevronRight className="h-3 w-3 text-muted-foreground" />
-        <span className="text-sm font-medium">Issues</span>
+      {/* Header 1: Workspace breadcrumb + Actions */}
+      <div className="flex h-12 shrink-0 items-center justify-between border-b px-4">
+        <div className="flex items-center gap-1.5">
+          <WorkspaceAvatar name={workspace?.name ?? "W"} size="sm" />
+          <span className="text-sm text-muted-foreground">
+            {workspace?.name ?? t('common.workspace', 'Workspace')}
+          </span>
+          <ChevronRight className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm font-medium">{t('dashboard.issues.title', 'Issues')}</span>
+        </div>
+        
+        {/* 右侧操作区：语言切换按钮将在这里渲染 */}
+        <div className="flex items-center gap-2">
+          {headerActions}
+        </div>
       </div>
 
       <ViewStoreProvider store={useIssueViewStore}>
         {/* Header 2: Scope tabs + filters */}
-        <IssuesHeader scopedIssues={scopedIssues} />
+        <IssuesHeader scopedIssues={scopedIssues} t={t} />
 
         {/* Content: scrollable */}
         {scopedIssues.length === 0 ? (
           <div className="flex flex-1 min-h-0 flex-col items-center justify-center gap-2 text-muted-foreground">
             <ListTodo className="h-10 w-10 text-muted-foreground/40" />
-            <p className="text-sm">No issues yet</p>
-            <p className="text-xs">Create an issue to get started.</p>
+            <p className="text-sm">{t('issues.emptyState.title', 'No issues yet')}</p>
+            <p className="text-xs">{t('issues.emptyState.subtitle', 'Create an issue to get started.')}</p>
           </div>
         ) : (
           <div className="flex flex-col flex-1 min-h-0">
@@ -166,9 +187,15 @@ export function IssuesPage() {
                 hiddenStatuses={hiddenStatuses}
                 onMoveIssue={handleMoveIssue}
                 childProgressMap={childProgressMap}
+                t={t} // 传递 t 给 BoardView 以实现 Column 国际化
               />
             ) : (
-              <ListView issues={issues} visibleStatuses={visibleStatuses} childProgressMap={childProgressMap} />
+              <ListView 
+                issues={issues} 
+                visibleStatuses={visibleStatuses} 
+                childProgressMap={childProgressMap} 
+                t={t} // 传递 t 给 ListView
+              />
             )}
           </div>
         )}

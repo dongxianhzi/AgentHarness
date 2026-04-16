@@ -15,18 +15,21 @@ export const zh: LandingDict = {
       "Harness \u662f\u4e00\u4e2a\u5f00\u6e90\u5e73\u53f0\uff0c\u5c06\u7f16\u7801 Agent \u53d8\u6210\u771f\u6b63\u7684\u961f\u53cb\u3002\u5206\u914d\u4efb\u52a1\u3001\u8ddf\u8e2a\u8fdb\u5ea6\u3001\u79ef\u7d2f\u6280\u80fd\u2014\u2014\u5728\u4e00\u4e2a\u5730\u65b9\u7ba1\u7406\u4f60\u7684\u4eba\u7c7b + Agent \u56e2\u961f\u3002",
     cta: "\u514d\u8d39\u5f00\u59cb",
     worksWith: "\u652f\u6301",
-    imageAlt: "Harness \u770b\u677f\u89c6\u56fe\u2014\u2014\u4eba\u7c7b\u548c Agent \u534f\u540c\u7ba1\u7406\u4efb\u52a1",
+    imageAlt:
+      "Harness \u770b\u677f\u89c6\u56fe\u2014\u2014\u4eba\u7c7b\u548c Agent \u534f\u540c\u7ba1\u7406\u4efb\u52a1",
   },
 
   features: {
     teammates: {
       label: "\u56e2\u961f\u534f\u4f5c",
-      title: "\u50cf\u5206\u914d\u7ed9\u540c\u4e8b\u4e00\u6837\u5206\u914d\u7ed9 Agent",
+      title:
+        "\u50cf\u5206\u914d\u7ed9\u540c\u4e8b\u4e00\u6837\u5206\u914d\u7ed9 Agent",
       description:
         "Agent \u4e0d\u662f\u88ab\u52a8\u5de5\u5177\u2014\u2014\u5b83\u4eec\u662f\u4e3b\u52a8\u53c2\u4e0e\u8005\u3002\u5b83\u4eec\u62e5\u6709\u4e2a\u4eba\u8d44\u6599\u3001\u62a5\u544a\u72b6\u6001\u3001\u521b\u5efa Issue\u3001\u53d1\u8868\u8bc4\u8bba\u3001\u66f4\u65b0\u72b6\u6001\u3002\u4f60\u7684\u6d3b\u52a8\u6d41\u5c55\u793a\u4eba\u7c7b\u548c Agent \u5e76\u80a9\u5de5\u4f5c\u3002",
       cards: [
         {
-          title: "Agent \u51fa\u73b0\u5728\u6307\u6d3e\u4eba\u9009\u62e9\u5668\u4e2d",
+          title:
+            "Agent \u51fa\u73b0\u5728\u6307\u6d3e\u4eba\u9009\u62e9\u5668\u4e2d",
           description:
             "\u4eba\u7c7b\u548c Agent \u51fa\u73b0\u5728\u540c\u4e00\u4e2a\u4e0b\u62c9\u83dc\u5355\u91cc\u3002\u628a\u4efb\u52a1\u5206\u914d\u7ed9 Agent \u548c\u5206\u914d\u7ed9\u540c\u4e8b\u6ca1\u6709\u4efb\u4f55\u533a\u522b\u3002",
         },
@@ -44,7 +47,8 @@ export const zh: LandingDict = {
     },
     autonomous: {
       label: "\u81ea\u4e3b\u6267\u884c",
-      title: "\u8bbe\u7f6e\u540e\u65e0\u9700\u7ba1\u7406\u2014\u2014Agent \u5728\u4f60\u7761\u89c9\u65f6\u5de5\u4f5c",
+      title:
+        "\u8bbe\u7f6e\u540e\u65e0\u9700\u7ba1\u7406\u2014\u2014Agent \u5728\u4f60\u7761\u89c9\u65f6\u5de5\u4f5c",
       description:
         "\u4e0d\u53ea\u662f\u63d0\u793a-\u54cd\u5e94\u3002\u5b8c\u6574\u7684\u4efb\u52a1\u751f\u547d\u5468\u671f\u7ba1\u7406\uff1a\u5165\u961f\u3001\u9886\u53d6\u3001\u542f\u52a8\u3001\u5b8c\u6210\u6216\u5931\u8d25\u3002Agent \u4e3b\u52a8\u62a5\u544a\u963b\u585e\uff0c\u4f60\u901a\u8fc7 WebSocket \u83b7\u53d6\u5b9e\u65f6\u8fdb\u5ea6\u3002",
       cards: [
@@ -67,7 +71,8 @@ export const zh: LandingDict = {
     },
     skills: {
       label: "\u6280\u80fd\u5e93",
-      title: "\u6bcf\u4e2a\u89e3\u51b3\u65b9\u6848\u90fd\u6210\u4e3a\u5168\u56e2\u961f\u53ef\u590d\u7528\u7684\u6280\u80fd",
+      title:
+        "\u6bcf\u4e2a\u89e3\u51b3\u65b9\u6848\u90fd\u6210\u4e3a\u5168\u56e2\u961f\u53ef\u590d\u7528\u7684\u6280\u80fd",
       description:
         "\u6280\u80fd\u662f\u53ef\u590d\u7528\u7684\u80fd\u529b\u5b9a\u4e49\u2014\u2014\u4ee3\u7801\u3001\u914d\u7f6e\u548c\u4e0a\u4e0b\u6587\u6253\u5305\u5728\u4e00\u8d77\u3002\u53ea\u9700\u7f16\u5199\u4e00\u6b21\uff0c\u56e2\u961f\u4e2d\u6bcf\u4e2a Agent \u90fd\u80fd\u4f7f\u7528\u3002\u4f60\u7684\u6280\u80fd\u5e93\u968f\u65f6\u95f4\u4e0d\u65ad\u79ef\u7d2f\u3002",
       cards: [
@@ -90,7 +95,8 @@ export const zh: LandingDict = {
     },
     runtimes: {
       label: "\u8fd0\u884c\u65f6",
-      title: "\u4e00\u4e2a\u63a7\u5236\u53f0\u7ba1\u7406\u6240\u6709\u7b97\u529b",
+      title:
+        "\u4e00\u4e2a\u63a7\u5236\u53f0\u7ba1\u7406\u6240\u6709\u7b97\u529b",
       description:
         "\u672c\u5730\u5b88\u62a4\u8fdb\u7a0b\u548c\u4e91\u7aef\u8fd0\u884c\u65f6\uff0c\u5728\u540c\u4e00\u4e2a\u9762\u677f\u4e2d\u7ba1\u7406\u3002\u5b9e\u65f6\u76d1\u63a7\u5728\u7ebf/\u79bb\u7ebf\u72b6\u6001\u3001\u4f7f\u7528\u91cf\u56fe\u8868\u548c\u6d3b\u52a8\u70ed\u529b\u56fe\u3002\u81ea\u52a8\u68c0\u6d4b\u672c\u5730 CLI\u2014\u2014\u63d2\u4e0a\u5c31\u7528\u3002",
       cards: [
@@ -134,7 +140,8 @@ export const zh: LandingDict = {
           "\u7ed9\u5b83\u8d77\u4e2a\u540d\u5b57\uff0c\u5199\u597d\u6307\u4ee4\uff0c\u9644\u52a0\u6280\u80fd\uff0c\u8bbe\u7f6e\u89e6\u53d1\u5668\u3002\u9009\u62e9\u5b83\u4f55\u65f6\u6fc0\u6d3b\uff1a\u88ab\u6307\u6d3e\u65f6\u3001\u6709\u8bc4\u8bba\u65f6\u3001\u88ab @\u63d0\u53ca\u65f6\u3002",
       },
       {
-        title: "\u6307\u6d3e\u4e00\u4e2a Issue \u5e76\u89c2\u5bdf\u5b83\u5de5\u4f5c",
+        title:
+          "\u6307\u6d3e\u4e00\u4e2a Issue \u5e76\u89c2\u5bdf\u5b83\u5de5\u4f5c",
         description:
           "\u4ece\u6307\u6d3e\u4eba\u4e0b\u62c9\u83dc\u5355\u4e2d\u9009\u62e9\u4f60\u7684 Agent\u2014\u2014\u5c31\u50cf\u6307\u6d3e\u7ed9\u540c\u4e8b\u4e00\u6837\u3002\u4efb\u52a1\u81ea\u52a8\u5165\u961f\u3001\u9886\u53d6\u3001\u6267\u884c\u3002\u5b9e\u65f6\u89c2\u770b\u8fdb\u5ea6\u3002",
       },
@@ -184,7 +191,8 @@ export const zh: LandingDict = {
           "Harness \u76ee\u524d\u5f00\u7bb1\u5373\u7528\u652f\u6301 Claude Code\u3001Codex\u3001OpenClaw \u548c OpenCode\u3002\u5b88\u62a4\u8fdb\u7a0b\u81ea\u52a8\u68c0\u6d4b\u4f60\u5b89\u88c5\u7684 CLI\u3002\u56e0\u4e3a\u5f00\u6e90\uff0c\u4f60\u4e5f\u53ef\u4ee5\u81ea\u5df1\u6dfb\u52a0\u540e\u7aef\u3002",
       },
       {
-        question: "\u9700\u8981\u81ea\u6258\u7ba1\u5417\uff0c\u8fd8\u662f\u6709\u4e91\u7248\u672c\uff1f",
+        question:
+          "\u9700\u8981\u81ea\u6258\u7ba1\u5417\uff0c\u8fd8\u662f\u6709\u4e91\u7248\u672c\uff1f",
         answer:
           "\u4e24\u8005\u90fd\u6709\u3002\u4f60\u53ef\u4ee5\u7528 Docker Compose \u6216 Kubernetes \u5728\u81ea\u5df1\u7684\u57fa\u7840\u8bbe\u65bd\u4e0a\u81ea\u6258\u7ba1 Harness\uff0c\u4e5f\u53ef\u4ee5\u4f7f\u7528\u6258\u7ba1\u90e8\u7f72\u3002\u4f60\u7684\u6570\u636e\uff0c\u4f60\u9009\u62e9\u3002",
       },
@@ -195,17 +203,20 @@ export const zh: LandingDict = {
           "\u7f16\u7801 Agent \u64c5\u957f\u6267\u884c\u3002Harness \u6dfb\u52a0\u7684\u662f\u7ba1\u7406\u5c42\uff1a\u4efb\u52a1\u961f\u5217\u3001\u56e2\u961f\u534f\u4f5c\u3001\u6280\u80fd\u590d\u7528\u3001\u8fd0\u884c\u65f6\u76d1\u63a7\uff0c\u4ee5\u53ca\u6bcf\u4e2a Agent \u5728\u505a\u4ec0\u4e48\u7684\u7edf\u4e00\u89c6\u56fe\u3002\u628a\u5b83\u60f3\u8c61\u6210\u4f60\u7684 Agent \u7684\u9879\u76ee\u7ecf\u7406\u3002",
       },
       {
-        question: "Agent \u80fd\u81ea\u4e3b\u5904\u7406\u957f\u65f6\u95f4\u4efb\u52a1\u5417\uff1f",
+        question:
+          "Agent \u80fd\u81ea\u4e3b\u5904\u7406\u957f\u65f6\u95f4\u4efb\u52a1\u5417\uff1f",
         answer:
           "\u53ef\u4ee5\u3002Harness \u7ba1\u7406\u5b8c\u6574\u7684\u4efb\u52a1\u751f\u547d\u5468\u671f\u2014\u2014\u5165\u961f\u3001\u9886\u53d6\u3001\u6267\u884c\u3001\u5b8c\u6210\u6216\u5931\u8d25\u3002Agent \u4e3b\u52a8\u62a5\u544a\u963b\u585e\u5e76\u5b9e\u65f6\u63a8\u9001\u8fdb\u5ea6\u3002\u4f60\u53ef\u4ee5\u968f\u65f6\u67e5\u770b\uff0c\u4e5f\u53ef\u4ee5\u8ba9\u5b83\u4eec\u8fd0\u884c\u6574\u665a\u3002",
       },
       {
-        question: "\u6211\u7684\u4ee3\u7801\u5b89\u5168\u5417\uff1fAgent \u5728\u54ea\u91cc\u6267\u884c\uff1f",
+        question:
+          "\u6211\u7684\u4ee3\u7801\u5b89\u5168\u5417\uff1fAgent \u5728\u54ea\u91cc\u6267\u884c\uff1f",
         answer:
           "Agent \u5728\u4f60\u7684\u673a\u5668\uff08\u672c\u5730\u5b88\u62a4\u8fdb\u7a0b\uff09\u6216\u4f60\u81ea\u5df1\u7684\u4e91\u57fa\u7840\u8bbe\u65bd\u4e0a\u6267\u884c\u3002\u4ee3\u7801\u6c38\u8fdc\u4e0d\u4f1a\u7ecf\u8fc7 Harness \u670d\u52a1\u5668\u3002\u5e73\u53f0\u53ea\u534f\u8c03\u4efb\u52a1\u72b6\u6001\u548c\u5e7f\u64ad\u4e8b\u4ef6\u3002",
       },
       {
-        question: "\u6211\u53ef\u4ee5\u8fd0\u884c\u591a\u5c11\u4e2a Agent\uff1f",
+        question:
+          "\u6211\u53ef\u4ee5\u8fd0\u884c\u591a\u5c11\u4e2a Agent\uff1f",
         answer:
           "\u53d6\u51b3\u4e8e\u4f60\u7684\u786c\u4ef6\u3002\u6bcf\u4e2a Agent \u6709\u53ef\u914d\u7f6e\u7684\u5e76\u53d1\u9650\u5236\uff0c\u4f60\u53ef\u4ee5\u8fde\u63a5\u591a\u53f0\u673a\u5668\u4f5c\u4e3a\u8fd0\u884c\u65f6\u3002\u5f00\u6e90\u7248\u672c\u6ca1\u6709\u4efb\u4f55\u4eba\u4e3a\u9650\u5236\u3002",
       },
@@ -273,9 +284,7 @@ export const zh: LandingDict = {
           "子 Issue 变更时通知父 Issue 的订阅者",
           "CLI `--project` 筛选 Issue 列表",
         ],
-        improvements: [
-          "Meta-skill 工作流改为委托 Agent Skills 而非硬编码逻辑",
-        ],
+        improvements: ["Meta-skill 工作流改为委托 Agent Skills 而非硬编码逻辑"],
         fixes: [
           "Daemon API 路由新增工作区所有权校验",
           "附件上传和查询新增工作区所有权验证",
@@ -519,5 +528,235 @@ export const zh: LandingDict = {
         ],
       },
     ],
+  },
+  dashboard: {
+    issues: {
+      title: "问题列表",
+      createNew: "新建问题",
+      searchPlaceholder: "搜索问题...",
+      columns: {
+        id: "编号",
+        title: "标题",
+        status: "状态",
+        assignee: "负责人",
+        createdAt: "创建时间",
+      },
+      status: {
+        open: "开启",
+        closed: "已关闭",
+        inProgress: "进行中",
+      },
+    },
+  },
+  sidebar: {
+    inbox: "收件箱",
+    myIssues: "我的问题",
+    issues: "问题",
+    projects: "项目",
+    agents: "智能体",
+    runtimes: "运行时",
+    skills: "技能",
+    settings: "设置",
+    pinned: "置顶",
+    workspace: "工作区",
+    configure: "配置",
+    newIssue: "新建问题",
+    workspaces: "工作区",
+    createWorkspace: "创建工作区",
+    logout: "退出登录",
+    unpin: "取消置顶",
+  },
+  // 新增以下两个字段以匹配类型定义
+  common: {
+    workspace: "工作区",
+    status: "状态",
+    priority: "优先级",
+    assignee: "指派人",
+    creator: "创建人",
+    project: "项目",
+    searchPlaceholder: "搜索...",
+    actions: {
+      cancel: "取消",
+      create: "创建",
+      creating: "创建中...",
+      save: "保存",
+      delete: "删除",
+    },
+  },
+  issueDetail: {
+    emptyState: {
+      notFound: "此问题不存在或已在当前工作区中删除。",
+    },
+    errors: {
+      updateFailed: "更新问题失败",
+      deleteFailed: "删除问题失败",
+    },
+    toast: {
+      deleted: "问题已删除",
+      linkCopied: "链接已复制",
+    },
+    navigation: {
+      previous: "上一个问题",
+      next: "下一个问题",
+    },
+    actions: {
+      backToIssues: "返回问题列表",
+      pin: "固定到侧边栏",
+      unpin: "从侧边栏取消固定",
+      createSubIssue: "创建子问题",
+      addSubIssues: "添加子问题",
+      addSubIssue: "添加子问题",
+      copyLink: "复制链接",
+      delete: "删除问题",
+      toggleSidebar: "切换侧边栏",
+      subscribe: "订阅",
+      unsubscribe: "取消订阅",
+    },
+    delete: {
+      title: "删除问题",
+      description: "这将永久删除此问题及其所有评论。此操作无法撤销。",
+    },
+    placeholders: {
+      title: "问题标题",
+      description: "添加描述...",
+    },
+    labels: {
+      subIssueOf: "子问题属于",
+      subIssues: "子问题",
+      parentIssue: "父级问题",
+    },
+    sections: {
+      properties: "属性",
+      details: "详情",
+      tokenUsage: "Token 用量",
+    },
+    properties: {
+      dueDate: "截止日期",
+    },
+    details: {
+      createdBy: "创建者",
+      created: "创建时间",
+      updated: "更新时间",
+    },
+    tokenUsage: {
+      input: "输入",
+      output: "输出",
+      cache: "缓存",
+      runs: "运行次数",
+    },
+    dueDate: {
+      today: "今天",
+      tomorrow: "明天",
+      nextWeek: "下周",
+      clear: "清除日期",
+    },
+    activity: {
+      title: "活动记录",
+      created: "创建了此问题",
+      statusChanged: "将状态从 {from} 更改为 {to}",
+      priorityChanged: "将优先级从 {from} 更改为 {to}",
+      selfAssigned: "将自己指派为此问题的负责人",
+      assignedTo: "指派给 {name}",
+      removedAssignee: "移除了指派人",
+      changedAssignee: "更改了指派人",
+      removedDueDate: "移除了截止日期",
+      setDueDate: "设置截止日期为 {date}",
+      renamed: '将问题标题从 "{from}" 重命名为 "{to}"',
+      updatedDescription: "更新了描述",
+      taskCompleted: "完成了任务",
+      taskFailed: "任务失败",
+    },
+    subscribers: {
+      placeholder: "更改订阅者...",
+      members: "成员",
+      agents: "智能体",
+    },
+    assignee: {
+      unassigned: "未指派",
+    },
+  },
+  modal: {
+    createIssue: {
+      title: "创建问题",
+      fields: {
+        title: "标题",
+        description: "描述",
+      },
+      placeholders: {
+        title: "输入问题标题...",
+        description: "输入描述...",
+      },
+    },
+  },
+  issues: {
+    emptyState: {
+      title: "暂无问题",
+      subtitle: "创建一个问题以开始使用。",
+    },
+    errors: {
+      moveFailed: "移动问题失败",
+    },
+  },
+  board: {
+    hideColumn: "隐藏列",
+    addIssue: "添加问题",
+    noIssues: "暂无问题",
+    hiddenColumns: "隐藏的列",
+    showColumn: "显示列",
+    statuses: {
+      backlog: "待办事项",
+      todo: "准备开始",
+      inProgress: "进行中",
+      inReview: "审查中",
+      done: "已完成",
+      blocked: "已阻塞",
+      cancelled: "已取消",
+    },
+    priorities: {
+      // 新增优先级映射
+      urgent: "紧急",
+      high: "高",
+      medium: "中",
+      low: "低",
+      noPriority: "无优先级",
+    },
+  },
+  issuesHeader: {
+    filter: "筛选",
+    displaySettings: "显示设置",
+    ordering: "排序",
+    cardProperties: "卡片属性",
+    view: "视图",
+    boardView: "看板视图",
+    listView: "列表视图",
+    resetAllFilters: "重置所有筛选",
+    ascending: "升序",
+    descending: "降序",
+    noResults: "无结果",
+    members: "成员",
+    agents: "智能体",
+    noAssignee: "未指派",
+    noProject: "无项目",
+    issue: "个问题",
+    issues: "个问题",
+    scopes: {
+      all: { label: "全部", description: "工作区中的所有问题" },
+      members: { label: "成员", description: "指派给团队成员的问题" },
+      agents: { label: "智能体", description: "指派给 AI 智能体的问题" },
+    },
+    sortOptions: {
+      manual: "手动",
+      createdAt: "创建时间",
+      updatedAt: "更新时间",
+      dueDate: "截止日期",
+      priority: "优先级",
+      title: "标题",
+    },
+    cardPropertyOptions: {
+      assignee: "指派人",
+      priority: "优先级",
+      dueDate: "截止日期",
+      description: "描述",
+    },
   },
 };
