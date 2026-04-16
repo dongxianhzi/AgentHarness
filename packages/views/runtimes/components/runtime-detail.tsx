@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { AgentRuntime } from "@multica/core/types";
 import { useAuthStore } from "@multica/core/auth";
 import { useWorkspaceId } from "@multica/core/hooks";
+import { useTranslation } from "@multica/core";
 import { memberListOptions } from "@multica/core/workspace/queries";
 import { useDeleteRuntime } from "@multica/core/runtimes/mutations";
 import { Button } from "@multica/ui/components/ui/button";
@@ -40,6 +41,7 @@ function getCliVersion(metadata: Record<string, unknown>): string | null {
 }
 
 export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
+  const { t } = useTranslation();
   const cliVersion =
     runtime.runtime_mode === "local" ? getCliVersion(runtime.metadata) : null;
 
@@ -68,11 +70,11 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
   const handleDelete = () => {
     deleteMutation.mutate(runtime.id, {
       onSuccess: () => {
-        toast.success("Runtime deleted");
+        toast.success(t("runtimes.runtimeDeleted", "Runtime deleted"));
         setDeleteOpen(false);
       },
       onError: (e) => {
-        toast.error(e instanceof Error ? e.message : "Failed to delete runtime");
+        toast.error(e instanceof Error ? e.message : t("runtimes.failedToDelete", "Failed to delete runtime"));
       },
     });
   };
@@ -108,16 +110,16 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Info grid */}
         <div className="grid grid-cols-2 gap-4">
-          <InfoField label="Runtime Mode" value={runtime.runtime_mode} />
-          <InfoField label="Provider" value={runtime.provider} />
-          <InfoField label="Status" value={runtime.status} />
+          <InfoField label={t("runtimes.labels.runtimeMode", "Runtime Mode")} value={runtime.runtime_mode} />
+          <InfoField label={t("runtimes.labels.provider", "Provider")} value={runtime.provider} />
+          <InfoField label={t("runtimes.labels.status", "Status")} value={runtime.status} />
           <InfoField
-            label="Last Seen"
+            label={t("runtimes.labels.lastSeen", "Last Seen")}
             value={formatLastSeen(runtime.last_seen_at)}
           />
           {ownerMember && (
             <div>
-              <div className="text-xs text-muted-foreground mb-1">Owner</div>
+              <div className="text-xs text-muted-foreground mb-1">{t("runtimes.labels.owner", "Owner")}</div>
               <div className="flex items-center gap-2">
                 <ActorAvatar
                   actorType="member"
@@ -129,10 +131,10 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
             </div>
           )}
           {runtime.device_info && (
-            <InfoField label="Device" value={runtime.device_info} />
+            <InfoField label={t("runtimes.labels.device", "Device")} value={runtime.device_info} />
           )}
           {runtime.daemon_id && (
-            <InfoField label="Daemon ID" value={runtime.daemon_id} mono />
+            <InfoField label={t("runtimes.labels.daemonId", "Daemon ID")} value={runtime.daemon_id} mono />
           )}
         </div>
 
@@ -140,7 +142,7 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
         {runtime.runtime_mode === "local" && (
           <div>
             <h3 className="text-xs font-medium text-muted-foreground mb-3">
-              CLI Version
+              {t("runtimes.labels.cliVersion", "CLI Version")}
             </h3>
             <UpdateSection
               runtimeId={runtime.id}
@@ -153,7 +155,7 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
         {/* Connection Test */}
         <div>
           <h3 className="text-xs font-medium text-muted-foreground mb-3">
-            Connection Test
+            {t("runtimes.labels.connectionTest", "Connection Test")}
           </h3>
           <PingSection runtimeId={runtime.id} />
         </div>
@@ -161,7 +163,7 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
         {/* Usage */}
         <div>
           <h3 className="text-xs font-medium text-muted-foreground mb-3">
-            Token Usage
+            {t("runtimes.labels.tokenUsage", "Token Usage")}
           </h3>
           <UsageSection runtimeId={runtime.id} />
         </div>
@@ -170,7 +172,7 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
         {runtime.metadata && Object.keys(runtime.metadata).length > 0 && (
           <div>
             <h3 className="text-xs font-medium text-muted-foreground mb-2">
-              Metadata
+              {t("runtimes.labels.metadata", "Metadata")}
             </h3>
             <div className="rounded-lg border bg-muted/30 p-3">
               <pre className="text-xs font-mono whitespace-pre-wrap break-all">
@@ -183,11 +185,11 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
         {/* Timestamps */}
         <div className="grid grid-cols-2 gap-4 border-t pt-4">
           <InfoField
-            label="Created"
+            label={t("runtimes.labels.created", "Created")}
             value={new Date(runtime.created_at).toLocaleString()}
           />
           <InfoField
-            label="Updated"
+            label={t("runtimes.labels.updated", "Updated")}
             value={new Date(runtime.updated_at).toLocaleString()}
           />
         </div>
@@ -197,19 +199,19 @@ export function RuntimeDetail({ runtime }: { runtime: AgentRuntime }) {
       <AlertDialog open={deleteOpen} onOpenChange={(v) => { if (!v) setDeleteOpen(false); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Runtime</AlertDialogTitle>
+            <AlertDialogTitle>{t("runtimes.deleteDialog.title", "Delete Runtime")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete &ldquo;{runtime.name}&rdquo;? This action cannot be undone.
+              {t("runtimes.deleteDialog.description", `Are you sure you want to delete "${runtime.name}"? This action cannot be undone.`)}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("runtimes.deleteDialog.cancel", "Cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending ? t("runtimes.deleteDialog.deleting", "Deleting...") : t("runtimes.deleteDialog.confirm", "Delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
