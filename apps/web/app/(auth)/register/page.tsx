@@ -4,9 +4,9 @@ import { Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@multica/core/auth";
 import { setLoggedInCookie } from "@/features/auth/auth-cookie";
-import { PasswordLoginPage } from "@multica/views/auth";
+import { RegisterPage } from "@multica/views/auth";
 
-function PasswordLoginPageContent() {
+function RegisterPageContent() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const isLoading = useAuthStore((s) => s.isLoading);
@@ -26,9 +26,8 @@ function PasswordLoginPageContent() {
       : null;
 
   return (
-    <PasswordLoginPage
+    <RegisterPage
       onSuccess={() => router.push(nextUrl)}
-      onForceChangePassword={() => router.push("/change-password")}
       lastWorkspaceId={lastWorkspaceId}
       onTokenObtained={setLoggedInCookie}
     />
@@ -38,7 +37,7 @@ function PasswordLoginPageContent() {
 export default function Page() {
   return (
     <Suspense fallback={null}>
-      <PasswordLoginPageContent />
+      <RegisterPageContent />
     </Suspense>
   );
 }

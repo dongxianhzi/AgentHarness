@@ -52,3 +52,31 @@ func (s *EmailService) SendVerificationCode(to, code string) error {
 	_, err := s.client.Emails.Send(params)
 	return err
 }
+
+func (s *EmailService) SendPasswordReset(to, resetLink string) error {
+	if s.client == nil {
+		fmt.Printf("[DEV] Password reset link for %s: %s\n", to, resetLink)
+		return nil
+	}
+
+	params := &resend.SendEmailRequest{
+		From:    s.fromEmail,
+		To:      []string{to},
+		Subject: "Reset your Multica password",
+		Html: fmt.Sprintf(
+			`<div style="font-family: sans-serif; max-width: 400px; margin: 0 auto;">
+				<h2>Reset your password</h2>
+				<p>Click the link below to reset your password:</p>
+				<p style="margin: 24px 0;">
+					<a href="%s" style="background: #165DFF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+						Reset Password
+					</a>
+				</p>
+				<p>This link expires in 1 hour.</p>
+				<p style="color: #666; font-size: 14px;">If you didn't request this reset, you can safely ignore this email.</p>
+			</div>`, resetLink),
+	}
+
+	_, err := s.client.Emails.Send(params)
+	return err
+}

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Camera, Loader2, Save } from "lucide-react";
+import { Camera, Loader2, Save, Key } from "lucide-react";
 import { Input } from "@multica/ui/components/ui/input";
 import { Label } from "@multica/ui/components/ui/label";
 import { Button } from "@multica/ui/components/ui/button";
-import { Card, CardContent } from "@multica/ui/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@multica/ui/components/ui/card";
 import { toast } from "sonner";
 import { useAuthStore } from "@multica/core/auth";
 import { api } from "@multica/core/api";
@@ -21,6 +21,12 @@ export function AccountTab() {
   const [profileSaving, setProfileSaving] = useState(false);
   const { upload, uploading } = useFileUpload(api);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   useEffect(() => {
     setProfileName(user?.name ?? "");
@@ -59,6 +65,43 @@ export function AccountTab() {
       toast.error(e instanceof Error ? e.message : t("settings.account.failedToUpdateProfile", "Failed to update profile"));
     } finally {
       setProfileSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast.error("New password fields are required");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match");
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    setPasswordSaving(true);
+    try {
+      // If user has no password, use setPassword; otherwise use changePassword
+      if (!user?.has_password) {
+        await api.setPassword(newPassword);
+        toast.success("Password set successfully");
+      } else {
+        await api.changePassword(currentPassword, newPassword);
+        toast.success("Password changed successfully");
+      }
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowPasswordForm(false);
+      // Refresh user data
+      const updated = await api.getMe();
+      setUser(updated);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed to update password");
+    } finally {
+      setPasswordSaving(false);
     }
   };
 
@@ -127,6 +170,83 @@ export function AccountTab() {
                 {profileSaving ? t("settings.account.updating", "Updating...") : t("settings.account.updateProfile", "Update Profile")}
               </Button>
             </div>
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-sm font-semibold">Security</h2>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Key className="h-4 w-4" />
+              {user?.has_password ? "Change Password" : "Set Password"}
+            </CardTitle>
+            <CardDescription>
+              {user?.has_password ? "Change your account password" : "Set a password to enable password login"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!showPasswordForm ? (
+              <Button variant="outline" onClick={() => setShowPasswordForm(true)}>
+                {user?.has_password ? "Change Password" : "Set Password"}
+              </Button>
+            ) : (
+              <div className="space-y-4">
+                {user?.has_password && (
+                  <div className="space-y-2">
+                    <Label htmlFor="current-password">Current Password</Label>
+                    <Input
+                      id="current-password"
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">{user?.has_password ? "New Password" : "Password"}</Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handlePasswordChange}
+                    disabled={passwordSaving || !newPassword || !confirmPassword || (user?.has_password && !currentPassword)}
+                  >
+                    {passwordSaving ? "Saving..." : user?.has_password ? "Update Password" : "Set Password"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setShowPasswordForm(false);
+                      setCurrentPassword("");
+                      setNewPassword("");
+                      setConfirmPassword("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </section>

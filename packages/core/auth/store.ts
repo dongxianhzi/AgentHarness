@@ -17,6 +17,10 @@ export interface AuthState {
   sendCode: (email: string) => Promise<void>;
   verifyCode: (email: string, code: string) => Promise<User>;
   loginWithGoogle: (code: string, redirectUri: string) => Promise<User>;
+  register: (email: string, password: string, name?: string) => Promise<User>;
+  loginWithPassword: (email: string, password: string) => Promise<User>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  resetPassword: (token: string, newPassword: string) => Promise<void>;
   logout: () => void;
   setUser: (user: User) => void;
 }
@@ -68,6 +72,32 @@ export function createAuthStore(options: AuthStoreOptions) {
       onLogin?.();
       set({ user });
       return user;
+    },
+
+    register: async (email: string, password: string, name?: string) => {
+      const { token, user } = await api.register(email, password, name);
+      storage.setItem("multica_token", token);
+      api.setToken(token);
+      onLogin?.();
+      set({ user });
+      return user;
+    },
+
+    loginWithPassword: async (email: string, password: string) => {
+      const { token, user } = await api.loginWithPassword(email, password);
+      storage.setItem("multica_token", token);
+      api.setToken(token);
+      onLogin?.();
+      set({ user });
+      return user;
+    },
+
+    requestPasswordReset: async (email: string) => {
+      await api.requestPasswordReset(email);
+    },
+
+    resetPassword: async (token: string, newPassword: string) => {
+      await api.resetPassword(token, newPassword);
     },
 
     logout: () => {

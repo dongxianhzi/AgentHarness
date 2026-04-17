@@ -16,3 +16,6 @@ out/
 .vscode/
 
 apps/docs/.source/
+garage/
+docs/
+.env
