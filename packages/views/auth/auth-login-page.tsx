@@ -584,7 +584,7 @@ export function LoginPageV2({
                           className="text-primary underline-offset-4 hover:underline disabled:text-muted-foreground disabled:no-underline disabled:cursor-not-allowed"
                         >
                           {cooldown > 0
-                            ? t("auth.resendIn", `Resend in ${cooldown}s`)
+                            ? t("auth.resendIn", { seconds: cooldown })
                             : t("auth.resendCode")}
                         </button>
                       </div>

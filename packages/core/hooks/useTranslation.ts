@@ -10,7 +10,7 @@ export function useTranslation() {
   const t = useMemo(() => {
     const trans = translations[language] || translations[defaultLanguage];
 
-    return (key: string, fallback?: string): string => {
+    return (key: string, valuesOrFallback?: Record<string, string | number> | string): string => {
       const keys = key.split(".");
       let value: any = trans;
 
@@ -19,7 +19,21 @@ export function useTranslation() {
         if (value === undefined) break;
       }
 
-      return typeof value === "string" ? value : (fallback || key);
+      if (typeof value !== "string") {
+        return typeof valuesOrFallback === "string" ? valuesOrFallback : key;
+      }
+
+      if (typeof valuesOrFallback === "string") {
+        return value;
+      }
+
+      if (!valuesOrFallback) {
+        return value;
+      }
+
+      return value.replace(/\{(\w+)\}/g, (match, varName) => {
+        return String(valuesOrFallback[varName] ?? match);
+      });
     };
   }, [language]);
 

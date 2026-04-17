@@ -70,15 +70,15 @@ export function AccountTab() {
 
   const handlePasswordChange = async () => {
     if (!newPassword || !confirmPassword) {
-      toast.error("New password fields are required");
+      toast.error(t("settings.account.passwordRequired"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
+      toast.error(t("settings.account.passwordMismatch"));
       return;
     }
     if (newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t("settings.account.passwordTooShort"));
       return;
     }
     setPasswordSaving(true);
@@ -86,10 +86,10 @@ export function AccountTab() {
       // If user has no password, use setPassword; otherwise use changePassword
       if (!user?.has_password) {
         await api.setPassword(newPassword);
-        toast.success("Password set successfully");
+        toast.success(t("settings.account.passwordSetSuccess"));
       } else {
         await api.changePassword(currentPassword, newPassword);
-        toast.success("Password changed successfully");
+        toast.success(t("settings.account.passwordChangedSuccess"));
       }
       setCurrentPassword("");
       setNewPassword("");
@@ -99,7 +99,7 @@ export function AccountTab() {
       const updated = await api.getMe();
       setUser(updated);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to update password");
+      toast.error(e instanceof Error ? e.message : t("settings.account.passwordUpdateFailed"));
     } finally {
       setPasswordSaving(false);
     }
@@ -175,28 +175,28 @@ export function AccountTab() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold">Security</h2>
+        <h2 className="text-sm font-semibold">{t("settings.account.security")}</h2>
 
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
               <Key className="h-4 w-4" />
-              {user?.has_password ? "Change Password" : "Set Password"}
+              {user?.has_password ? t("settings.account.changePassword") : t("settings.account.setPassword")}
             </CardTitle>
             <CardDescription>
-              {user?.has_password ? "Change your account password" : "Set a password to enable password login"}
+              {user?.has_password ? t("settings.account.changePasswordDescription") : t("settings.account.setPasswordDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {!showPasswordForm ? (
               <Button variant="outline" onClick={() => setShowPasswordForm(true)}>
-                {user?.has_password ? "Change Password" : "Set Password"}
+                {user?.has_password ? t("settings.account.changePassword") : t("settings.account.setPassword")}
               </Button>
             ) : (
               <div className="space-y-4">
                 {user?.has_password && (
                   <div className="space-y-2">
-                    <Label htmlFor="current-password">Current Password</Label>
+                    <Label htmlFor="current-password">{t("settings.account.currentPassword")}</Label>
                     <Input
                       id="current-password"
                       type="password"
@@ -207,7 +207,7 @@ export function AccountTab() {
                   </div>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="new-password">{user?.has_password ? "New Password" : "Password"}</Label>
+                  <Label htmlFor="new-password">{user?.has_password ? t("settings.account.newPassword") : t("settings.account.password")}</Label>
                   <Input
                     id="new-password"
                     type="password"
@@ -217,7 +217,7 @@ export function AccountTab() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <Label htmlFor="confirm-password">{t("settings.account.confirmPassword")}</Label>
                   <Input
                     id="confirm-password"
                     type="password"
@@ -231,7 +231,7 @@ export function AccountTab() {
                     onClick={handlePasswordChange}
                     disabled={passwordSaving || !newPassword || !confirmPassword || (user?.has_password && !currentPassword)}
                   >
-                    {passwordSaving ? "Saving..." : user?.has_password ? "Update Password" : "Set Password"}
+                    {passwordSaving ? t("settings.account.saving") : user?.has_password ? t("settings.account.changePassword") : t("settings.account.setPassword")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -242,7 +242,7 @@ export function AccountTab() {
                       setConfirmPassword("");
                     }}
                   >
-                    Cancel
+                    {t("settings.account.cancel")}
                   </Button>
                 </div>
               </div>
