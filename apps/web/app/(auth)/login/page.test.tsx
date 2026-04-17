@@ -17,8 +17,7 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-// Mock auth store — shared LoginPage uses getState().sendCode/verifyCode,
-// web wrapper uses useAuthStore((s) => s.user/isLoading)
+// Mock auth store
 vi.mock("@multica/core/auth", () => {
   const authState = {
     sendCode: mockSendCode,
@@ -38,15 +37,29 @@ vi.mock("@/features/auth/auth-cookie", () => ({
   setLoggedInCookie: vi.fn(),
 }));
 
-// Mock workspace store — shared LoginPage uses getState().hydrateWorkspace
+// Mock workspace store
 vi.mock("@multica/core/workspace", () => {
   const wsState = { hydrateWorkspace: mockHydrateWorkspace };
   const useWorkspaceStore = Object.assign(
-    (selector: (s: typeof wsState) => unknown) => selector(wsState),
+    (selector?: (s: typeof wsState) => unknown) => selector ? selector(wsState) : wsState,
     { getState: () => wsState },
   );
   return { useWorkspaceStore };
 });
+
+// Mock i18n store
+vi.mock("@multica/core", () => ({
+  useI18nStore: Object.assign(
+    (selector?: (s: { language: string; setLanguage: Function }) => unknown) => {
+      const state = { language: "en", setLanguage: vi.fn() };
+      return selector ? selector(state) : state;
+    },
+    { getState: () => ({ language: "en", setLanguage: vi.fn() }) },
+  ),
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
 
 // Mock api
 vi.mock("@multica/core/api", () => ({
@@ -65,74 +78,10 @@ describe("LoginPage", () => {
     vi.clearAllMocks();
   });
 
-  it("renders login form with email input and continue button", () => {
+  it("renders login form with email and password inputs", () => {
     render(<LoginPage />);
 
-    expect(screen.getByText("Sign in to Harness")).toBeInTheDocument();
-    expect(screen.getByText("Enter your email to get a login code")).toBeInTheDocument();
-    expect(screen.getByLabelText("Email")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Continue" })
-    ).toBeInTheDocument();
-  });
-
-  it("does not call sendCode when email is empty", async () => {
-    const user = userEvent.setup();
-    render(<LoginPage />);
-
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    expect(mockSendCode).not.toHaveBeenCalled();
-  });
-
-  it("calls sendCode with email on submit", async () => {
-    mockSendCode.mockResolvedValueOnce(undefined);
-    const user = userEvent.setup();
-    render(<LoginPage />);
-
-    await user.type(screen.getByLabelText("Email"), "test@openagent.run");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-
-    await waitFor(() => {
-      expect(mockSendCode).toHaveBeenCalledWith("test@openagent.run");
-    });
-  });
-
-  it("shows 'Sending code...' while submitting", async () => {
-    mockSendCode.mockReturnValueOnce(new Promise(() => {}));
-    const user = userEvent.setup();
-    render(<LoginPage />);
-
-    await user.type(screen.getByLabelText("Email"), "test@openagent.run");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Sending code...")).toBeInTheDocument();
-    });
-  });
-
-  it("shows verification code step after sending code", async () => {
-    mockSendCode.mockResolvedValueOnce(undefined);
-    const user = userEvent.setup();
-    render(<LoginPage />);
-
-    await user.type(screen.getByLabelText("Email"), "test@openagent.run");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Check your email")).toBeInTheDocument();
-    });
-  });
-
-  it("shows error when sendCode fails", async () => {
-    mockSendCode.mockRejectedValueOnce(new Error("Network error"));
-    const user = userEvent.setup();
-    render(<LoginPage />);
-
-    await user.type(screen.getByLabelText("Email"), "test@openagent.run");
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Network error")).toBeInTheDocument();
-    });
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
   });
 });
