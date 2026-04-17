@@ -232,6 +232,7 @@ export function ResetPasswordPage({ logo, token, onSuccess }: ResetPasswordPageP
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 autoFocus
                 required
               />
@@ -244,6 +245,7 @@ export function ResetPasswordPage({ logo, token, onSuccess }: ResetPasswordPageP
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
                 required
               />
             </div>

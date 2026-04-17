@@ -86,6 +86,7 @@ export function PasswordLoginPage({
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 autoFocus
                 required
               />
@@ -106,6 +107,7 @@ export function PasswordLoginPage({
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
                 required
               />
             </div>

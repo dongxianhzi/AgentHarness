@@ -89,6 +89,7 @@ export function RegisterPage({
                 placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
               />
             </div>
             <div className="space-y-2">
@@ -99,6 +100,7 @@ export function RegisterPage({
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
                 autoFocus
                 required
               />
@@ -111,6 +113,7 @@ export function RegisterPage({
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
                 required
               />
             </div>
@@ -122,6 +125,7 @@ export function RegisterPage({
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
                 required
               />
             </div>
