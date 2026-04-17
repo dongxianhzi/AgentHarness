@@ -31,6 +31,8 @@ export interface User {
   name: string;
   email: string;
   avatar_url: string | null;
+  has_password?: boolean;
+  password_change_required?: boolean;
   created_at: string;
   updated_at: string;
 }

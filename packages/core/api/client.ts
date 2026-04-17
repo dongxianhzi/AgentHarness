@@ -167,6 +167,48 @@ export class ApiClient {
     });
   }
 
+  async register(email: string, password: string, name?: string): Promise<LoginResponse> {
+    return this.fetch("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ email, password, name }),
+    });
+  }
+
+  async loginWithPassword(email: string, password: string): Promise<LoginResponse> {
+    return this.fetch("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  async requestPasswordReset(email: string): Promise<void> {
+    await this.fetch("/auth/request-reset", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    await this.fetch("/auth/reset", {
+      method: "POST",
+      body: JSON.stringify({ token, password: newPassword }),
+    });
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await this.fetch("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify({ current_password: currentPassword, password: newPassword }),
+    });
+  }
+
+  async setPassword(password: string): Promise<void> {
+    await this.fetch("/auth/set-password", {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    });
+  }
+
   async getMe(): Promise<User> {
     return this.fetch("/api/me");
   }

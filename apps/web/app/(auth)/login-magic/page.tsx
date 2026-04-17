@@ -4,21 +4,26 @@ import { Suspense, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuthStore } from "@multica/core/auth";
 import { setLoggedInCookie } from "@/features/auth/auth-cookie";
-import { PasswordLoginPage } from "@multica/views/auth";
+import { LoginPage, validateCliCallback } from "@multica/views/auth";
 
-function PasswordLoginPageContent() {
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+function LoginPageContent() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const isLoading = useAuthStore((s) => s.isLoading);
   const searchParams = useSearchParams();
 
+  const cliCallbackRaw = searchParams.get("cli_callback");
+  const cliState = searchParams.get("cli_state") || "";
   const nextUrl = searchParams.get("next") || "/issues";
 
+  // Already authenticated — redirect to dashboard (skip if CLI callback)
   useEffect(() => {
-    if (!isLoading && user) {
+    if (!isLoading && user && !cliCallbackRaw) {
       router.replace(nextUrl);
     }
-  }, [isLoading, user, router, nextUrl]);
+  }, [isLoading, user, router, nextUrl, cliCallbackRaw]);
 
   const lastWorkspaceId =
     typeof window !== "undefined"
@@ -26,9 +31,21 @@ function PasswordLoginPageContent() {
       : null;
 
   return (
-    <PasswordLoginPage
+    <LoginPage
       onSuccess={() => router.push(nextUrl)}
-      onForceChangePassword={() => router.push("/change-password")}
+      google={
+        googleClientId
+          ? {
+              clientId: googleClientId,
+              redirectUri: `${window.location.origin}/auth/callback`,
+            }
+          : undefined
+      }
+      cliCallback={
+        cliCallbackRaw && validateCliCallback(cliCallbackRaw)
+          ? { url: cliCallbackRaw, state: cliState }
+          : undefined
+      }
       lastWorkspaceId={lastWorkspaceId}
       onTokenObtained={setLoggedInCookie}
     />
@@ -38,7 +55,7 @@ function PasswordLoginPageContent() {
 export default function Page() {
   return (
     <Suspense fallback={null}>
-      <PasswordLoginPageContent />
+      <LoginPageContent />
     </Suspense>
   );
 }

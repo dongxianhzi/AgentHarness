@@ -91,6 +91,10 @@ func NewRouter(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus) chi.Route
 	r.Post("/auth/send-code", h.SendCode)
 	r.Post("/auth/verify-code", h.VerifyCode)
 	r.Post("/auth/google", h.GoogleLogin)
+	r.Post("/auth/register", h.Register)
+	r.Post("/auth/login", h.Login)
+	r.Post("/auth/request-reset", h.RequestPasswordReset)
+	r.Post("/auth/reset", h.ResetPassword)
 
 	// Daemon API routes (require daemon token or valid user token)
 	r.Route("/api/daemon", func(r chi.Router) {
@@ -126,6 +130,8 @@ func NewRouter(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus) chi.Route
 		r.Patch("/api/me", h.UpdateMe)
 		r.Post("/api/upload-file", h.UploadFile)
 		r.Post("/api/multica/cli", h.MulticaHandler)
+		r.Post("/auth/change-password", h.ChangePassword)
+		r.Post("/auth/set-password", h.SetPassword)
 
 		r.Route("/api/workspaces", func(r chi.Router) {
 			r.Get("/", h.ListWorkspaces)
